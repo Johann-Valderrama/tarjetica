@@ -8,5 +8,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // el E2E lo corre Playwright, no vitest
+    exclude: ['e2e/**', 'node_modules/**'],
   },
 })

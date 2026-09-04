@@ -27,6 +27,8 @@ Thumbs.db
 # tests
 coverage/
 test-results/
+capturas/
+.playwright/
 playwright-report/
 
 # Descriptor interno del sistema de Johann (OPS): apunta al repo PRIVADO donde vive el plan y trae

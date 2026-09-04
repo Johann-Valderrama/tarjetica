@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "verify:headers": "node scripts/verificar-headers.mjs"
+    "verify:headers": "node scripts/verificar-headers.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "next": "16.2.9",
@@ -22,6 +23,7 @@
     "zod": "4.5.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/node": "22.19.21",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",

@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  /*
+   * La direccion estetica (paleta, tipografia, tokens) es la unidad 3a de la Ola 3, y no se decide
+   * aqui. Lo que NO puede esperar a esa ola es esto: sin un fondo explicito, un navegador en modo
+   * oscuro pinta su propio fondo oscuro detras de un texto casi negro y la pagina queda ILEGIBLE.
+   * Se vio en un screenshot a 375 px, no en las mediciones: ni el desborde, ni los objetivos
+   * tactiles, ni la consola delatan un contraste roto.
+   */
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-white text-neutral-900;
+  }
+}

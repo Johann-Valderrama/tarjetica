@@ -9,6 +9,9 @@ export default function Home() {
       <h1>Tarjetica</h1>
       <p>Tu tarjeta de presentación digital, sin cuenta y sin servidor.</p>
       <p>No guardamos tus datos en ningún servidor.</p>
+      <p>
+        <a href="/editor">Crear mi tarjeta</a>
+      </p>
     </main>
   )
 }

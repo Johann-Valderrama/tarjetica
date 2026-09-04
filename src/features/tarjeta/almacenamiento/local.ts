@@ -92,6 +92,7 @@ function escribirCrudo(clave: string, dato: unknown): boolean {
   if (!almacen) return false
   try {
     almacen.setItem(clave, JSON.stringify({ v: VERSION_ALMACEN, d: dato }))
+    instantaneaValida = false
     return true
   } catch {
     // Cuota llena o almacenamiento bloqueado. Se devuelve `false` para que quien llame pueda
@@ -141,6 +142,19 @@ export function guardarFoto(foto: FotoLocal): boolean {
   return escribirCrudo(CLAVE_FOTO, validado.data)
 }
 
+/** Borra SOLO la foto. Quitar la foto no puede llevarse la tarjeta por delante. */
+export function borrarFoto(): boolean {
+  const almacen = obtenerAlmacen()
+  if (!almacen) return false
+  try {
+    almacen.removeItem(CLAVE_FOTO)
+    instantaneaValida = false
+    return true
+  } catch {
+    return false
+  }
+}
+
 /**
  * Borra TODO lo de este producto en este dispositivo (boton de la unidad 2d).
  * Quita las claves, no las deja en blanco: tras borrar, `getItem` devuelve `null`.
@@ -150,10 +164,52 @@ export function borrarTodo(): boolean {
   if (!almacen) return false
   try {
     for (const clave of CLAVES_CONOCIDAS) almacen.removeItem(clave)
+    instantaneaValida = false
     return true
   } catch {
     return false
   }
+}
+
+/**
+ * Instantanea cacheada para `useSyncExternalStore`.
+ *
+ * Existe por una razon concreta: `useSyncExternalStore` compara la instantanea por IDENTIDAD, y
+ * `leerTarjeta()` construye un objeto nuevo en cada llamada, asi que sin cache React entraria en un
+ * bucle infinito de renders. Se invalida cuando algo escribe, o cuando OTRA pestana escribe.
+ */
+let instantanea: TipoBorrador = BORRADOR_VACIO
+let instantaneaValida = false
+
+export function instantaneaTarjeta(): TipoBorrador {
+  if (!instantaneaValida) {
+    instantanea = leerTarjeta()
+    instantaneaValida = true
+  }
+  return instantanea
+}
+
+/** En el servidor no hay `localStorage`. Devolver siempre lo mismo evita el desajuste de hidratacion. */
+export function instantaneaDelServidor(): TipoBorrador {
+  return BORRADOR_VACIO
+}
+
+/**
+ * Avisa cuando el almacen cambia. El evento `storage` solo lo disparan OTRAS pestanas, que es justo
+ * el caso del equipo compartido de stand: dos pestanas abiertas sobre la misma tarjeta.
+ */
+export function suscribirAlAlmacen(alCambiar: () => void): () => void {
+  const manejar = () => {
+    instantaneaValida = false
+    alCambiar()
+  }
+  globalThis.addEventListener?.("storage", manejar)
+  return () => globalThis.removeEventListener?.("storage", manejar)
+}
+
+/** Boton de "esto ya no vale" para despues de escribir desde esta misma pestana. */
+export function invalidarInstantanea(): void {
+  instantaneaValida = false
 }
 
 /** Solo para tests y diagnostico: que claves usa este modulo. */
