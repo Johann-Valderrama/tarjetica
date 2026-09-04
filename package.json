@@ -1,0 +1,36 @@
+{
+  "name": "tarjetica",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tu tarjeta de presentacion digital. No guardamos tus datos en ningun servidor.",
+  "license": "MIT",
+  "author": "Johann Valderrama",
+  "packageManager": "pnpm@11.18.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "verify:headers": "node scripts/verificar-headers.mjs"
+  },
+  "dependencies": {
+    "next": "16.2.9",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.21",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "autoprefixer": "10.5.0",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.9",
+    "postcss": "8.5.15",
+    "tailwindcss": "3.4.19",
+    "typescript": "5.9.3",
+    "vitest": "3.2.4"
+  }
+}

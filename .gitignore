@@ -1,0 +1,27 @@
+# dependencias
+node_modules/
+.pnpm-store/
+
+# build
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# entorno (D1: esta app no tiene servidor, pero un archivo de entorno nunca se versiona)
+.env
+.env.*
+!.env.example
+
+# sistema operativo / editores
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# tests
+coverage/
+test-results/
+playwright-report/
