@@ -100,6 +100,32 @@ try {
     nonceDe(home) + ' vs ' + nonceDe(otra),
   )
 
+  // ---- 1-bis. La CSP no puede ROMPER la pagina -------------------------------------------
+  // Este bloque existe porque el 2026-09-04 los 22 asserts de arriba estaban en verde y la app NO
+  // HIDRATABA: las paginas se prerenderizaban estaticas, Next no podia inyectarles el nonce, y la
+  // CSP bloqueaba TODOS sus scripts. Una CSP correcta que tumba la app es peor que no tenerla,
+  // porque se ve igual de bien desde las cabeceras. Se comprueba sobre el HTML servido.
+  const html = await home.text()
+  const etiquetasScript = html.match(/<script\b[^>]*>/g) ?? []
+  const sinNonce = etiquetasScript.filter((e) => !/\bnonce=/.test(e))
+  comprobar(
+    'la home sirve al menos un <script> (si no, no hay nada que hidratar)',
+    etiquetasScript.length > 0,
+    'no se encontro ninguna etiqueta <script> en el HTML',
+  )
+  comprobar(
+    'TODOS los <script> del HTML llevan nonce, o la CSP los bloquea y la app no hidrata',
+    etiquetasScript.length > 0 && sinNonce.length === 0,
+    sinNonce.length + ' de ' + etiquetasScript.length + ' sin nonce. El primero: ' + (sinNonce[0] ?? ''),
+  )
+
+  // G2: la frase es EXACTA, con tildes. Reformularla o comersele los acentos es romper el gate.
+  comprobar(
+    'la home trae la frase exacta de G2, con tildes',
+    html.includes('No guardamos tus datos en ningún servidor.'),
+    'no aparece literal en el HTML de la home',
+  )
+
   // ---- 2. Referrer-Policy -----------------------------------------------------------------
   comprobar(
     'Referrer-Policy: no-referrer',
