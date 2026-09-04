@@ -55,22 +55,20 @@ export const Enlace = z.strictObject({
   e: z.string().min(1).max(30),
 })
 
-export const Cifra = z.strictObject({
-  /** valor, p.ej. "83%" o "USD 86M" */
-  v: z.string().min(1).max(12),
-  /** etiqueta */
-  e: z.string().min(1).max(30),
-})
-
-/** Capa de venta (D2). Opcional: no todo el mundo va a una conferencia a vender. */
-export const CapaVenta = z.strictObject({
-  /** titular de una linea */
-  t: z.string().max(80).optional(),
-  /** hasta 3 cifras con etiqueta */
-  c: z.array(Cifra).max(3).optional(),
-  /** pregunta de cierre */
-  p: z.string().max(120).optional(),
-})
+/**
+ * TOPES DUROS de los dos bloques de texto (D1b).
+ *
+ * No son un limite estetico: salen de un presupuesto MEDIDO. En un telefono de 375x667, despues
+ * de la cabecera, el QR a ancho completo y la firma, quedan **185 px para todo el texto, unas 9
+ * lineas**. Si el texto crece libre empuja el QR fuera de la pantalla, justo en el gesto central
+ * del producto: extender el celular para que te escaneen.
+ *
+ * CALIBRADOS midiendo, no estimando (2026-09-04). Referencia: el titular real de la tarjeta de
+ * Johann son 45 caracteres y su descripcion 88, asi que estos topes dejan holgura sin que el texto
+ * empuje el QR fuera de la pantalla. El QR ademas se encoge solo cuando el alto aprieta.
+ */
+export const TOPE_TITULAR = 60
+export const TOPE_DESCRIPCION = 160
 
 export const Tarjeta = z.strictObject({
   // identidad
@@ -107,14 +105,18 @@ export const Tarjeta = z.strictObject({
   /** direccion fisica. Lleva advertencia en el editor (unidad 2d) */
   d: z.string().max(200).optional(),
 
-  /**
-   * notas o descripcion libre. Unico campo donde cabe cualquier cosa, incluido un dato sensible
-   * del art. 5 de la Ley 1581. Lleva advertencia en el editor (unidad 2d).
-   */
-  no: z.string().max(500).optional(),
+  // los dos bloques de texto que la persona escribe sobre si misma (D1b, una sola vista)
 
-  /** capa de venta (D2), opcional */
-  s: CapaVenta.optional(),
+  /** titular: UNA frase, lo que hace. Es la linea grande de la tarjeta */
+  ti: z.string().max(TOPE_TITULAR).optional(),
+
+  /**
+   * descripcion: hasta DOS frases, por que la buscan.
+   *
+   * Es el unico campo donde cabe cualquier cosa, incluido un dato sensible del art. 5 de la Ley
+   * 1581 (salud, afiliacion, convicciones). Lleva advertencia pegada en el editor (unidad 2d).
+   */
+  de: z.string().max(TOPE_DESCRIPCION).optional(),
 })
 
 /**
@@ -131,8 +133,6 @@ export const FotoLocal = z.strictObject({
 
 export type Telefono = z.infer<typeof Telefono>
 export type Enlace = z.infer<typeof Enlace>
-export type Cifra = z.infer<typeof Cifra>
-export type CapaVenta = z.infer<typeof CapaVenta>
 export type Tarjeta = z.infer<typeof Tarjeta>
 export type FotoLocal = z.infer<typeof FotoLocal>
 

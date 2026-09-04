@@ -94,9 +94,9 @@ test.describe('2d · la confirmacion es un GATE, no un aviso', () => {
     expect(claves).not.toContain(CLAVE_FOTO)
   })
 
-  test('las advertencias de direccion y notas estan pegadas a su campo', async ({ page }) => {
+  test('las advertencias de ubicacion y texto libre estan pegadas a su campo', async ({ page }) => {
     await irAlEditorLimpio(page)
-    await expect(page.getByText(/Piensa si quieres poner tu casa/)).toBeVisible()
+    await expect(page.getByText(/piensa si quieres que sea la de tu casa/)).toBeVisible()
     await expect(page.getByText(/evita datos delicados/)).toBeVisible()
   })
 })

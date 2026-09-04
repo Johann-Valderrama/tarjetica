@@ -20,12 +20,12 @@ import {
 import { iniciales, prepararFoto } from '@/features/tarjeta/foto/cargar'
 import {
   CamposContacto,
+  CamposDeTexto,
   CamposIdentidad,
   CamposRedes,
-  CamposUbicacionYNotas,
+  CampoUbicacion,
   Etiqueta,
 } from '@/features/tarjeta/formulario/campos'
-import { CapaDeVenta } from '@/features/tarjeta/formulario/capa-venta'
 import {
   AvisoDeAlcance,
   BotonBorrarTodo,
@@ -196,10 +196,11 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
       </section>
 
       <CamposIdentidad tarjeta={tarjeta} onCambio={cambiar} />
+      <CamposDeTexto tarjeta={tarjeta} onCambio={cambiar} />
       <CamposContacto tarjeta={tarjeta} onCambio={cambiar} />
+      {/* Las redes y los enlaces NO se ven en la tarjeta (D3a): viajan dentro del vCard del QR. */}
       <CamposRedes tarjeta={tarjeta} onCambio={cambiar} />
-      <CamposUbicacionYNotas tarjeta={tarjeta} onCambio={cambiar} />
-      <CapaDeVenta tarjeta={tarjeta} onCambio={cambiar} />
+      <CampoUbicacion tarjeta={tarjeta} onCambio={cambiar} />
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-neutral-900">Compartir</h2>

@@ -6,36 +6,30 @@ import { expect, test, type Page } from '@playwright/test'
  * La app se usa de pie, en una conferencia, en el telefono del usuario. El monitor del desarrollador
  * no es el caso real, y el proyecto corre todo el E2E en Chromium movil (Pixel 7, 375 px logicos).
  *
- * Ademas del desborde y los objetivos tactiles, aqui vive el assert que protege la unidad 3b: **el
- * nodo que se exporta no puede contener ni un solo control**. Si un boton se cuela ahi, sale en el
- * `.jpeg` que el usuario regala, y nada mas lo delata: la app funciona igual de bien.
+ * Aqui viven los tres asserts que protegen decisiones, no apariencias:
+ *  - **D1b**: la tarjeta es UNA SOLA VISTA, sin selector de modos.
+ *  - **D3a**: las redes y los enlaces NO se muestran en pantalla; viajan dentro del vCard del QR.
+ *  - **3b**: el nodo que se exporta no contiene ni un solo control. Si un boton se cuela ahi, sale
+ *    en el `.jpeg` que el usuario regala, y nada mas lo delata: la app funciona igual de bien.
  */
 
 const TARJETA_LLENA = {
   n: 'Johann',
   a: 'Valderrama',
-  c: 'Agentic operations',
-  em: 'Zelandia',
+  c: 'CTO',
+  em: 'Zelandia IT Solutions',
   co: 'johann@example.com',
   t: [
-    { n: '3192480121', e: 'whatsapp' },
-    { n: '6015550000', e: 'oficina' },
+    { n: '+57 319 248 0121', e: 'whatsapp' },
+    { n: '601 555 0000', e: 'oficina' },
   ],
   w: 'https://johannvalderrama.com',
   li: 'johannvalderrama',
   ig: 'johannvn',
   l: [{ u: 'https://ejemplo.com/portafolio', e: 'Portafolio' }],
-  d: 'Bogotá, Colombia',
-  no: 'Once años dentro de operaciones reales: Project Controls, Oil & Gas y Energía.',
-  s: {
-    t: 'Recupera las horas que tu operación te quita.',
-    c: [
-      { v: '83%', e: 'menos tiempo de reporte' },
-      { v: '815', e: 'proyectos' },
-      { v: 'USD 86M', e: 'capital gestionado' },
-    ],
-    p: '¿Cuánto de ese cuello de botella vuelve a tu bolsillo?',
-  },
+  d: 'Bogotá · Colombia',
+  ti: 'Recupera las horas que tu operación te quita.',
+  de: 'Tu equipo deja el trabajo repetitivo y vuelve a lo que de verdad importa: decidir, crear.',
 }
 
 async function sembrarYAbrir(page: Page, tarjeta: unknown) {
@@ -48,71 +42,74 @@ async function sembrarYAbrir(page: Page, tarjeta: unknown) {
     [tarjeta],
   )
   await page.reload()
-  await expect(page.getByRole('tablist')).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 }
 
 test.describe('3d · superficie a 375 px', () => {
   test('la tarjeta llena no desborda y ningun control baja de 44 px', async ({ page }) => {
     await sembrarYAbrir(page, TARJETA_LLENA)
 
-    for (const modo of ['Tarjeta', 'Código QR']) {
-      await page.getByRole('tab', { name: modo }).click()
+    const medida = await page.evaluate(() => {
+      const chicos = [...document.querySelectorAll('button, select, textarea, input')]
+        .filter((e) => {
+          const r = e.getBoundingClientRect()
+          return r.height > 0 && r.height < 44
+        })
+        .map((e) => e.tagName + ' h=' + Math.round(e.getBoundingClientRect().height))
+      return {
+        desborde: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        chicos,
+      }
+    })
 
-      const medida = await page.evaluate(() => {
-        const chicos = [...document.querySelectorAll('button, select, textarea, input')]
-          .filter((e) => {
-            const r = e.getBoundingClientRect()
-            return r.height > 0 && r.height < 44
-          })
-          .map((e) => e.tagName + ' h=' + Math.round(e.getBoundingClientRect().height))
-        return {
-          desborde: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-          chicos,
-        }
-      })
+    expect(medida.desborde, 'desborde horizontal').toBe(false)
+    expect(medida.chicos, 'controles bajo 44 px').toEqual([])
+  })
 
-      expect(medida.desborde, `desborde horizontal en la vista ${modo}`).toBe(false)
-      expect(medida.chicos, `controles bajo 44 px en la vista ${modo}`).toEqual([])
-    }
+  test('D1b · es UNA SOLA VISTA: no existe ningun selector de modos', async ({ page }) => {
+    await sembrarYAbrir(page, TARJETA_LLENA)
+    const controles = await page.evaluate(() => ({
+      tablists: document.querySelectorAll('[role="tablist"]').length,
+      tabs: document.querySelectorAll('[role="tab"]').length,
+    }))
+    expect(controles.tablists).toBe(0)
+    expect(controles.tabs).toBe(0)
   })
 
   test('3b · el elemento capturable NO contiene ningun control', async ({ page }) => {
     await sembrarYAbrir(page, TARJETA_LLENA)
-
-    for (const modo of ['Tarjeta', 'Código QR']) {
-      await page.getByRole('tab', { name: modo }).click()
-      const controles = await page.evaluate(() => {
-        const nodo = document.getElementById('tarjeta-capturable')
-        if (!nodo) return ['no existe el elemento capturable']
-        return [...nodo.querySelectorAll('button, input, select, textarea, [role="tab"]')].map(
-          (e) => e.tagName,
-        )
-      })
-      expect(controles, `controles dentro del capturable en la vista ${modo}`).toEqual([])
-    }
+    const controles = await page.evaluate(() => {
+      const nodo = document.getElementById('tarjeta-capturable')
+      if (!nodo) return ['no existe el elemento capturable']
+      return [...nodo.querySelectorAll('button, input, select, textarea, a, [role="tab"]')].map(
+        (e) => e.tagName,
+      )
+    })
+    expect(controles, 'controles dentro del capturable').toEqual([])
   })
 
-  test('3a · la fila de cifras queda alineada y la etiqueta no se lee dos veces', async ({
-    page,
-  }) => {
+  test('D3a · lo que se VE y lo que se GUARDA son cosas distintas', async ({ page }) => {
     await sembrarYAbrir(page, TARJETA_LLENA)
+    const texto = await page.evaluate(
+      () => document.getElementById('tarjeta-capturable')?.innerText ?? '',
+    )
 
-    // MEDIDO antes de existir este assert: los tres bloques median 66, 51 y 98 px porque
-    // "USD 86M" se partia en dos lineas, y la fila se veia torcida. Ninguna otra comprobacion lo
-    // delataba: no hay desborde, no hay error de consola y todos los textos estan.
-    const m = await page.evaluate(() => {
-      const valores = [...document.querySelectorAll('p.font-display.text-acento')]
-      return {
-        topes: valores.map((v) => Math.round(v.getBoundingClientRect().top)),
-        alturas: valores.map((v) => Math.round(v.getBoundingClientRect().height)),
-        vecesLaEtiqueta: (document.body.innerText.match(/capital gestionado/g) ?? []).length,
-      }
-    })
+    // Lo que SI se ve: identidad, los dos bloques y UN telefono.
+    expect(texto).toContain('Johann Valderrama')
+    expect(texto).toContain('Zelandia IT Solutions')
+    expect(texto).toContain('Recupera las horas')
+    expect(texto).toContain('+57 319 248 0121')
 
-    expect(new Set(m.topes).size, 'las cifras deben arrancar todas a la misma altura').toBe(1)
-    expect(new Set(m.alturas).size, 'ninguna cifra puede partirse en dos lineas').toBe(1)
-    // El <dt class="sr-only"> duplicaba el texto visible y un lector de pantalla lo leia dos veces.
-    expect(m.vecesLaEtiqueta, 'la etiqueta de la cifra no puede aparecer dos veces').toBe(1)
+    // Lo que NO se ve, porque viaja dentro del vCard que el QR guarda en la agenda ajena.
+    for (const oculto of [
+      'johannvn', // Instagram
+      'johannvalderrama.com', // sitio web
+      'ejemplo.com/portafolio', // enlace libre
+      '601 555 0000', // el segundo telefono
+      'johann@example.com', // correo
+    ]) {
+      expect(texto, `"${oculto}" no deberia verse en pantalla`).not.toContain(oculto)
+    }
   })
 
   test('3e · la firma de marca SI esta dentro del capturable', async ({ page }) => {
@@ -121,16 +118,6 @@ test.describe('3d · superficie a 375 px', () => {
       () => document.getElementById('tarjeta-capturable')?.innerText ?? '',
     )
     expect(texto).toContain('Tarjetica')
-  })
-
-  test('el toggle esta FUERA del capturable, que es el punto de sacarlo', async ({ page }) => {
-    await sembrarYAbrir(page, TARJETA_LLENA)
-    const dentro = await page.evaluate(() => {
-      const capturable = document.getElementById('tarjeta-capturable')
-      const tablist = document.querySelector('[role="tablist"]')
-      return Boolean(capturable && tablist && capturable.contains(tablist))
-    })
-    expect(dentro).toBe(false)
   })
 
   test('la tarjeta minima (solo nombre) tambien renderiza', async ({ page }) => {

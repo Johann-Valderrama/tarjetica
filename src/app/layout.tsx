@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Fraunces, Plus_Jakarta_Sans } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 
 /**
@@ -14,19 +14,16 @@ import './globals.css'
 export const dynamic = 'force-dynamic'
 
 /**
- * Las dos fuentes de la direccion estetica (unidad 3a), AUTO-HOSPEDADAS.
+ * La fuente de la direccion estetica (unidad 3a), AUTO-HOSPEDADA.
+ *
+ * Es UNA sola familia: la referencia que Johann señalo usa una sans pesada para el nombre y el
+ * titular, no un serif. Lo que cambia entre display y texto es el PESO, no la familia.
  *
  * `next/font/google` las descarga en el BUILD y las sirve desde el mismo origen. No es una
  * preferencia de rendimiento: la CSP arranca en `default-src 'self'`, asi que un <link> a
  * fonts.googleapis.com quedaria bloqueado y el texto saldria con la fuente de respaldo **sin ningun
  * error visible**. Ademas, el criterio de exito exige cero recursos de dominios ajenos.
  */
-const display = Fraunces({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--fuente-display',
-})
-
 const texto = Plus_Jakarta_Sans({
   subsets: ['latin'],
   display: 'swap',
@@ -48,7 +45,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${display.variable} ${texto.variable}`}>
+    <html lang="es" className={texto.variable}>
       <body className="font-sans">{children}</body>
     </html>
   )

@@ -1,6 +1,11 @@
 'use client'
 
-import { ETIQUETAS_TELEFONO, type TarjetaBorrador } from '@/features/tarjeta/modelo/tarjeta'
+import {
+  ETIQUETAS_TELEFONO,
+  TOPE_DESCRIPCION,
+  TOPE_TITULAR,
+  type TarjetaBorrador,
+} from '@/features/tarjeta/modelo/tarjeta'
 import { AvisoDeCampo } from '@/features/tarjeta/formulario/avisos'
 
 /**
@@ -303,7 +308,19 @@ export function CamposRedes({ tarjeta, onCambio }: { tarjeta: TarjetaBorrador; o
   )
 }
 
-export function CamposUbicacionYNotas({
+/**
+ * Ubicacion y los DOS BLOQUES DE TEXTO (D1b).
+ *
+ * Los dos llevan **contador de caracteres visible**, no un tope silencioso. La razon no es de
+ * formulario: el tope existe para que el codigo QR no baje del pliegue en un telefono chico, y un
+ * limite que corta sin avisar se siente como que la app perdio lo que escribiste.
+ *
+ * El orden en pantalla lo recomendo el lente de conversion: pedir primero "por que te buscan", que
+ * es la frase que la gente abandona a medio llenar, y despues "que haces". Aqui el titular va
+ * primero porque es la linea grande de la tarjeta, pero el texto de ayuda de cada campo dice cual
+ * es cual, que es lo que de verdad guia.
+ */
+export function CamposDeTexto({
   tarjeta,
   onCambio,
 }: {
@@ -311,34 +328,76 @@ export function CamposUbicacionYNotas({
   onCambio: Cambio
 }) {
   return (
-    <Seccion titulo="Ubicación y descripción">
-      <CampoTexto
-        id="d"
-        etiqueta="Dirección"
-        valor={tarjeta.d}
-        onCambio={(v) => onCambio({ d: v })}
-        ayuda={
-          <AvisoDeCampo>
-            Piensa si quieres poner tu casa. Una dirección de oficina es más segura para una tarjeta
-            que vas a repartir.
-          </AvisoDeCampo>
-        }
-      />
+    <Seccion titulo="Tu tarjeta en dos frases">
       <div>
-        <Etiqueta htmlFor="no">Notas o descripción</Etiqueta>
+        <Etiqueta htmlFor="ti">Titular</Etiqueta>
+        <Entrada
+          id="ti"
+          name="ti"
+          value={tarjeta.ti ?? ''}
+          onChange={(e) => onCambio({ ti: e.target.value === '' ? undefined : e.target.value })}
+          maxLength={TOPE_TITULAR}
+          placeholder="Recupera las horas que tu operación te quita."
+        />
+        <Contador actual={tarjeta.ti?.length ?? 0} tope={TOPE_TITULAR} />
+        <p className="mt-1 text-xs text-neutral-600">Una frase: qué haces.</p>
+      </div>
+
+      <div>
+        <Etiqueta htmlFor="de">Descripción</Etiqueta>
         <textarea
-          id="no"
-          name="no"
-          rows={4}
-          value={tarjeta.no ?? ''}
-          onChange={(e) => onCambio({ no: e.target.value === '' ? undefined : e.target.value })}
+          id="de"
+          name="de"
+          rows={3}
+          value={tarjeta.de ?? ''}
+          onChange={(e) => onCambio({ de: e.target.value === '' ? undefined : e.target.value })}
+          maxLength={TOPE_DESCRIPCION}
+          placeholder="Tu equipo deja el trabajo repetitivo y vuelve a lo que importa."
           className="w-full rounded-lg border border-neutral-300 p-3 text-base focus:border-neutral-900 focus:outline-none"
         />
+        <Contador actual={tarjeta.de?.length ?? 0} tope={TOPE_DESCRIPCION} />
+        <p className="mt-1 text-xs text-neutral-600">Hasta dos frases: por qué te buscan.</p>
         <AvisoDeCampo>
           Aquí cabe cualquier cosa, así que evita datos delicados (salud, afiliaciones, creencias).
           Todo lo que escribas viaja en la tarjeta que regalas.
         </AvisoDeCampo>
       </div>
+    </Seccion>
+  )
+}
+
+/** El tope es duro por una razon de layout, asi que se muestra en vez de sorprender al usuario. */
+function Contador({ actual, tope }: { actual: number; tope: number }) {
+  const apretado = actual > tope - 15
+  return (
+    <p className={'mt-1 text-right text-xs ' + (apretado ? 'text-amber-700' : 'text-neutral-500')}>
+      {actual} / {tope}
+    </p>
+  )
+}
+
+export function CampoUbicacion({
+  tarjeta,
+  onCambio,
+}: {
+  tarjeta: TarjetaBorrador
+  onCambio: Cambio
+}) {
+  return (
+    <Seccion titulo="Ubicación">
+      <CampoTexto
+        id="d"
+        etiqueta="Ciudad"
+        valor={tarjeta.d}
+        onCambio={(v) => onCambio({ d: v })}
+        placeholder="Bogotá · Colombia"
+        ayuda={
+          <AvisoDeCampo>
+            Sale en la línea de arriba de la tarjeta. Si prefieres una dirección exacta, piensa si
+            quieres que sea la de tu casa: esta tarjeta la vas a repartir.
+          </AvisoDeCampo>
+        }
+      />
     </Seccion>
   )
 }

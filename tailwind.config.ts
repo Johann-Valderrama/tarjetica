@@ -21,8 +21,9 @@ const config: Config = {
         'acento-tenue': 'var(--acento-tenue)',
       },
       fontFamily: {
-        // Se inyectan desde `src/app/layout.tsx` con next/font, que las auto-hospeda.
-        display: ['var(--fuente-display)', 'Georgia', 'serif'],
+        // La referencia que Johann señalo usa una SANS PESADA, no un serif editorial. Se dejo de
+        // cargar Fraunces: 'display' es la misma familia del texto, y lo que cambia es el PESO.
+        display: ['var(--fuente-texto)', 'system-ui', 'sans-serif'],
         sans: ['var(--fuente-texto)', 'system-ui', 'sans-serif'],
       },
       borderRadius: {

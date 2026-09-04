@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
-  CapaVenta,
   esExportable,
   FotoLocal,
   Tarjeta,
   TarjetaBorrador,
+  TOPE_DESCRIPCION,
+  TOPE_TITULAR,
 } from '@/features/tarjeta/modelo/tarjeta'
 
 describe('Tarjeta (unidad 1c)', () => {
@@ -25,7 +26,20 @@ describe('Tarjeta (unidad 1c)', () => {
     expect(
       Tarjeta.safeParse({ n: 'J', t: [{ n: '3001234567', e: 'movil', extra: 1 }] }).success,
     ).toBe(false)
-    expect(CapaVenta.safeParse({ t: 'titular', z: 1 }).success).toBe(false)
+  })
+
+  it('D2b: el bloque de cifras ya NO existe en el contrato', () => {
+    // Se elimino tras un debate de tres lentes ortogonales: de 18 casillas posibles en 6 perfiles
+    // reales solo 6-7 se llenarian con algo util, y el bloque costaba 6 de las 9 lineas que caben.
+    expect(Tarjeta.safeParse({ n: 'J', s: { c: [{ v: '83%', e: 'x' }] } }).success).toBe(false)
+    expect(Tarjeta.safeParse({ n: 'J', no: 'notas viejas' }).success).toBe(false)
+  })
+
+  it('D1b: los dos bloques llevan TOPE DURO, de eso depende que el QR no baje del pliegue', () => {
+    expect(Tarjeta.safeParse({ n: 'J', ti: 'a'.repeat(TOPE_TITULAR) }).success).toBe(true)
+    expect(Tarjeta.safeParse({ n: 'J', ti: 'a'.repeat(TOPE_TITULAR + 1) }).success).toBe(false)
+    expect(Tarjeta.safeParse({ n: 'J', de: 'a'.repeat(TOPE_DESCRIPCION) }).success).toBe(true)
+    expect(Tarjeta.safeParse({ n: 'J', de: 'a'.repeat(TOPE_DESCRIPCION + 1) }).success).toBe(false)
   })
 
   it('G5: la foto NO cabe dentro de Tarjeta, es un tipo aparte', () => {
@@ -52,13 +66,9 @@ describe('Tarjeta (unidad 1c)', () => {
       fb: 'johann',
       li: 'johannvalderrama',
       l: [{ u: 'https://ejemplo.com/caso', e: 'Caso de exito' }],
-      d: 'Bogota, Colombia',
-      no: 'Notas libres',
-      s: {
-        t: 'Menos papel, mas eficiencia',
-        c: [{ v: '83%', e: 'ahorro' }],
-        p: '¿Cuanto tiempo pierdes retipeando contactos?',
-      },
+      d: 'Bogota · Colombia',
+      ti: 'Menos papel, mas eficiencia',
+      de: 'Tu equipo deja de retipear contactos a mano en cada conferencia.',
     }
     expect(Tarjeta.safeParse(llena).success).toBe(true)
   })
