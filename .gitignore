@@ -25,3 +25,7 @@ Thumbs.db
 coverage/
 test-results/
 playwright-report/
+
+# Descriptor interno del sistema de Johann (OPS): apunta al repo PRIVADO donde vive el plan y trae
+# rutas de su maquina. No pertenece a este repo publico.
+_PROYECTO.md
