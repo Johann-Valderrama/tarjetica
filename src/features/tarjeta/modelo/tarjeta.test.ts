@@ -10,7 +10,7 @@ import {
 
 describe('Tarjeta (unidad 1c)', () => {
   it('acepta la tarjeta minima: solo nombre', () => {
-    expect(Tarjeta.safeParse({ n: 'Johann' }).success).toBe(true)
+    expect(Tarjeta.safeParse({ n: 'Daniel' }).success).toBe(true)
   })
 
   it('rechaza una tarjeta sin nombre, que es el unico campo obligatorio', () => {
@@ -19,7 +19,7 @@ describe('Tarjeta (unidad 1c)', () => {
   })
 
   it('rechaza una clave desconocida en vez de ignorarla en silencio', () => {
-    expect(Tarjeta.safeParse({ n: 'Johann', xx: 'colada' }).success).toBe(false)
+    expect(Tarjeta.safeParse({ n: 'Daniel', xx: 'colada' }).success).toBe(false)
   })
 
   it('rechaza una clave desconocida tambien en los objetos anidados', () => {
@@ -43,7 +43,7 @@ describe('Tarjeta (unidad 1c)', () => {
   })
 
   it('G5: la foto NO cabe dentro de Tarjeta, es un tipo aparte', () => {
-    const conFoto = { n: 'Johann', dataUrl: 'data:image/jpeg;base64,AAAA' }
+    const conFoto = { n: 'Daniel', dataUrl: 'data:image/jpeg;base64,AAAA' }
     expect(Tarjeta.safeParse(conFoto).success).toBe(false)
     expect(FotoLocal.safeParse({ dataUrl: 'data:image/jpeg;base64,AAAA' }).success).toBe(true)
     expect(FotoLocal.safeParse({ dataUrl: 'https://ajeno/foto.jpg' }).success).toBe(false)
@@ -51,20 +51,20 @@ describe('Tarjeta (unidad 1c)', () => {
 
   it('acepta la tarjeta llena, con capa de venta', () => {
     const llena = {
-      n: 'Johann',
-      a: 'Valderrama',
+      n: 'Daniel',
+      a: 'Restrepo',
       c: 'Project Controls',
-      em: 'Zelandia',
-      co: 'johann@example.com',
+      em: 'Norte Soluciones',
+      co: 'daniel@ejemplo.com',
       t: [
         { n: '3001234567', e: 'movil' },
         { n: '3007654321', e: 'whatsapp' },
       ],
-      w: 'https://johannvalderrama.com',
+      w: 'https://danielrestrepo.example',
       ig: 'johann',
       tk: 'johann',
       fb: 'johann',
-      li: 'johannvalderrama',
+      li: 'danielrestrepo',
       l: [{ u: 'https://ejemplo.com/caso', e: 'Caso de exito' }],
       d: 'Bogota · Colombia',
       ti: 'Menos papel, mas eficiencia',
@@ -117,6 +117,6 @@ describe('TarjetaBorrador (lo que se guarda mientras se escribe)', () => {
 
   it('esExportable separa el borrador del contrato de salida', () => {
     expect(esExportable({})).toBe(false)
-    expect(esExportable({ n: 'Johann' })).toBe(true)
+    expect(esExportable({ n: 'Daniel' })).toBe(true)
   })
 })

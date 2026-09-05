@@ -30,35 +30,35 @@ test.describe('2c · autosave e hidratacion', () => {
   test('lo que escribo sigue ahi despues de recargar', async ({ page }) => {
     await irAlEditorLimpio(page)
 
-    await page.fill('#n', 'Johann')
-    await page.fill('#a', 'Valderrama')
-    await page.fill('#co', 'johann@example.com')
+    await page.fill('#n', 'Daniel')
+    await page.fill('#a', 'Restrepo')
+    await page.fill('#co', 'daniel@ejemplo.com')
     await expect(page.getByTestId('estado-guardado')).toHaveText('Guardado en este dispositivo')
 
     await page.reload()
 
-    await expect(page.locator('#n')).toHaveValue('Johann')
-    await expect(page.locator('#a')).toHaveValue('Valderrama')
-    await expect(page.locator('#co')).toHaveValue('johann@example.com')
+    await expect(page.locator('#n')).toHaveValue('Daniel')
+    await expect(page.locator('#a')).toHaveValue('Restrepo')
+    await expect(page.locator('#co')).toHaveValue('daniel@ejemplo.com')
   })
 
   test('no pisa lo guardado con un borrador vacio antes de hidratar', async ({ page }) => {
     await irAlEditorLimpio(page)
-    await page.fill('#n', 'Johann')
+    await page.fill('#n', 'Daniel')
     await expect(page.getByTestId('estado-guardado')).toHaveText('Guardado en este dispositivo')
 
     // Se recarga y se lee el disco INMEDIATAMENTE, sin esperar: si el primer autosave corriera
     // antes de hidratar, aqui ya no quedaria nada.
     await page.reload()
     const guardado = await page.evaluate((k) => localStorage.getItem(k), CLAVE_TARJETA)
-    expect(guardado).toContain('Johann')
+    expect(guardado).toContain('Daniel')
   })
 
   test('el monograma sale de las iniciales cuando no hay foto', async ({ page }) => {
     await irAlEditorLimpio(page)
-    await page.fill('#n', 'Johann')
-    await page.fill('#a', 'Valderrama')
-    await expect(page.getByTestId('monograma')).toHaveText('JV')
+    await page.fill('#n', 'Daniel')
+    await page.fill('#a', 'Restrepo')
+    await expect(page.getByTestId('monograma')).toHaveText('DR')
   })
 })
 
@@ -69,7 +69,7 @@ test.describe('2d · la confirmacion es un GATE, no un aviso', () => {
     // Sin nombre no hay nada que exportar.
     await expect(page.getByTestId('exportar-jpeg')).toBeDisabled()
 
-    await page.fill('#n', 'Johann')
+    await page.fill('#n', 'Daniel')
     // Con nombre pero SIN confirmar, sigue bloqueado. Este es el assert que justifica la unidad.
     await expect(page.getByTestId('exportar-jpeg')).toBeDisabled()
     await expect(page.getByTestId('mostrar-qr')).toBeDisabled()
@@ -81,7 +81,7 @@ test.describe('2d · la confirmacion es un GATE, no un aviso', () => {
 
   test('borrar deja el editor vacio y la clave SIN RASTRO', async ({ page }) => {
     await irAlEditorLimpio(page)
-    await page.fill('#n', 'Johann')
+    await page.fill('#n', 'Daniel')
     await expect(page.getByTestId('estado-guardado')).toHaveText('Guardado en este dispositivo')
 
     await page.getByRole('button', { name: 'Borrar mis datos de este dispositivo' }).click()
@@ -156,7 +156,7 @@ test.describe('2e · la foto se reduce ANTES de guardar', () => {
 
   test('la foto NO entra en la clave de la tarjeta', async ({ page }) => {
     await irAlEditorLimpio(page)
-    await page.fill('#n', 'Johann')
+    await page.fill('#n', 'Daniel')
     await expect(page.getByTestId('estado-guardado')).toHaveText('Guardado en este dispositivo')
 
     const tarjeta = await page.evaluate((k) => localStorage.getItem(k), CLAVE_TARJETA)

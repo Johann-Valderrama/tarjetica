@@ -16,7 +16,7 @@ import { PERFILES } from './perfiles.datos'
  * Lo de aqui es el filtro de "no esta vacia", no el de "esta bien".
  */
 
-const PERFIL = PERFILES.find((p) => p.nombre === 'johann')!
+const PERFIL = PERFILES.find((p) => p.nombre === 'completo')!
 
 /**
  * Siembra una tarjeta CONFIRMADA y abre el editor, que es desde donde se exporta.
@@ -154,7 +154,7 @@ test.describe('el .jpeg exportado', () => {
 
     const leido = jsQR(new Uint8ClampedArray(rgba.datos), rgba.ancho, rgba.alto)
     expect(leido?.data, 'el QR del .jpeg no se pudo decodificar').toContain('BEGIN:VCARD')
-    expect(leido!.data).toContain('Johann Valderrama')
+    expect(leido!.data).toContain('Daniel Restrepo')
   })
 
   test('la firma de marca SI aparece en la imagen, y ningun control', async ({ page }) => {

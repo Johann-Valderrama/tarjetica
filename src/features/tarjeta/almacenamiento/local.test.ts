@@ -43,8 +43,8 @@ afterEach(() => {
 describe('almacenamiento local (unidad 1d)', () => {
   it('guarda y vuelve a leer la misma tarjeta', () => {
     instalar(almacenFalso())
-    expect(guardarTarjeta({ n: 'Johann', co: 'j@example.com' })).toBe(true)
-    expect(leerTarjeta()).toEqual({ n: 'Johann', co: 'j@example.com' })
+    expect(guardarTarjeta({ n: 'Daniel', co: 'j@example.com' })).toBe(true)
+    expect(leerTarjeta()).toEqual({ n: 'Daniel', co: 'j@example.com' })
   })
 
   it('sin nada guardado devuelve borrador vacio, no lanza', () => {
@@ -60,13 +60,13 @@ describe('almacenamiento local (unidad 1d)', () => {
   })
 
   it('con una version vieja descarta el dato en vez de adivinar su forma', () => {
-    instalar(almacenFalso({ [CLAVES.tarjeta]: JSON.stringify({ v: 0, d: { n: 'Johann' } }) }))
+    instalar(almacenFalso({ [CLAVES.tarjeta]: JSON.stringify({ v: 0, d: { n: 'Daniel' } }) }))
     expect(leerTarjeta()).toEqual({})
     expect(leerTarjetaDetallado().motivo).toBe('version-desconocida')
   })
 
   it('con datos que ya no cumplen el contrato devuelve borrador vacio', () => {
-    const guardado = JSON.stringify({ v: VERSION_ALMACEN, d: { n: 'Johann', campoQueYaNoExiste: 1 } })
+    const guardado = JSON.stringify({ v: VERSION_ALMACEN, d: { n: 'Daniel', campoQueYaNoExiste: 1 } })
     instalar(almacenFalso({ [CLAVES.tarjeta]: guardado }))
     expect(leerTarjeta()).toEqual({})
     expect(leerTarjetaDetallado().motivo).toBe('datos-invalidos')
@@ -93,26 +93,26 @@ describe('almacenamiento local (unidad 1d)', () => {
       },
       removeItem: () => {},
     })
-    expect(guardarTarjeta({ n: 'Johann' })).toBe(false)
+    expect(guardarTarjeta({ n: 'Daniel' })).toBe(false)
   })
 
   it('sin localStorage (SSR, modo privado extremo) no lanza y no guarda', () => {
     instalar(undefined)
     expect(leerTarjeta()).toEqual({})
-    expect(guardarTarjeta({ n: 'Johann' })).toBe(false)
+    expect(guardarTarjeta({ n: 'Daniel' })).toBe(false)
     expect(borrarTodo()).toBe(false)
   })
 
   it('no guarda un borrador con una clave desconocida', () => {
     instalar(almacenFalso())
     // @ts-expect-error se prueba justo el caso que el tipo prohibe
-    expect(guardarTarjeta({ n: 'Johann', colada: 1 })).toBe(false)
+    expect(guardarTarjeta({ n: 'Daniel', colada: 1 })).toBe(false)
   })
 
   it('la foto vive en su propia clave, aparte de la tarjeta', () => {
     const almacen = almacenFalso()
     instalar(almacen)
-    guardarTarjeta({ n: 'Johann' })
+    guardarTarjeta({ n: 'Daniel' })
     guardarFoto({ dataUrl: 'data:image/jpeg;base64,AAAA' })
     expect(leerFoto()).toEqual({ dataUrl: 'data:image/jpeg;base64,AAAA' })
     expect(almacen._datos.get(CLAVES.tarjeta)).not.toContain('data:image/jpeg')
@@ -121,7 +121,7 @@ describe('almacenamiento local (unidad 1d)', () => {
   it('borrar deja las claves SIN RASTRO, no en blanco', () => {
     const almacen = almacenFalso()
     instalar(almacen)
-    guardarTarjeta({ n: 'Johann' })
+    guardarTarjeta({ n: 'Daniel' })
     guardarFoto({ dataUrl: 'data:image/jpeg;base64,AAAA' })
     expect(borrarTodo()).toBe(true)
     expect(almacen.getItem(CLAVES.tarjeta)).toBeNull()

@@ -14,17 +14,17 @@ import { expect, test, type Page } from '@playwright/test'
  */
 
 const TARJETA_LLENA = {
-  n: 'Johann',
-  a: 'Valderrama',
+  n: 'Daniel',
+  a: 'Restrepo',
   c: 'CTO',
-  em: 'Zelandia IT Solutions',
-  co: 'johann@example.com',
+  em: 'Norte Soluciones TI',
+  co: 'daniel@ejemplo.com',
   t: [
-    { n: '+57 319 248 0121', e: 'whatsapp' },
+    { n: '+57 300 123 4567', e: 'whatsapp' },
     { n: '601 555 0000', e: 'oficina' },
   ],
-  w: 'https://johannvalderrama.com',
-  li: 'johannvalderrama',
+  w: 'https://danielrestrepo.example',
+  li: 'danielrestrepo',
   ig: 'johannvn',
   l: [{ u: 'https://ejemplo.com/portafolio', e: 'Portafolio' }],
   d: 'Bogotá · Colombia',
@@ -95,18 +95,18 @@ test.describe('3d · superficie a 375 px', () => {
     )
 
     // Lo que SI se ve: identidad, los dos bloques y UN telefono.
-    expect(texto).toContain('Johann Valderrama')
-    expect(texto).toContain('Zelandia IT Solutions')
+    expect(texto).toContain('Daniel Restrepo')
+    expect(texto).toContain('Norte Soluciones TI')
     expect(texto).toContain('Recupera las horas')
-    expect(texto).toContain('+57 319 248 0121')
+    expect(texto).toContain('+57 300 123 4567')
 
     // Lo que NO se ve, porque viaja dentro del vCard que el QR guarda en la agenda ajena.
     for (const oculto of [
       'johannvn', // Instagram
-      'johannvalderrama.com', // sitio web
+      'danielrestrepo.example', // sitio web
       'ejemplo.com/portafolio', // enlace libre
       '601 555 0000', // el segundo telefono
-      'johann@example.com', // correo
+      'daniel@ejemplo.com', // correo
     ]) {
       expect(texto, `"${oculto}" no deberia verse en pantalla`).not.toContain(oculto)
     }

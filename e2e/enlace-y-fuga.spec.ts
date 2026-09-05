@@ -16,7 +16,7 @@ import { PERFILES } from './perfiles.datos'
  *    en su telefono, sin consola donde mirar.
  */
 
-const PERFIL = PERFILES.find((p) => p.nombre === 'johann')!
+const PERFIL = PERFILES.find((p) => p.nombre === 'completo')!
 
 /** Genera el enlace con el MISMO codigo que usa la app, desde el editor. */
 async function generarEnlace(page: import('@playwright/test').Page, datos: unknown): Promise<string> {
@@ -104,7 +104,7 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
     expect(enlace).not.toContain('?')
 
     await page.goto(enlace)
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Johann Valderrama')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Daniel Restrepo')
     await expect(page.getByTestId('qr-contacto')).toBeVisible()
   })
 
@@ -114,7 +114,7 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
 
     // Se pide la ruta PELADA, que es lo unico que el servidor llega a ver.
     const html = await (await request.get('/t')).text()
-    for (const dato of ['Johann', 'Valderrama', 'Zelandia', '319 248 0121']) {
+    for (const dato of ['Daniel', 'Restrepo', 'Norte Soluciones', '300 123 4567']) {
       expect(html, `el HTML del servidor trae "${dato}"`).not.toContain(dato)
     }
     expect(html, 'el HTML del servidor trae el payload').not.toContain(fragmento)
