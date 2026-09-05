@@ -34,8 +34,8 @@ export function VistaTarjeta({
   qr?: React.ReactNode
 }) {
   return (
-    <div className="mx-auto w-full max-w-md p-3">
-      <article id={ID_CAPTURABLE} data-capturable className="tarjeta-superficie rounded-tarjeta p-4">
+    <div className="mx-auto flex h-[100dvh] w-full max-w-md flex-col overflow-hidden p-3">
+      <article id={ID_CAPTURABLE} data-capturable className="tarjeta-superficie flex min-h-0 flex-1 flex-col overflow-hidden rounded-tarjeta p-4">
         <Ubicacion ciudad={tarjeta.d} />
         <Encabezado tarjeta={tarjeta} fotoDataUrl={fotoDataUrl} />
         <Discurso tarjeta={tarjeta} />
@@ -114,15 +114,23 @@ function BloqueDelQr({ tarjeta, qr }: { tarjeta: Tarjeta; qr?: React.ReactNode }
   const telefono = tarjeta.t?.[0]
 
   return (
-    <section className="mt-5 space-y-2">
+    <section className="mt-5 flex min-h-0 flex-1 flex-col justify-center gap-2">
       <p className="text-center text-xs text-tinta-suave">Escanea para guardarme en tus contactos</p>
       {/*
-        El QR responde al ALTO disponible, no solo al ancho. MEDIDO: con tamaño fijo a ancho
-        completo, en un telefono de 375x667 terminaba 49 px por debajo del pliegue incluso con
-        textos cortos, y el gesto central del producto pasaba a exigir scroll. En pantallas altas
-        sigue ocupando el ancho completo, que es donde la densidad importa.
+        **La tarjeta cabe en UNA SOLA VISUAL por construccion, no por calibracion.** Es el requisito
+        que Johann marco como principal y no negociable, asi que no puede depender de que los topes
+        de caracteres esten bien ajustados: el QR ABSORBE la holgura y es un cuadrado del alto que
+        sobre, sea el que sea. Si el texto crece, el QR se encoge; nunca aparece scroll.
+
+        Se mide contra `100dvh` y no `100vh` a proposito: en un telefono real la barra del navegador
+        se come ~90 px que `vh` ignora, asi que con `vh` la tarjeta "cabe" en la medicion y se sale
+        en la mano del usuario.
+
+        El limite de este mecanismo esta en la densidad, no en el layout: por debajo de unos 243 px
+        de codigo, un vCard completo cae bajo el piso de lectura de 2,5 px por cuadrito. Lo vigila
+        `scripts/medir-densidad-qr.mjs`.
       */}
-      <div className="mx-auto flex aspect-square w-full max-w-[min(100%,40vh)] items-center justify-center rounded-bloque bg-white p-3">
+      <div className="mx-auto flex aspect-square h-full max-h-full w-auto max-w-full items-center justify-center rounded-bloque bg-white p-3">
         {qr ?? (
           <span className="px-6 text-center text-xs text-neutral-500">
             El código QR se construye en la Ola 4 del plan.
