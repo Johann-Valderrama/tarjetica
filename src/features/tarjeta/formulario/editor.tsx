@@ -33,6 +33,7 @@ import { descargarVCard } from '@/features/tarjeta/vcard/descargar'
 import { dataUrlABlob, nombreDeImagen, tarjetaAJpeg } from '@/features/tarjeta/exportar/a-imagen'
 import { guardarImagen } from '@/features/tarjeta/exportar/guardar'
 import { LienzoOculto } from '@/features/tarjeta/exportar/lienzo-oculto'
+import { GenerarEnlace } from '@/features/tarjeta/enlace/generar-enlace'
 import { medirDensidad, textoDelAviso } from '@/features/tarjeta/qr/densidad'
 import {
   AvisoDeAlcance,
@@ -326,6 +327,13 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
           sale de este dispositivo.
         </p>
       </section>
+
+      {/*
+        El enlace va DESPUES de las dos salidas principales y en su propio bloque, no como un tercer
+        boton al lado: es opcional, tiene efecto hacia afuera y no se puede revocar. Se ofrece
+        visible (invisible = no existe) pero nace apagado.
+      */}
+      <GenerarEnlace tarjeta={esExportable(tarjeta) ? tarjeta : null} habilitado={listaParaExportar} />
 
       <LimitesDelProducto />
 
