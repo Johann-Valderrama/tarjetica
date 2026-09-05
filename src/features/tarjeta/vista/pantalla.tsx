@@ -49,6 +49,15 @@ export function PantallaTarjeta() {
 
   // El QR se pasa como hijo y no lo construye la vista: asi la vista sigue siendo una funcion del
   // dato, y la Ola 5 puede capturarla sin arrastrar la logica de generacion del codigo.
+  /**
+   * Esta pantalla NO lleva ningun control, ni siquiera fuera del elemento capturable.
+   *
+   * Se intento una barra flotante para guardar la imagen y se descarto MIDIENDO: tapaba el telefono
+   * y la firma al pie. Ponerla en el flujo tampoco servia, porque le quitaria unos 60 px al QR, que
+   * es justo lo que no sobra (en un iPhone SE con la tarjeta llena el codigo ya va en 2,55 px por
+   * cuadrito, sobre el piso de 2,5 pero sin holgura). Esta pantalla existe para extenderle el
+   * telefono a otra persona: se queda limpia, y las salidas viven en el editor.
+   */
   return (
     <VistaTarjeta
       tarjeta={borrador}

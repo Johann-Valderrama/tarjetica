@@ -27,19 +27,36 @@ export function VistaTarjeta({
   tarjeta,
   fotoDataUrl,
   qr,
+  dimension,
 }: {
   tarjeta: Tarjeta
   fotoDataUrl?: string
-  /** El codigo QR lo construye la Ola 4. Aqui se le reserva su teja blanca al tamaño final. */
+  /** El codigo QR. Se pasa como hijo para que la vista siga siendo una funcion del dato. */
   qr?: React.ReactNode
+  /**
+   * ANCHO fijo en pixeles. Solo lo usa el montaje fuera de pantalla del que sale el `.jpeg`
+   * (Ola 5), para que la imagen exportada mida siempre lo mismo y no dependa de la ventana de quien
+   * la genera: en un monitor, `100dvh` daria una tarjeta larguisima que en un telefono se ve rara.
+   *
+   * **Se fija el ancho y NO el alto, a proposito.** Una PANTALLA tiene un alto que hay que respetar,
+   * y por eso ahi el QR absorbe la holgura. Una IMAGEN no tiene viewport: forzarle un alto de
+   * telefono deja huecos vacios arriba y abajo del codigo cuando el texto es corto (medido: 160 px
+   * de vacio con el perfil de Johann a 390x844). Con el alto segun contenido, la tarjeta mide lo
+   * que mide y no le sobra nada.
+   */
+  dimension?: { ancho: number }
 }) {
+  const paraImagen = dimension !== undefined
   return (
-    <div className="mx-auto flex h-[100dvh] w-full max-w-md flex-col overflow-hidden p-3">
+    <div
+      className="mx-auto flex w-full max-w-md flex-col overflow-hidden p-3"
+      style={dimension ? { width: dimension.ancho, maxWidth: 'none' } : { height: '100dvh' }}
+    >
       <article id={ID_CAPTURABLE} data-capturable className="tarjeta-superficie flex min-h-0 flex-1 flex-col overflow-hidden rounded-tarjeta p-4">
         <Ubicacion ciudad={tarjeta.d} />
         <Encabezado tarjeta={tarjeta} fotoDataUrl={fotoDataUrl} />
         <Discurso tarjeta={tarjeta} />
-        <BloqueDelQr tarjeta={tarjeta} qr={qr} />
+        <BloqueDelQr tarjeta={tarjeta} qr={qr} paraImagen={paraImagen} />
         <FirmaDeMarca />
       </article>
     </div>
@@ -110,11 +127,20 @@ function Discurso({ tarjeta }: { tarjeta: Tarjeta }) {
  * El telefono queda VISIBLE debajo a proposito: es el respaldo si la camara falla, y es el unico
  * dato de contacto que se muestra en pantalla.
  */
-function BloqueDelQr({ tarjeta, qr }: { tarjeta: Tarjeta; qr?: React.ReactNode }) {
+function BloqueDelQr({
+  tarjeta,
+  qr,
+  paraImagen,
+}: {
+  tarjeta: Tarjeta
+  qr?: React.ReactNode
+  /** En una imagen no hay alto que respetar: el codigo se dimensiona solo por el ancho. */
+  paraImagen: boolean
+}) {
   const telefono = tarjeta.t?.[0]
 
   return (
-    <section className="mt-4 flex min-h-0 flex-1 flex-col justify-center gap-1">
+    <section className={`mt-4 flex flex-col gap-1 ${paraImagen ? '' : 'min-h-0 flex-1 justify-center'}`}>
       <p className="text-center text-xs text-tinta-suave">Escanea para guardarme en tus contactos</p>
       {/*
         **La tarjeta cabe en UNA SOLA VISUAL por construccion, no por calibracion.** Es el requisito
@@ -136,12 +162,32 @@ function BloqueDelQr({ tarjeta, qr }: { tarjeta: Tarjeta; qr?: React.ReactNode }
         assert lo delataba, porque no habia scroll y el QR seguia siendo grande. Con `flex-1` la
         teja se queda con lo que sobra despues del texto, que es lo que siempre se quiso decir.
       */}
-      <div className="mx-auto flex aspect-square min-h-0 w-auto max-w-full flex-1 items-center justify-center rounded-bloque bg-white p-2">
+      {/*
+        La teja es un CUADRADO del lado menor entre lo ancho y lo alto que queda. Se resuelve con
+        container queries (`min(100cqw, 100cqh)`) y no con `aspect-square`, que aqui no alcanza: con
+        `h-full` la teja valia el alto entero y el pie se salia; con `aspect-square` mas `max-w-full`
+        el navegador recorta el ancho y NO recalcula el alto, asi que en un telefono alto quedaba de
+        356x533 con 177 px de blanco sobrante arriba y abajo. `min()` de las dos medidas del
+        contenedor es la unica forma de decir "el lado que quepa por los dos ejes".
+      */}
+      <div
+        className={
+          paraImagen
+            ? 'flex items-center justify-center'
+            : 'flex min-h-0 flex-1 items-center justify-center [container-type:size]'
+        }
+      >
+        <div
+          className={`flex items-center justify-center rounded-bloque bg-white p-2 ${
+            paraImagen ? 'aspect-square w-full' : 'h-[min(100cqw,100cqh)] w-[min(100cqw,100cqh)]'
+          }`}
+        >
         {qr ?? (
           <span className="px-6 text-center text-xs text-neutral-500">
             El código QR se construye en la Ola 4 del plan.
           </span>
         )}
+        </div>
       </div>
       {telefono && <p className="text-center text-base tracking-wide text-tinta">{telefono.n}</p>}
     </section>

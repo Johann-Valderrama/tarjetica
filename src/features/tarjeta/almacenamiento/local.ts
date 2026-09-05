@@ -22,9 +22,19 @@ import {
 
 const CLAVE_TARJETA = 'tarjetica.tarjeta'
 const CLAVE_FOTO = 'tarjetica.foto'
+/**
+ * La confirmacion de "esta tarjeta es mia" (unidad 2d). Se PERSISTE, no vive en el estado de un
+ * componente, porque es la puerta de las exportaciones y esas ocurren en DOS pantallas: el `.vcf`
+ * en el editor y el `.jpeg` en la vista de la tarjeta, que es donde esta el elemento que se captura.
+ * Sin persistirla, pasar de una a otra la perderia y la puerta se abriria sola.
+ *
+ * Es una afirmacion sobre la TARJETA ("es mia"), no un acto de sesion, asi que persistirla en el
+ * dispositivo es lo coherente. Y el boton de borrar se la lleva junto con todo lo demas.
+ */
+const CLAVE_CONFIRMACION = 'tarjetica.confirmacion'
 
 /** Todas las claves que este producto ha usado alguna vez. El borrado las barre TODAS. */
-const CLAVES_CONOCIDAS = [CLAVE_TARJETA, CLAVE_FOTO] as const
+const CLAVES_CONOCIDAS = [CLAVE_TARJETA, CLAVE_FOTO, CLAVE_CONFIRMACION] as const
 
 /** Version del formato guardado. Sube cuando el envoltorio cambie de forma incompatible. */
 export const VERSION_ALMACEN = 1
@@ -169,6 +179,17 @@ export function borrarTodo(): boolean {
   } catch {
     return false
   }
+}
+
+/** ¿La persona confirmo que la tarjeta es suya? Puerta de TODAS las exportaciones. */
+export function leerConfirmacion(): boolean {
+  const crudo = leerCrudo(CLAVE_CONFIRMACION)
+  return crudo.ok && crudo.valor === true
+}
+
+/** Guarda (o retira) esa confirmacion. */
+export function guardarConfirmacion(confirmado: boolean): boolean {
+  return escribirCrudo(CLAVE_CONFIRMACION, confirmado === true)
 }
 
 /**

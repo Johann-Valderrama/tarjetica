@@ -16,6 +16,8 @@ import {
   suscribirAlAlmacen,
   guardarFoto,
   guardarTarjeta,
+  guardarConfirmacion,
+  leerConfirmacion,
   leerFoto,
 } from '@/features/tarjeta/almacenamiento/local'
 import { iniciales, prepararFoto } from '@/features/tarjeta/foto/cargar'
@@ -28,6 +30,9 @@ import {
   Etiqueta,
 } from '@/features/tarjeta/formulario/campos'
 import { descargarVCard } from '@/features/tarjeta/vcard/descargar'
+import { dataUrlABlob, nombreDeImagen, tarjetaAJpeg } from '@/features/tarjeta/exportar/a-imagen'
+import { guardarImagen } from '@/features/tarjeta/exportar/guardar'
+import { LienzoOculto } from '@/features/tarjeta/exportar/lienzo-oculto'
 import { medirDensidad, textoDelAviso } from '@/features/tarjeta/qr/densidad'
 import {
   AvisoDeAlcance,
@@ -88,10 +93,13 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   const router = useRouter()
   const [tarjeta, setTarjeta] = useState<TarjetaBorrador>(inicial)
   const [foto, setFoto] = useState<FotoLocal | null>(() => leerFoto())
-  const [confirmado, setConfirmado] = useState(false)
+  // Se siembra de lo guardado: la puerta de exportacion vive en dos pantallas (el `.vcf` aqui,
+  // el `.jpeg` en la vista de la tarjeta), asi que la confirmacion tiene que sobrevivir al salto.
+  const [confirmado, setConfirmado] = useState(() => leerConfirmacion())
   const [guardado, setGuardado] = useState<EstadoGuardado>('inicial')
   const [avisoFoto, setAvisoFoto] = useState<string | null>(null)
   const [avisoDescarga, setAvisoDescarga] = useState<string | null>(null)
+  const [exportando, setExportando] = useState(false)
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // El autosave: solo ESCRIBE, no toca estado de React de forma sincrona. El "Guardando..." lo
@@ -135,7 +143,35 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
     setTarjeta(BORRADOR_VACIO)
     setFoto(null)
     setConfirmado(false)
+    guardarConfirmacion(false)
     setGuardado('inicial')
+  }
+
+  /**
+   * Guarda la tarjeta como `.jpeg`. Captura el lienzo OCULTO de abajo, no esta pantalla: la imagen
+   * que se regala es la tarjeta, no el formulario.
+   */
+  const exportarImagen = async () => {
+    if (!esExportable(tarjeta)) return
+    setAvisoDescarga(null)
+    setExportando(true)
+    try {
+      const imagen = await tarjetaAJpeg()
+      if (!imagen.ok) {
+        setAvisoDescarga('No se pudo crear la imagen en este navegador.')
+        return
+      }
+      const archivo = new File([dataUrlABlob(imagen.dataUrl)], nombreDeImagen(tarjeta.n, tarjeta.a), {
+        type: 'image/jpeg',
+      })
+      const resultado = await guardarImagen(archivo)
+      // Que el usuario cierre la hoja del sistema no es un error: no se le muestra nada.
+      if (!resultado.ok && resultado.motivo !== 'cancelado') {
+        setAvisoDescarga('No se pudo guardar la imagen.')
+      }
+    } finally {
+      setExportando(false)
+    }
   }
 
   const listaParaExportar = esExportable(tarjeta) && puedeExportar(confirmado)
@@ -222,15 +258,22 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-neutral-900">Compartir</h2>
-        <ConfirmacionDeExportacion confirmado={confirmado} onCambio={setConfirmado} />
+        <ConfirmacionDeExportacion
+          confirmado={confirmado}
+          onCambio={(v) => {
+            setConfirmado(v)
+            guardarConfirmacion(v)
+          }}
+        />
         <div className="grid gap-2">
           <button
             type="button"
             data-testid="exportar-jpeg"
-            disabled={!listaParaExportar}
+            disabled={!listaParaExportar || exportando}
+            onClick={() => void exportarImagen()}
             className="min-h-11 rounded-lg bg-neutral-900 px-4 font-medium text-white disabled:cursor-not-allowed disabled:bg-neutral-300"
           >
-            Guardar como imagen
+            {exportando ? 'Creando la imagen…' : 'Guardar como imagen'}
           </button>
           <button
             type="button"
@@ -279,12 +322,18 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
           </p>
         )}
         <p className="text-xs text-neutral-500">
-          El código QR y el archivo de contacto ya funcionan. Guardar como imagen se construye en la
-          siguiente ola del plan.
+          La imagen sale del tamaño de un teléfono, con tu código QR adentro. Se crea aquí mismo: no
+          sale de este dispositivo.
         </p>
       </section>
 
       <LimitesDelProducto />
+
+      {/*
+        La tarjeta montada fuera de pantalla, de donde sale el `.jpeg`. Solo existe cuando ya hay
+        algo que exportar: montarla siempre pintaria un QR en cada tecleo.
+      */}
+      {esExportable(tarjeta) && <LienzoOculto tarjeta={tarjeta} fotoDataUrl={foto?.dataUrl} />}
 
       <section className="space-y-2">
         <BotonBorrarTodo onBorrar={alBorrar} />
