@@ -10,6 +10,7 @@ import {
   suscribirAlAlmacen,
 } from '@/features/tarjeta/almacenamiento/local'
 import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
+import { QrDeContacto } from '@/features/tarjeta/qr/qr-cliente'
 
 /**
  * Cablea la vista de la Ola 3 con lo que guardo el editor de la Ola 2. Mismo patron que el editor:
@@ -46,7 +47,15 @@ export function PantallaTarjeta() {
     )
   }
 
-  return <VistaTarjeta tarjeta={borrador} fotoDataUrl={leerFoto()?.dataUrl} />
+  // El QR se pasa como hijo y no lo construye la vista: asi la vista sigue siendo una funcion del
+  // dato, y la Ola 5 puede capturarla sin arrastrar la logica de generacion del codigo.
+  return (
+    <VistaTarjeta
+      tarjeta={borrador}
+      fotoDataUrl={leerFoto()?.dataUrl}
+      qr={<QrDeContacto tarjeta={borrador} />}
+    />
+  )
 }
 
 function Aviso({ children }: { children: React.ReactNode }) {

@@ -89,7 +89,7 @@ function Encabezado({ tarjeta, fotoDataUrl }: { tarjeta: Tarjeta; fotoDataUrl?: 
 function Discurso({ tarjeta }: { tarjeta: Tarjeta }) {
   if (!tarjeta.ti && !tarjeta.de) return null
   return (
-    <section className="mt-5 space-y-2">
+    <section className="mt-4 space-y-2">
       {tarjeta.ti && (
         <p className="line-clamp-2 break-words font-display text-[22px] font-extrabold leading-[1.15] text-tinta">
           {tarjeta.ti}
@@ -114,7 +114,7 @@ function BloqueDelQr({ tarjeta, qr }: { tarjeta: Tarjeta; qr?: React.ReactNode }
   const telefono = tarjeta.t?.[0]
 
   return (
-    <section className="mt-5 flex min-h-0 flex-1 flex-col justify-center gap-2">
+    <section className="mt-4 flex min-h-0 flex-1 flex-col justify-center gap-1">
       <p className="text-center text-xs text-tinta-suave">Escanea para guardarme en tus contactos</p>
       {/*
         **La tarjeta cabe en UNA SOLA VISUAL por construccion, no por calibracion.** Es el requisito
@@ -129,8 +129,14 @@ function BloqueDelQr({ tarjeta, qr }: { tarjeta: Tarjeta; qr?: React.ReactNode }
         El limite de este mecanismo esta en la densidad, no en el layout: por debajo de unos 243 px
         de codigo, un vCard completo cae bajo el piso de lectura de 2,5 px por cuadrito. Lo vigila
         `scripts/medir-densidad-qr.mjs`.
+
+        La teja se dimensiona con `flex-1` y NO con `h-full` (arreglado en la Ola 4, con el QR real
+        adentro). Con `h-full` la teja valia el alto ENTERO de la seccion, asi que el telefono de
+        abajo y la firma se salian y quedaban uno encima del otro: se veia en la captura y ningun
+        assert lo delataba, porque no habia scroll y el QR seguia siendo grande. Con `flex-1` la
+        teja se queda con lo que sobra despues del texto, que es lo que siempre se quiso decir.
       */}
-      <div className="mx-auto flex aspect-square h-full max-h-full w-auto max-w-full items-center justify-center rounded-bloque bg-white p-3">
+      <div className="mx-auto flex aspect-square min-h-0 w-auto max-w-full flex-1 items-center justify-center rounded-bloque bg-white p-2">
         {qr ?? (
           <span className="px-6 text-center text-xs text-neutral-500">
             El código QR se construye en la Ola 4 del plan.

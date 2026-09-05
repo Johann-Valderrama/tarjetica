@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   BORRADOR_VACIO,
   esExportable,
@@ -26,6 +27,8 @@ import {
   CampoUbicacion,
   Etiqueta,
 } from '@/features/tarjeta/formulario/campos'
+import { descargarVCard } from '@/features/tarjeta/vcard/descargar'
+import { medirDensidad, textoDelAviso } from '@/features/tarjeta/qr/densidad'
 import {
   AvisoDeAlcance,
   BotonBorrarTodo,
@@ -82,11 +85,13 @@ export function Editor() {
 }
 
 function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
+  const router = useRouter()
   const [tarjeta, setTarjeta] = useState<TarjetaBorrador>(inicial)
   const [foto, setFoto] = useState<FotoLocal | null>(() => leerFoto())
   const [confirmado, setConfirmado] = useState(false)
   const [guardado, setGuardado] = useState<EstadoGuardado>('inicial')
   const [avisoFoto, setAvisoFoto] = useState<string | null>(null)
+  const [avisoDescarga, setAvisoDescarga] = useState<string | null>(null)
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // El autosave: solo ESCRIBE, no toca estado de React de forma sincrona. El "Guardando..." lo
@@ -134,6 +139,19 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   }
 
   const listaParaExportar = esExportable(tarjeta) && puedeExportar(confirmado)
+
+  /**
+   * El aviso de densidad (unidad 4f). Se mide en cuanto la tarjeta es exportable, no al pulsar el
+   * boton: el usuario tiene que enterarse MIENTRAS edita, que es cuando todavia puede quitar un
+   * campo. Enterarse al exportar seria enterarse tarde.
+   *
+   * `useMemo` porque medirlo arma el vCard una vez por cada campo recortable, y esto corre en cada
+   * tecla del autosave.
+   */
+  const aviso = useMemo(
+    () => (esExportable(tarjeta) ? textoDelAviso(medirDensidad(tarjeta)) : null),
+    [tarjeta],
+  )
 
   return (
     <main className="mx-auto w-full max-w-xl space-y-6 p-4 pb-24">
@@ -218,11 +236,40 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
             type="button"
             data-testid="mostrar-qr"
             disabled={!listaParaExportar}
+            onClick={() => router.push('/tarjeta')}
             className="min-h-11 rounded-lg border border-neutral-900 px-4 font-medium text-neutral-900 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
           >
             Mostrar código QR
           </button>
+          {/*
+            La descarga del `.vcf` (unidad 4b). Va aqui y no en la vista de la tarjeta porque alli
+            no cabe ningun control: esa pantalla es lo que la Ola 5 captura como imagen, y un boton
+            adentro saldria en el `.jpeg` que el usuario regala.
+          */}
+          <button
+            type="button"
+            data-testid="descargar-vcf"
+            disabled={!listaParaExportar}
+            onClick={() => {
+              if (!esExportable(tarjeta)) return
+              const r = descargarVCard(tarjeta, foto?.dataUrl)
+              if (!r.ok) setAvisoDescarga('Este navegador no permite descargar el archivo.')
+            }}
+            className="min-h-11 rounded-lg border border-neutral-300 px-4 font-medium text-neutral-700 disabled:cursor-not-allowed disabled:border-neutral-200 disabled:text-neutral-400"
+          >
+            Descargar mi contacto (.vcf)
+          </button>
         </div>
+        {aviso && (
+          <p role="status" data-testid="aviso-densidad" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+            {aviso}
+          </p>
+        )}
+        {avisoDescarga && (
+          <p role="alert" className="text-sm text-red-700">
+            {avisoDescarga}
+          </p>
+        )}
         {!esExportable(tarjeta) && (
           <p className="text-sm text-neutral-600">Escribe al menos tu nombre para poder compartir.</p>
         )}
@@ -232,8 +279,8 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
           </p>
         )}
         <p className="text-xs text-neutral-500">
-          Estos dos botones se construyen en las siguientes olas del plan; hoy solo se comprueba que
-          la confirmación los habilite.
+          El código QR y el archivo de contacto ya funcionan. Guardar como imagen se construye en la
+          siguiente ola del plan.
         </p>
       </section>
 
