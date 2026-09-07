@@ -1,4 +1,11 @@
 allowBuilds:
+  # Los dos entran por `next-intl` (unidad 7a). Van en FALSE, no en true: los dos traen binarios
+  # precompilados por plataforma y su script de instalacion es el paso de respaldo que compila si
+  # no encuentra uno. Aqui si lo encuentra, asi que ejecutar codigo de instalacion no aporta nada
+  # y si agrega superficie. Si algun dia el build falla por esto, el error lo dira; lo que no se
+  # hace es abrirlos "por si acaso".
+  '@parcel/watcher': false
+  '@swc/core': false
   esbuild: true
   sharp: true
   unrs-resolver: true

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Plus_Jakarta_Sans } from 'next/font/google'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getTranslations } from 'next-intl/server'
 import './globals.css'
 
 /**
@@ -30,9 +32,9 @@ const texto = Plus_Jakarta_Sans({
   variable: '--fuente-texto',
 })
 
-export const metadata: Metadata = {
-  title: 'Tarjetica',
-  description: 'Tu tarjeta de presentación digital. No guardamos tus datos en ningún servidor.',
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('app')
+  return { title: t('nombre'), description: t('descripcion') }
 }
 
 // Mobile-first: la app se usa de pie, en una conferencia, en el telefono del usuario.
@@ -43,10 +45,23 @@ export const viewport: Viewport = {
   themeColor: '#0a0a0b',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/**
+ * `lang` sale del idioma resuelto (unidad 7a) y no de una constante: un `lang="es"` fijo en una
+ * pagina en ingles hace que el lector de pantalla la lea con fonetica española, y es el atributo
+ * del que dependen ademas la division silabica y el traductor del navegador.
+ *
+ * Los mensajes se pasan COMPLETOS al proveedor de cliente a proposito: casi toda la interfaz de
+ * este producto son componentes de cliente (el editor, la vista y el enlace corren en el
+ * navegador por D1), asi que filtrarlos por arbol no ahorraria nada real y sí abriria la via de
+ * que una clave exista en el servidor y falte en el cliente.
+ */
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale()
   return (
-    <html lang="es" className={texto.variable}>
-      <body className="font-sans">{children}</body>
+    <html lang={locale} className={texto.variable}>
+      <body className="font-sans">
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      </body>
     </html>
   )
 }

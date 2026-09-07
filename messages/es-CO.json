@@ -1,0 +1,151 @@
+{
+  "app": {
+    "nombre": "Tarjetica",
+    "avisoG2": "No guardamos tus datos en ningún servidor.",
+    "descripcion": "Tu tarjeta de presentación digital. No guardamos tus datos en ningún servidor."
+  },
+  "meta": {
+    "editor": "Editor · Tarjetica",
+    "tarjeta": "Tu tarjeta · Tarjetica",
+    "enlace": "Tarjeta · Tarjetica"
+  },
+  "idioma": {
+    "etiqueta": "Idioma"
+  },
+  "home": {
+    "tagline": "Tu tarjeta de presentación digital, sin cuenta y sin servidor.",
+    "cta": "Crear mi tarjeta",
+    "comoFunciona": "Llenas tus datos, se guardan en este equipo, y compartes tu tarjeta como código QR, como imagen o como archivo de contacto."
+  },
+  "editor": {
+    "abriendo": "Abriendo tu tarjeta…",
+    "titulo": "Tu tarjeta",
+    "subtitulo": "Se guarda sola en este dispositivo, mientras escribes.",
+    "foto": "Foto",
+    "fotoAlt": "Tu foto de perfil",
+    "fotoAyuda": "Se achica y se le quitan los metadatos antes de guardarla. Nunca viaja dentro del código QR ni del enlace.",
+    "quitarFoto": "Quitar la foto",
+    "fotoTipoNoSoportado": "Ese archivo no parece una imagen.",
+    "fotoFallo": "No se pudo procesar la imagen. Prueba con otra.",
+    "fotoNoGuardada": "No se pudo guardar la foto en este navegador.",
+    "compartir": "Compartir",
+    "creandoImagen": "Creando la imagen…",
+    "guardarImagen": "Guardar como imagen",
+    "mostrarQr": "Mostrar código QR",
+    "descargarVcf": "Descargar mi contacto (.vcf)",
+    "imagenFallo": "No se pudo crear la imagen en este navegador.",
+    "imagenNoGuardada": "No se pudo guardar la imagen.",
+    "vcfFallo": "Este navegador no permite descargar el archivo.",
+    "faltaNombre": "Escribe al menos tu nombre para poder compartir.",
+    "faltaConfirmacion": "Marca la confirmación de arriba para poder compartir.",
+    "notaImagen": "La imagen sale del tamaño de un teléfono, con tu código QR adentro. Se crea aquí mismo: no sale de este dispositivo.",
+    "guardando": "Guardando…",
+    "guardado": "Guardado en este dispositivo",
+    "falloGuardado": "No se pudo guardar en este navegador"
+  },
+  "campos": {
+    "identidad": "Identidad",
+    "nombre": "Nombre *",
+    "apellido": "Apellido",
+    "cargo": "Cargo",
+    "empresa": "Empresa",
+    "contacto": "Contacto",
+    "correo": "Correo",
+    "telefonos": "Teléfonos",
+    "telefonoPlaceholder": "300 000 0000",
+    "etiquetaTelefono": "Etiqueta del teléfono {n}",
+    "quitarTelefono": "Quitar el teléfono {n}",
+    "agregarTelefono": "Agregar teléfono",
+    "sitioWeb": "Sitio web",
+    "urlPlaceholder": "https://…",
+    "redes": "Redes",
+    "linkedin": "LinkedIn",
+    "linkedinPlaceholder": "tu-usuario",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "facebook": "Facebook",
+    "sinArroba": "sin la @",
+    "otrosEnlaces": "Otros enlaces",
+    "etiquetaEnlace": "Etiqueta del enlace {n}",
+    "quitarEnlace": "Quitar el enlace {n}",
+    "agregarEnlace": "Agregar enlace",
+    "enlacePlaceholder": "Portafolio",
+    "dosFrases": "Tu tarjeta en dos frases",
+    "titular": "Titular",
+    "titularPlaceholder": "Recupera las horas que tu operación te quita.",
+    "titularAyuda": "Una frase: qué haces.",
+    "descripcion": "Descripción",
+    "descripcionPlaceholder": "Tu equipo deja el trabajo repetitivo y vuelve a lo que importa.",
+    "descripcionAyuda": "Hasta dos frases: por qué te buscan.",
+    "descripcionAviso": "Aquí cabe cualquier cosa, así que evita datos delicados (salud, afiliaciones, creencias). Todo lo que escribas viaja en la tarjeta que regalas.",
+    "ubicacion": "Ubicación",
+    "ciudad": "Ciudad",
+    "ciudadPlaceholder": "Bogotá · Colombia",
+    "ciudadAviso": "Sale en la línea de arriba de la tarjeta. Si prefieres una dirección exacta, piensa si quieres que sea la de tu casa: esta tarjeta la vas a repartir."
+  },
+  "avisos": {
+    "alcanceTitulo": "Esta app es para TU propia tarjeta.",
+    "alcanceCuerpo": "Si haces la de otra persona, sus datos quedan en este teléfono y en las copias de seguridad de este teléfono. La imagen que guardes va a tus Fotos, y el contacto a tu agenda.",
+    "confirmacion": "Confirmo que esta tarjeta es mía, o que tengo permiso de la persona para compartir sus datos.",
+    "borrarTodo": "Borrar mis datos de este dispositivo"
+  },
+  "limites": {
+    "equipo": "Tu tarjeta vive en este navegador y en este equipo. Si borras los datos del sitio o cambias de teléfono, la pierdes: no hay cuenta desde donde recuperarla.",
+    "respaldo": "La imagen que guardes es tu respaldo.",
+    "senal": "Necesitas señal la primera vez que abres la app.",
+    "enlaceIrrevocable": "Un enlace que ya repartiste no se puede desactivar. Los datos van dentro del enlace, así que no hay servidor donde borrarlo."
+  },
+  "tarjeta": {
+    "abriendo": "Abriendo tu tarjeta…",
+    "sinTarjeta": "Todavía no hay una tarjeta en este dispositivo.",
+    "crearla": "Créala en el editor",
+    "escanea": "Escanea para guardarme en tus contactos",
+    "fotoDe": "Foto de {nombre}",
+    "perfil": "perfil",
+    "hechaCon": "Hecha con"
+  },
+  "qr": {
+    "alt": "Código QR con los datos de contacto de esta tarjeta",
+    "fallo": "No se pudo generar el código en este navegador. El teléfono de abajo sigue sirviendo.",
+    "noDisponible": "El código QR no está disponible.",
+    "densidad": "Tu código quedó muy denso ({modulos}×{modulos} cuadritos). Puede costar escanearlo desde otra pantalla.",
+    "densidadRecorte": "Tu código quedó muy denso ({modulos}×{modulos} cuadritos). Puede costar escanearlo desde otra pantalla. Si quitas {campo} se aligera lo más rápido.",
+    "recortes": {
+      "de": "la descripción",
+      "ti": "el titular",
+      "l": "los enlaces",
+      "d": "la ubicación",
+      "t": "los teléfonos de más",
+      "w": "el sitio web",
+      "li": "LinkedIn",
+      "ig": "Instagram",
+      "fb": "Facebook",
+      "tk": "TikTok",
+      "em": "la empresa",
+      "c": "el cargo"
+    }
+  },
+  "enlace": {
+    "titulo": "Enlace para compartir (opcional)",
+    "intro": "Si prefieres, puedes mandar tu tarjeta como un enlace. No hace falta: el código QR y la imagen ya funcionan sin esto.",
+    "quiero": "Quiero un enlace",
+    "antesDeCrearlo": "Antes de crearlo, lee esto:",
+    "publico": "Tus datos van dentro del enlace. Cualquiera que lo tenga los ve, sin contraseña.",
+    "irrevocable": "<fuerte>No se puede desactivar después.</fuerte> No hay servidor donde borrarlo: lo que repartas queda vivo para siempre. Si editas tu tarjeta, se crea un enlace nuevo y el anterior sigue mostrando la versión vieja.",
+    "historial": "El enlace queda en el <fuerte>historial del navegador</fuerte> de quien lo abra, y si esa persona tiene la sincronización activada, se copia a sus otros dispositivos. Eso no lo podemos evitar desde aquí.",
+    "mejorNo": "Mejor no",
+    "creando": "Creando…",
+    "entiendo": "Entiendo, créalo",
+    "copiado": "Copiado",
+    "copiar": "Copiar enlace",
+    "ocultar": "Ocultar",
+    "abriendo": "Abriendo la tarjeta…",
+    "hazLaTuya": "Haz la tuya",
+    "errores": {
+      "vacio": "Este enlace no trae ninguna tarjeta. Puede que se haya cortado al copiarlo.",
+      "ilegible": "No se pudo leer esta tarjeta. El enlace parece incompleto o quedó partido al copiarlo.",
+      "version-desconocida": "Este enlace lo creó una versión más nueva de la app y no se puede leer aquí.",
+      "datos-invalidos": "Esta tarjeta llegó con datos que no se pueden mostrar."
+    }
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { esExportable } from '@/features/tarjeta/modelo/tarjeta'
 import {
   instantaneaDelServidor,
@@ -20,6 +21,7 @@ import { QrDeContacto } from '@/features/tarjeta/qr/qr-cliente'
 const sinSuscripcion = () => () => {}
 
 export function PantallaTarjeta() {
+  const t = useTranslations('tarjeta')
   const enCliente = useSyncExternalStore(
     sinSuscripcion,
     () => true,
@@ -32,15 +34,15 @@ export function PantallaTarjeta() {
   )
 
   if (!enCliente) {
-    return <Aviso>Abriendo tu tarjeta…</Aviso>
+    return <Aviso>{t('abriendo')}</Aviso>
   }
 
   if (!esExportable(borrador)) {
     return (
       <Aviso>
-        Todavía no hay una tarjeta en este dispositivo.{' '}
+        {t('sinTarjeta')}{' '}
         <Link href="/editor" className="text-acento underline underline-offset-4">
-          Créala en el editor
+          {t('crearla')}
         </Link>
         .
       </Aviso>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { construirEnlace } from '@/features/tarjeta/enlace/codec'
 
@@ -28,6 +29,7 @@ import { construirEnlace } from '@/features/tarjeta/enlace/codec'
 type Estado = { fase: 'apagado' } | { fase: 'advertido' } | { fase: 'generando' } | { fase: 'listo'; enlace: string }
 
 export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null; habilitado: boolean }) {
+  const t = useTranslations('enlace')
   const [estado, setEstado] = useState<Estado>({ fase: 'apagado' })
   const [copiado, setCopiado] = useState(false)
 
@@ -51,11 +53,8 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
 
   return (
     <section className="space-y-3 rounded-lg border border-neutral-300 p-3">
-      <h3 className="text-sm font-semibold text-neutral-900">Enlace para compartir (opcional)</h3>
-      <p className="text-sm text-neutral-600">
-        Si prefieres, puedes mandar tu tarjeta como un enlace. No hace falta: el código QR y la imagen
-        ya funcionan sin esto.
-      </p>
+      <h3 className="text-sm font-semibold text-neutral-900">{t('titulo')}</h3>
+      <p className="text-sm text-neutral-600">{t('intro')}</p>
 
       {estado.fase === 'apagado' && (
         <button
@@ -65,7 +64,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
           onClick={() => setEstado({ fase: 'advertido' })}
           className="min-h-11 w-full rounded-lg border border-neutral-400 px-4 text-sm font-medium text-neutral-800 disabled:cursor-not-allowed disabled:border-neutral-200 disabled:text-neutral-400"
         >
-          Quiero un enlace
+          {t('quiero')}
         </button>
       )}
 
@@ -75,19 +74,16 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
           data-testid="advertencia-enlace"
           className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
         >
-          <p className="font-semibold">Antes de crearlo, lee esto:</p>
+          <p className="font-semibold">{t('antesDeCrearlo')}</p>
+          {/*
+            Las tres advertencias van con `t.rich` y no con `t`: el enfasis de "no se puede
+            desactivar" y de "historial del navegador" es parte del mensaje, no decoracion, y
+            meterlo como HTML crudo en el JSON abriria una via de inyeccion sin necesidad.
+          */}
           <ul className="list-disc space-y-1 pl-5">
-            <li>Tus datos van dentro del enlace. Cualquiera que lo tenga los ve, sin contraseña.</li>
-            <li>
-              <strong>No se puede desactivar después.</strong> No hay servidor donde borrarlo: lo que
-              repartas queda vivo para siempre. Si editas tu tarjeta, se crea un enlace nuevo y el
-              anterior sigue mostrando la versión vieja.
-            </li>
-            <li>
-              El enlace queda en el <strong>historial del navegador</strong> de quien lo abra, y si esa
-              persona tiene la sincronización activada, se copia a sus otros dispositivos. Eso no lo
-              podemos evitar desde aquí.
-            </li>
+            <li>{t('publico')}</li>
+            <li>{t.rich('irrevocable', { fuerte: (c) => <strong>{c}</strong> })}</li>
+            <li>{t.rich('historial', { fuerte: (c) => <strong>{c}</strong> })}</li>
           </ul>
           <div className="flex gap-2 pt-1">
             <button
@@ -96,7 +92,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
               onClick={() => setEstado({ fase: 'apagado' })}
               className="min-h-11 flex-1 rounded-lg border border-amber-400 px-4 text-sm font-medium"
             >
-              Mejor no
+              {t('mejorNo')}
             </button>
             <button
               type="button"
@@ -105,7 +101,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
               onClick={() => void generar()}
               className="min-h-11 flex-1 rounded-lg bg-amber-900 px-4 text-sm font-semibold text-amber-50 disabled:bg-amber-300"
             >
-              {estado.fase === 'generando' ? 'Creando…' : 'Entiendo, créalo'}
+              {estado.fase === 'generando' ? t('creando') : t('entiendo')}
             </button>
           </div>
         </div>
@@ -126,7 +122,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
               onClick={() => void copiar(estado.enlace)}
               className="min-h-11 flex-1 rounded-lg bg-neutral-900 px-4 text-sm font-medium text-white"
             >
-              {copiado ? 'Copiado' : 'Copiar enlace'}
+              {copiado ? t('copiado') : t('copiar')}
             </button>
             <button
               type="button"
@@ -136,7 +132,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
               }}
               className="min-h-11 rounded-lg border border-neutral-300 px-4 text-sm text-neutral-700"
             >
-              Ocultar
+              {t('ocultar')}
             </button>
           </div>
         </div>

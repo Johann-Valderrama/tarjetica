@@ -13,7 +13,10 @@ backend, así que no hay ningún lugar donde podamos ver, guardar ni perder lo q
 - Llenas tus datos (nombre, cargo, empresa, teléfonos, correo, redes, foto) en un formulario.
 - Muestras un **QR de vCard**: quien lo escanea guarda tu contacto sin descargar nada.
 - Guardas la tarjeta como **imagen `.jpeg`** para mandarla por WhatsApp o publicarla.
+- Descargas tu contacto como archivo **`.vcf`**.
 - Opcionalmente generas un **link compartible**, que lleva los datos dentro de la propia URL.
+- Está en **español (es-CO) e inglés**. El idioma sigue al navegador de quien abre; en la home y en
+  el editor se puede cambiar a mano.
 
 ## Lo que hay que saber antes de usarla
 
@@ -28,10 +31,25 @@ Son consecuencias directas de no tener servidor, y se dicen aquí y no en una no
 - **Es para TU propia tarjeta.** Si haces la de otra persona, sus datos terminan en tu teléfono y en
   las copias de seguridad de tu teléfono.
 
+## Qué manda a la red
+
+Casi nada, y se dice completo porque es la promesa del producto:
+
+- El QR, la imagen, el `.vcf` y el link se generan **en tu navegador**. No hay ninguna petición a un
+  dominio ajeno en ninguna de las cuatro pantallas, y hay una prueba automática que lo mide.
+- La app manda **un contador anónimo** al propio dominio, sin cuerpo, cuando se abre la home y la
+  primera vez que una tarjeta queda lista en este dispositivo. No lleva ni un campo de tu tarjeta,
+  ni un identificador, ni nada que distinga a una persona de otra, y **nunca se dispara en las
+  pantallas que muestran una tarjeta**.
+- Para agentes y modelos: `/llms.txt` describe qué hace la herramienta, qué no hace y sus tres
+  límites. La home lleva datos estructurados (JSON-LD) que describen **la aplicación**, jamás la
+  tarjeta de ningún usuario.
+
 ## Estado
 
-En construcción. La v1 se arma por olas; hoy está la fundación del repo (modelo de datos,
-persistencia local y candados de seguridad).
+Funcional. Se armó por olas: modelo y candados de seguridad, formulario con guardado local, vista de
+la tarjeta, QR y vCard en el cliente, exportación a `.jpeg`, link compartible opcional, y por último
+idiomas, puerta agéntica y el barrido final de superficie. Falta el despliegue público.
 
 ## Cómo correrlo
 

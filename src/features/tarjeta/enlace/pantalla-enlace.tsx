@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { decodificar, type ResultadoDecodificacion } from '@/features/tarjeta/enlace/codec'
 import { QrDeContacto } from '@/features/tarjeta/qr/qr-cliente'
@@ -23,16 +24,17 @@ import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
  * iniciales. No es una degradacion: es la invariante funcionando.
  */
 
-type Estado = { fase: 'leyendo' } | { fase: 'listo'; tarjeta: Tarjeta } | { fase: 'fallo'; motivo: string }
+/**
+ * El MOTIVO se guarda como clave, no como frase ya redactada (unidad 7a): esta pantalla la abre un
+ * desconocido cuyo idioma lo decide su navegador, y una frase congelada en el estado saldria en
+ * español aunque el resto de la pagina este en ingles.
+ */
+type Motivo = Exclude<ResultadoDecodificacion, { ok: true }>['motivo']
 
-const MENSAJES: Record<Exclude<ResultadoDecodificacion, { ok: true }>['motivo'], string> = {
-  vacio: 'Este enlace no trae ninguna tarjeta. Puede que se haya cortado al copiarlo.',
-  ilegible: 'No se pudo leer esta tarjeta. El enlace parece incompleto o quedó partido al copiarlo.',
-  'version-desconocida': 'Este enlace lo creó una versión más nueva de la app y no se puede leer aquí.',
-  'datos-invalidos': 'Esta tarjeta llegó con datos que no se pueden mostrar.',
-}
+type Estado = { fase: 'leyendo' } | { fase: 'listo'; tarjeta: Tarjeta } | { fase: 'fallo'; motivo: Motivo }
 
 export function PantallaEnlace() {
+  const t = useTranslations('enlace')
   const [estado, setEstado] = useState<Estado>({ fase: 'leyendo' })
 
   useEffect(() => {
@@ -46,7 +48,7 @@ export function PantallaEnlace() {
       setEstado(
         resultado.ok
           ? { fase: 'listo', tarjeta: resultado.tarjeta }
-          : { fase: 'fallo', motivo: MENSAJES[resultado.motivo] },
+          : { fase: 'fallo', motivo: resultado.motivo },
       )
     }
 
@@ -59,14 +61,14 @@ export function PantallaEnlace() {
     }
   }, [])
 
-  if (estado.fase === 'leyendo') return <Aviso>Abriendo la tarjeta…</Aviso>
+  if (estado.fase === 'leyendo') return <Aviso>{t('abriendo')}</Aviso>
 
   if (estado.fase === 'fallo') {
     return (
       <Aviso>
-        {estado.motivo}{' '}
+        {t(`errores.${estado.motivo}`)}{' '}
         <Link href="/" className="text-acento underline underline-offset-4">
-          Haz la tuya
+          {t('hazLaTuya')}
         </Link>
         .
       </Aviso>

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { ningunValorEsCopyDeLaInterfaz } from './fuga.helpers'
 import jsQR from 'jsqr'
 import { PNG } from 'pngjs'
 import { vcardParaQr } from '../src/features/tarjeta/vcard/generar'
@@ -30,7 +31,8 @@ const LLENA = {
   w: 'https://alimentosdelnorte.example.com',
   li: 'mariapena',
   d: 'Bogotá · Colombia',
-  ti: 'Recupera las horas que tu operación te quita.',
+  // No puede coincidir con un `placeholder` del editor: hay un guard mas abajo que lo mide.
+  ti: 'Le devuelvo a tu operación las horas perdidas.',
   de: 'Tu equipo deja el trabajo repetitivo; vuelve a decidir, crear y vender.',
 } as const
 
@@ -110,7 +112,13 @@ test.describe('D1: los datos no salen del navegador', () => {
 
     // El QR ya esta en pantalla; el HTML del servidor, pedido aparte, no puede saber nada de el.
     const html = await (await request.get('/tarjeta')).text()
-    for (const dato of [LLENA.n, LLENA.a, LLENA.co, LLENA.em, LLENA.ti]) {
+    const buscados = [LLENA.n, LLENA.a, LLENA.co, LLENA.em, LLENA.ti] as string[]
+
+    // Guard del guard: ver `fuga.helpers.ts`. Si un valor de prueba es tambien copy de la
+    // interfaz, el HTML lo trae sin que se haya filtrado nada y este assert mentiria.
+    ningunValorEsCopyDeLaInterfaz(buscados)
+
+    for (const dato of buscados) {
       expect(html, `el HTML del servidor trae "${dato}"`).not.toContain(dato)
     }
   })

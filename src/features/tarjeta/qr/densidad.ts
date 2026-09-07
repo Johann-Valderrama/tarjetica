@@ -22,10 +22,12 @@ export const VERSION_QR_DE_AVISO = 15
 
 /** Cuanto pesa cada campo recortable dentro del vCard, en octetos, y como se llama para el usuario. */
 export type Recorte = {
-  /** Clave del campo en el modelo, para que el editor pueda enfocarlo. */
-  campo: keyof Tarjeta
-  /** Como se llama en el editor, en la voz del producto. */
-  etiqueta: string
+  /**
+   * Clave del campo en el modelo. Es TAMBIEN la clave de traduccion del nombre que ve el usuario
+   * (`qr.recortes.<campo>` en `messages/`): unidad 7a. Antes aqui vivia la etiqueta en español
+   * escrita a mano, y eso dejaba el unico aviso accionable del producto sin traducir.
+   */
+  campo: CampoRecortable
   /** Octetos que se ahorran si se quita. */
   octetos: number
 }
@@ -44,23 +46,21 @@ export type Densidad = {
 }
 
 /**
- * Los campos que la persona PUEDE quitar sin dejar de tener una tarjeta. `n` (nombre) no esta:
- * es el unico obligatorio del modelo, asi que ofrecer recortarlo seria ofrecer romper la tarjeta.
+ * Los campos que la persona PUEDE quitar sin dejar de tener una tarjeta, del que suele pesar mas al
+ * que menos. `n` (nombre) no esta: es el unico obligatorio del modelo, asi que ofrecer recortarlo
+ * seria ofrecer romper la tarjeta.
+ *
+ * El orden de esta lista NO decide nada (el orden final sale de medir el ahorro real de cada uno);
+ * es solo el barrido.
  */
-const RECORTABLES: { campo: keyof Tarjeta; etiqueta: string }[] = [
-  { campo: 'de', etiqueta: 'la descripción' },
-  { campo: 'ti', etiqueta: 'el titular' },
-  { campo: 'l', etiqueta: 'los enlaces' },
-  { campo: 'd', etiqueta: 'la ubicación' },
-  { campo: 't', etiqueta: 'los teléfonos de más' },
-  { campo: 'w', etiqueta: 'el sitio web' },
-  { campo: 'li', etiqueta: 'LinkedIn' },
-  { campo: 'ig', etiqueta: 'Instagram' },
-  { campo: 'fb', etiqueta: 'Facebook' },
-  { campo: 'tk', etiqueta: 'TikTok' },
-  { campo: 'em', etiqueta: 'la empresa' },
-  { campo: 'c', etiqueta: 'el cargo' },
-]
+const RECORTABLES = ['de', 'ti', 'l', 'd', 't', 'w', 'li', 'ig', 'fb', 'tk', 'em', 'c'] as const
+
+/**
+ * Los campos que el aviso puede nombrar. Es una UNION y no `keyof Tarjeta` a proposito: es lo que
+ * hace que `qr.recortes.<campo>` sea una clave de traduccion comprobada por el compilador, asi que
+ * agregar un recortable sin su nombre en los dos idiomas no compila.
+ */
+export type CampoRecortable = (typeof RECORTABLES)[number]
 
 /**
  * Mide la tarjeta REAL: construye su vCard, deja que la libreria elija la version que de verdad
@@ -76,12 +76,12 @@ export function medirDensidad(tarjeta: Tarjeta): Densidad {
   const total = octetos(texto)
 
   const recortes: Recorte[] = []
-  for (const { campo, etiqueta } of RECORTABLES) {
+  for (const campo of RECORTABLES) {
     if (tarjeta[campo] === undefined) continue
     const sinEse = { ...tarjeta }
     delete sinEse[campo]
     const ahorro = total - octetos(vcardParaQr(sinEse as Tarjeta))
-    if (ahorro > 0) recortes.push({ campo, etiqueta, octetos: ahorro })
+    if (ahorro > 0) recortes.push({ campo, octetos: ahorro })
   }
   recortes.sort((a, b) => b.octetos - a.octetos)
 
@@ -94,14 +94,23 @@ export function medirDensidad(tarjeta: Tarjeta): Densidad {
   }
 }
 
+/** Lo que hay que decirle al usuario, sin redactar: la redaccion vive en `messages/`. */
+export type AvisoDeDensidad = {
+  /** Lado del simbolo en modulos, la cifra que se le muestra. */
+  modulos: number
+  /** El campo mas caro, si hay alguno recortable. Es la clave de `qr.recortes.<campo>`. */
+  campo?: CampoRecortable
+}
+
 /**
- * El aviso, ya redactado. Nombra el campo mas caro porque el usuario no puede decidir sobre "los
- * datos": decide sobre "la descripcion".
+ * El aviso, como DATO y no como frase. Nombra el campo mas caro porque el usuario no puede decidir
+ * sobre "los datos": decide sobre "la descripcion".
+ *
+ * Devuelve un descriptor en vez del texto ya armado (unidad 7a) por dos razones: esta funcion es
+ * pura y corre tambien fuera de React (en los tests y en `scripts/medir-densidad-qr.mjs`), donde no
+ * hay traductor; y asi el texto no puede quedarse en español cuando la app esta en ingles.
  */
-export function textoDelAviso(densidad: Densidad): string | null {
+export function avisoDeDensidad(densidad: Densidad): AvisoDeDensidad | null {
   if (!densidad.avisar) return null
-  const masCaro = densidad.recortes[0]
-  const base = `Tu código quedó muy denso (${densidad.modulos}×${densidad.modulos} cuadritos). Puede costar escanearlo desde otra pantalla.`
-  if (!masCaro) return base
-  return `${base} Si quitas ${masCaro.etiqueta} se aligera lo más rápido.`
+  return { modulos: densidad.modulos, campo: densidad.recortes[0]?.campo }
 }

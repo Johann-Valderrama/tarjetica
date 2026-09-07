@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { PantallaEnlace } from '@/features/tarjeta/enlace/pantalla-enlace'
 import { metadataNoindex } from '@/shared/seguridad/headers'
 
@@ -10,9 +11,8 @@ import { metadataNoindex } from '@/shared/seguridad/headers'
  * la URL, asi que solo indexarian la ruta pelada; se cierra igual de forma explicita, junto con el
  * header `X-Robots-Tag` que ya emite el proxy para `/t`.
  */
-export const metadata: Metadata = {
-  title: 'Tarjeta · Tarjetica',
-  ...metadataNoindex,
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getTranslations('meta'))('enlace'), ...metadataNoindex }
 }
 
 export default function PaginaEnlace() {

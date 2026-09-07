@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import {
   BORRADOR_VACIO,
   esExportable,
@@ -34,7 +35,7 @@ import { dataUrlABlob, nombreDeImagen, tarjetaAJpeg } from '@/features/tarjeta/e
 import { guardarImagen } from '@/features/tarjeta/exportar/guardar'
 import { LienzoOculto } from '@/features/tarjeta/exportar/lienzo-oculto'
 import { GenerarEnlace } from '@/features/tarjeta/enlace/generar-enlace'
-import { medirDensidad, textoDelAviso } from '@/features/tarjeta/qr/densidad'
+import { avisoDeDensidad, medirDensidad } from '@/features/tarjeta/qr/densidad'
 import {
   AvisoDeAlcance,
   BotonBorrarTodo,
@@ -42,6 +43,8 @@ import {
   LimitesDelProducto,
   puedeExportar,
 } from '@/features/tarjeta/formulario/avisos'
+import { PingDeTarjetaCreada } from '@/features/metricas/ping-de-tarjeta-creada'
+import { SelectorDeIdioma } from '@/shared/idioma/selector-idioma'
 
 /**
  * Unidad 2c del PRP-TD-001: el editor, donde las piezas se conectan.
@@ -68,6 +71,7 @@ const sinSuscripcion = () => () => {}
  * la que el primer autosave puede pisar con un borrador vacio lo que el usuario ya tenia guardado.
  */
 export function Editor() {
+  const t = useTranslations('editor')
   const enCliente = useSyncExternalStore(
     sinSuscripcion,
     () => true,
@@ -82,7 +86,7 @@ export function Editor() {
   if (!enCliente) {
     return (
       <main className="mx-auto w-full max-w-xl p-4">
-        <p className="text-sm text-neutral-600">Abriendo tu tarjeta…</p>
+        <p className="text-sm text-neutral-600">{t('abriendo')}</p>
       </main>
     )
   }
@@ -91,6 +95,7 @@ export function Editor() {
 }
 
 function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
+  const t = useTranslations()
   const router = useRouter()
   const [tarjeta, setTarjeta] = useState<TarjetaBorrador>(inicial)
   const [foto, setFoto] = useState<FotoLocal | null>(() => leerFoto())
@@ -127,13 +132,13 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
     if (!resultado.ok) {
       setAvisoFoto(
         resultado.motivo === 'tipo-no-soportado'
-          ? 'Ese archivo no parece una imagen.'
-          : 'No se pudo procesar la imagen. Prueba con otra.',
+          ? t('editor.fotoTipoNoSoportado')
+          : t('editor.fotoFallo'),
       )
       return
     }
     if (!guardarFoto(resultado.foto)) {
-      setAvisoFoto('No se pudo guardar la foto en este navegador.')
+      setAvisoFoto(t('editor.fotoNoGuardada'))
       return
     }
     setFoto(resultado.foto)
@@ -159,7 +164,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
     try {
       const imagen = await tarjetaAJpeg()
       if (!imagen.ok) {
-        setAvisoDescarga('No se pudo crear la imagen en este navegador.')
+        setAvisoDescarga(t('editor.imagenFallo'))
         return
       }
       const archivo = new File([dataUrlABlob(imagen.dataUrl)], nombreDeImagen(tarjeta.n, tarjeta.a), {
@@ -168,7 +173,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
       const resultado = await guardarImagen(archivo)
       // Que el usuario cierre la hoja del sistema no es un error: no se le muestra nada.
       if (!resultado.ok && resultado.motivo !== 'cancelado') {
-        setAvisoDescarga('No se pudo guardar la imagen.')
+        setAvisoDescarga(t('editor.imagenNoGuardada'))
       }
     } finally {
       setExportando(false)
@@ -186,30 +191,34 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
    * tecla del autosave.
    */
   const aviso = useMemo(
-    () => (esExportable(tarjeta) ? textoDelAviso(medirDensidad(tarjeta)) : null),
+    () => (esExportable(tarjeta) ? avisoDeDensidad(medirDensidad(tarjeta)) : null),
     [tarjeta],
   )
 
   return (
     <main className="mx-auto w-full max-w-xl space-y-6 p-4 pb-24">
+      <PingDeTarjetaCreada listo={esExportable(tarjeta)} />
+
+      <div className="flex justify-end">
+        <SelectorDeIdioma />
+      </div>
+
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold text-neutral-900">Tu tarjeta</h1>
-        <p className="text-sm text-neutral-600">
-          Se guarda sola en este dispositivo, mientras escribes.
-        </p>
+        <h1 className="text-2xl font-bold text-neutral-900">{t('editor.titulo')}</h1>
+        <p className="text-sm text-neutral-600">{t('editor.subtitulo')}</p>
       </header>
 
       <AvisoDeAlcance />
 
       <section className="space-y-3">
-        <Etiqueta htmlFor="foto">Foto</Etiqueta>
+        <Etiqueta htmlFor="foto">{t('editor.foto')}</Etiqueta>
         <div className="flex items-center gap-4">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neutral-200 text-xl font-semibold text-neutral-600">
             {foto ? (
               /* Un data: URL local, no una imagen remota: next/image no aporta nada aqui y
                  anadiria una peticion, que es justo lo que el candado de cero dominios ajenos evita. */
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={foto.dataUrl} alt="Tu foto de perfil" className="h-full w-full object-cover" />
+              <img src={foto.dataUrl} alt={t('editor.fotoAlt')} className="h-full w-full object-cover" />
             ) : (
               <span data-testid="monograma">{iniciales(tarjeta.n, tarjeta.a)}</span>
             )}
@@ -225,10 +234,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
               // Se le da altura al BOTON interno, que es lo que el dedo toca de verdad.
               className="block w-full text-sm file:mr-3 file:min-h-11 file:cursor-pointer file:rounded-lg file:border file:border-neutral-300 file:bg-white file:px-4 file:text-sm file:font-medium"
             />
-            <p className="mt-1 text-xs text-neutral-600">
-              Se achica y se le quitan los metadatos antes de guardarla. Nunca viaja dentro del
-              código QR ni del enlace.
-            </p>
+            <p className="mt-1 text-xs text-neutral-600">{t('editor.fotoAyuda')}</p>
             {foto && (
               <button
                 type="button"
@@ -238,7 +244,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
                 }}
                 className="mt-1 min-h-11 text-sm text-neutral-600 underline"
               >
-                Quitar la foto
+                {t('editor.quitarFoto')}
               </button>
             )}
           </div>
@@ -258,7 +264,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
       <CampoUbicacion tarjeta={tarjeta} onCambio={cambiar} />
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-neutral-900">Compartir</h2>
+        <h2 className="text-lg font-semibold text-neutral-900">{t('editor.compartir')}</h2>
         <ConfirmacionDeExportacion
           confirmado={confirmado}
           onCambio={(v) => {
@@ -274,7 +280,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
             onClick={() => void exportarImagen()}
             className="min-h-11 rounded-lg bg-neutral-900 px-4 font-medium text-white disabled:cursor-not-allowed disabled:bg-neutral-300"
           >
-            {exportando ? 'Creando la imagen…' : 'Guardar como imagen'}
+            {exportando ? t('editor.creandoImagen') : t('editor.guardarImagen')}
           </button>
           <button
             type="button"
@@ -283,7 +289,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
             onClick={() => router.push('/tarjeta')}
             className="min-h-11 rounded-lg border border-neutral-900 px-4 font-medium text-neutral-900 disabled:cursor-not-allowed disabled:border-neutral-300 disabled:text-neutral-400"
           >
-            Mostrar código QR
+            {t('editor.mostrarQr')}
           </button>
           {/*
             La descarga del `.vcf` (unidad 4b). Va aqui y no en la vista de la tarjeta porque alli
@@ -297,16 +303,21 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
             onClick={() => {
               if (!esExportable(tarjeta)) return
               const r = descargarVCard(tarjeta, foto?.dataUrl)
-              if (!r.ok) setAvisoDescarga('Este navegador no permite descargar el archivo.')
+              if (!r.ok) setAvisoDescarga(t('editor.vcfFallo'))
             }}
             className="min-h-11 rounded-lg border border-neutral-300 px-4 font-medium text-neutral-700 disabled:cursor-not-allowed disabled:border-neutral-200 disabled:text-neutral-400"
           >
-            Descargar mi contacto (.vcf)
+            {t('editor.descargarVcf')}
           </button>
         </div>
         {aviso && (
           <p role="status" data-testid="aviso-densidad" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-            {aviso}
+            {aviso.campo
+              ? t('qr.densidadRecorte', {
+                  modulos: aviso.modulos,
+                  campo: t(`qr.recortes.${aviso.campo}`),
+                })
+              : t('qr.densidad', { modulos: aviso.modulos })}
           </p>
         )}
         {avisoDescarga && (
@@ -315,17 +326,12 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
           </p>
         )}
         {!esExportable(tarjeta) && (
-          <p className="text-sm text-neutral-600">Escribe al menos tu nombre para poder compartir.</p>
+          <p className="text-sm text-neutral-600">{t('editor.faltaNombre')}</p>
         )}
         {esExportable(tarjeta) && !confirmado && (
-          <p className="text-sm text-neutral-600">
-            Marca la confirmación de arriba para poder compartir.
-          </p>
+          <p className="text-sm text-neutral-600">{t('editor.faltaConfirmacion')}</p>
         )}
-        <p className="text-xs text-neutral-500">
-          La imagen sale del tamaño de un teléfono, con tu código QR adentro. Se crea aquí mismo: no
-          sale de este dispositivo.
-        </p>
+        <p className="text-xs text-neutral-500">{t('editor.notaImagen')}</p>
       </section>
 
       {/*
@@ -346,9 +352,9 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
       <section className="space-y-2">
         <BotonBorrarTodo onBorrar={alBorrar} />
         <p aria-live="polite" data-testid="estado-guardado" className="text-center text-xs text-neutral-500">
-          {guardado === 'guardando' && 'Guardando…'}
-          {guardado === 'guardado' && 'Guardado en este dispositivo'}
-          {guardado === 'fallo' && 'No se pudo guardar en este navegador'}
+          {guardado === 'guardando' && t('editor.guardando')}
+          {guardado === 'guardado' && t('editor.guardado')}
+          {guardado === 'fallo' && t('editor.falloGuardado')}
         </p>
       </section>
     </main>

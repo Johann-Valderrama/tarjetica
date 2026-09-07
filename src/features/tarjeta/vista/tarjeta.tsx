@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { Avatar } from '@/features/tarjeta/vista/avatar'
 import { FirmaDeMarca } from '@/features/tarjeta/vista/firma'
@@ -137,11 +138,13 @@ function BloqueDelQr({
   /** En una imagen no hay alto que respetar: el codigo se dimensiona solo por el ancho. */
   paraImagen: boolean
 }) {
+  // Raiz y no un espacio de nombres: este bloque toca `tarjeta.*` y `qr.*`.
+  const t = useTranslations()
   const telefono = tarjeta.t?.[0]
 
   return (
     <section className={`mt-4 flex flex-col gap-1 ${paraImagen ? '' : 'min-h-0 flex-1 justify-center'}`}>
-      <p className="text-center text-xs text-tinta-suave">Escanea para guardarme en tus contactos</p>
+      <p className="text-center text-xs text-tinta-suave">{t('tarjeta.escanea')}</p>
       {/*
         **La tarjeta cabe en UNA SOLA VISUAL por construccion, no por calibracion.** Es el requisito
         que Johann marco como principal y no negociable, asi que no puede depender de que los topes
@@ -182,11 +185,11 @@ function BloqueDelQr({
             paraImagen ? 'aspect-square w-full' : 'h-[min(100cqw,100cqh)] w-[min(100cqw,100cqh)]'
           }`}
         >
-        {qr ?? (
-          <span className="px-6 text-center text-xs text-neutral-500">
-            El código QR se construye en la Ola 4 del plan.
-          </span>
-        )}
+        {/*
+          Respaldo por si alguien monta la vista sin pasarle el codigo. Antes decia "se construye
+          en la Ola 4 del plan": jerga interna en una pantalla que abre un desconocido.
+        */}
+        {qr ?? <span className="px-6 text-center text-xs text-neutral-500">{t('qr.noDisponible')}</span>}
         </div>
       </div>
       {telefono && <p className="text-center text-base tracking-wide text-tinta">{telefono.n}</p>}

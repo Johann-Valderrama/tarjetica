@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
-import { medirDensidad, textoDelAviso, VERSION_QR_DE_AVISO } from '@/features/tarjeta/qr/densidad'
+import { avisoDeDensidad, medirDensidad, VERSION_QR_DE_AVISO } from '@/features/tarjeta/qr/densidad'
 
 /**
  * Verificacion de la unidad 4f. El aviso es la mitigacion del riesgo que introduce llevar TODO
@@ -47,7 +48,7 @@ describe('el aviso dispara donde debe, y solo ahi', () => {
   it('la tarjeta minima no avisa', () => {
     const d = medirDensidad({ n: 'Ana' })
     expect(d.avisar).toBe(false)
-    expect(textoDelAviso(d)).toBeNull()
+    expect(avisoDeDensidad(d)).toBeNull()
   })
 
   it('el perfil TIPICO no avisa: si avisara siempre, el aviso no diria nada', () => {
@@ -66,9 +67,16 @@ describe('el aviso dispara donde debe, y solo ahi', () => {
 describe('el aviso habilita una decision, no solo informa', () => {
   it('nombra un campo concreto que se puede quitar', () => {
     const d = medirDensidad(LLENA)
-    const texto = textoDelAviso(d)!
+    const aviso = avisoDeDensidad(d)!
     // "tu código es denso" no habilita nada; el usuario decide sobre "la descripción".
-    expect(texto).toContain(d.recortes[0].etiqueta)
+    expect(aviso.campo).toBe(d.recortes[0].campo)
+    // Y ese campo tiene que tener nombre en LOS DOS idiomas, o el aviso sale con la clave cruda.
+    for (const idioma of ['es-CO', 'en'] as const) {
+      const mensajes = JSON.parse(
+        readFileSync(new URL(`../../../../messages/${idioma}.json`, import.meta.url), 'utf8'),
+      )
+      expect(mensajes.qr.recortes[aviso.campo!], `falta el nombre de "${aviso.campo}" en ${idioma}`).toBeTruthy()
+    }
   })
 
   it('los recortes van del mas caro al mas barato, y todos ahorran algo', () => {
@@ -88,6 +96,10 @@ describe('el aviso habilita una decision, no solo informa', () => {
   })
 
   it('nunca ofrece recortar el nombre, que es el unico campo obligatorio', () => {
-    expect(medirDensidad(LLENA).recortes.some((r) => r.campo === 'n')).toBe(false)
+    // Desde la unidad 7a el TIPO ya lo prohibe (`CampoRecortable` no incluye `n`), asi que esto no
+    // puede fallar sin que antes falle el typecheck. Se conserva porque el candado de tipos se
+    // pierde el dia que alguien ensanche la union, y ahi este assert es lo unico que queda.
+    const campos: string[] = medirDensidad(LLENA).recortes.map((r) => r.campo)
+    expect(campos).not.toContain('n')
   })
 })

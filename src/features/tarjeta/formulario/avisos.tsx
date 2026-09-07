@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 /**
  * Unidad 2d del PRP-TD-001: avisos y controles de privacidad del editor.
  *
@@ -15,16 +17,14 @@
  */
 
 export function AvisoDeAlcance() {
+  const t = useTranslations('avisos')
   return (
     <div
       role="note"
       className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
     >
-      <p className="font-semibold">Esta app es para TU propia tarjeta.</p>
-      <p className="mt-1">
-        Si haces la de otra persona, sus datos quedan en este teléfono y en las copias de seguridad de
-        este teléfono. La imagen que guardes va a tus Fotos, y el contacto a tu agenda.
-      </p>
+      <p className="font-semibold">{t('alcanceTitulo')}</p>
+      <p className="mt-1">{t('alcanceCuerpo')}</p>
     </div>
   )
 }
@@ -41,6 +41,7 @@ export function ConfirmacionDeExportacion({
   confirmado: boolean
   onCambio: (v: boolean) => void
 }) {
+  const t = useTranslations('avisos')
   return (
     <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border border-neutral-300 p-3 text-sm">
       <input
@@ -50,9 +51,7 @@ export function ConfirmacionDeExportacion({
         onChange={(e) => onCambio(e.target.checked)}
         className="mt-0.5 h-5 w-5 shrink-0"
       />
-      <span>
-        Confirmo que esta tarjeta es mía, o que tengo permiso de la persona para compartir sus datos.
-      </span>
+      <span>{t('confirmacion')}</span>
     </label>
   )
 }
@@ -66,13 +65,14 @@ export function puedeExportar(confirmado: boolean): boolean {
 }
 
 export function BotonBorrarTodo({ onBorrar }: { onBorrar: () => void }) {
+  const t = useTranslations('avisos')
   return (
     <button
       type="button"
       onClick={onBorrar}
       className="min-h-11 w-full rounded-lg border border-red-300 px-4 text-sm font-medium text-red-700 hover:bg-red-50"
     >
-      Borrar mis datos de este dispositivo
+      {t('borrarTodo')}
     </button>
   )
 }
@@ -81,18 +81,43 @@ export function BotonBorrarTodo({ onBorrar }: { onBorrar: () => void }) {
  * Limitaciones que son consecuencia directa de no tener servidor (D1). Van DICHAS en el copy, no
  * enterradas en la documentacion: son la contrapartida que el usuario tiene que conocer antes de
  * confiarle su tarjeta a la herramienta.
+ *
+ * **Los TRES limites que la unidad 7b exige, y los tres estan aqui** (`data-testid` para que un
+ * assert los pueda contar en vez de que alguien los cuente leyendo):
+ *
+ * 1. `senal` — hace falta conexion la primera vez (G7: no se construyo PWA en v1).
+ * 2. `equipo` — la tarjeta vive solo en este navegador y en este equipo.
+ * 3. `enlaceIrrevocable` — un enlace repartido no se puede desactivar.
+ *
+ * El tercero **estaba solo dentro del flujo del enlace** (`generar-enlace.tsx`), o sea que solo lo
+ * veia quien ya habia decidido crear uno. Ahi es una advertencia antes de actuar, que es su sitio;
+ * aqui es un limite del producto que se dice ANTES, a quien todavia esta decidiendo si usarlo. No
+ * es duplicacion: son dos momentos distintos, y callarlo en el segundo convierte una limitacion
+ * honesta en una sorpresa.
+ *
+ * Este bloque se pinta en la home y en el editor, con UNA sola redaccion: dos textos separados se
+ * desincronizan y nadie lo nota.
  */
 export function LimitesDelProducto() {
+  const t = useTranslations()
   return (
-    <div className="rounded-lg border border-neutral-300 bg-neutral-50 p-3 text-sm">
-      <p className="font-semibold">No guardamos tus datos en ningún servidor.</p>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-neutral-600">
-        <li>
-          Tu tarjeta vive en este navegador y en este equipo. Si borras los datos del sitio o cambias
-          de teléfono, la pierdes: no hay cuenta desde donde recuperarla.
-        </li>
-        <li>La imagen que guardes es tu respaldo.</li>
-        <li>Necesitas señal la primera vez que abres la app.</li>
+    <div
+      data-testid="limites-producto"
+      /*
+        Pintado con los tokens de la direccion estetica (unidad 3a) y no con neutrales claros. El
+        bloque traia `bg-neutral-50` y un titulo SIN color: sobre el fondo oscuro que fijo la Ola 3,
+        ese titulo heredaba la tinta clara y quedaba blanco sobre blanco, o sea el aviso de G2, que
+        es la frase mas importante del producto, era el unico texto ilegible del bloque. Se vio en
+        una captura a 375 px; ninguna medicion lo delataba.
+      */
+      className="rounded-bloque border border-borde bg-superficie p-3 text-sm"
+    >
+      <p className="font-semibold text-tinta">{t('app.avisoG2')}</p>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-tinta-suave">
+        <li data-limite="senal">{t('limites.senal')}</li>
+        <li data-limite="equipo">{t('limites.equipo')}</li>
+        <li data-limite="enlace">{t('limites.enlaceIrrevocable')}</li>
+        <li data-limite="respaldo">{t('limites.respaldo')}</li>
       </ul>
     </div>
   )

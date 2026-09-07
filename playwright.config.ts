@@ -16,6 +16,17 @@ export default defineConfig({
     baseURL: 'http://localhost:3210',
     // El caso de uso es un telefono, de pie, en una conferencia. Esa es la medida por defecto.
     ...devices['Pixel 7'],
+    /**
+     * Idioma FIJO, agregado en la unidad 7a. No es cosmetico: el runner de Playwright manda
+     * `Accept-Language: en-US`, asi que en cuanto la app aprendio a negociar el idioma (7a) la
+     * suite entera empezo a medir la version en INGLES mientras sus asserts seguian escritos en
+     * español. Doce pruebas se pusieron en rojo de golpe, y ninguna por un defecto del producto.
+     *
+     * Se fija `es-CO` porque es el idioma por defecto y el de los asserts. La version en ingles no
+     * se queda sin medir: tiene su propia suite en `e2e/idiomas.spec.ts`, que abre el contexto con
+     * `en` a proposito.
+     */
+    locale: 'es-CO',
   },
   webServer: {
     command: 'node node_modules/next/dist/bin/next start --port 3210',

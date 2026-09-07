@@ -65,7 +65,12 @@ export const PERFILES: Array<{ nombre: string; datos: Record<string, unknown> }>
       w: 'https://danielrestrepo.example',
       li: 'danielrestrepo',
       d: 'Bogotá · Colombia',
-      ti: 'Recupera las horas que tu operación te quita.',
+      // ⚠️ Ni este texto ni ningun otro valor de los perfiles puede coincidir con una cadena de
+      // `messages/`: hay asserts que buscan estos valores dentro del HTML del servidor para probar
+      // que los datos NO salen del navegador, y desde la unidad 7a ese HTML lleva el catalogo de
+      // mensajes. Una frase copiada del `placeholder` del editor pondria esas pruebas en rojo sin
+      // que se hubiera filtrado nada. Hay un guard que lo comprueba en `qr-en-pantalla.spec.ts`.
+      ti: 'Le devuelvo a tu operación las horas perdidas.',
       de: 'Tu equipo deja el trabajo repetitivo y vuelve a lo que de verdad importa: decidir, crear.',
     },
   },

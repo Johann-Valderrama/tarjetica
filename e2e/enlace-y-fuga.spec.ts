@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { ningunValorEsCopyDeLaInterfaz } from './fuga.helpers'
 import { PERFILES } from './perfiles.datos'
 
 /**
@@ -114,7 +115,12 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
 
     // Se pide la ruta PELADA, que es lo unico que el servidor llega a ver.
     const html = await (await request.get('/t')).text()
-    for (const dato of ['Daniel', 'Restrepo', 'Norte Soluciones', '300 123 4567']) {
+    const buscados = ['Daniel', 'Restrepo', 'Norte Soluciones', '300 123 4567']
+
+    // Guard del guard: ver `fuga.helpers.ts`.
+    ningunValorEsCopyDeLaInterfaz(buscados)
+
+    for (const dato of buscados) {
       expect(html, `el HTML del servidor trae "${dato}"`).not.toContain(dato)
     }
     expect(html, 'el HTML del servidor trae el payload').not.toContain(fragmento)

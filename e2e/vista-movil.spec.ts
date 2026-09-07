@@ -28,7 +28,8 @@ const TARJETA_LLENA = {
   ig: 'johannvn',
   l: [{ u: 'https://ejemplo.com/portafolio', e: 'Portafolio' }],
   d: 'Bogotá · Colombia',
-  ti: 'Recupera las horas que tu operación te quita.',
+  // No puede coincidir con un `placeholder` del editor: ver la nota en `perfiles.datos.ts`.
+  ti: 'Le devuelvo a tu operación las horas perdidas.',
   de: 'Tu equipo deja el trabajo repetitivo y vuelve a lo que de verdad importa: decidir, crear.',
 }
 
@@ -97,7 +98,7 @@ test.describe('3d · superficie a 375 px', () => {
     // Lo que SI se ve: identidad, los dos bloques y UN telefono.
     expect(texto).toContain('Daniel Restrepo')
     expect(texto).toContain('Norte Soluciones TI')
-    expect(texto).toContain('Recupera las horas')
+    expect(texto).toContain('las horas perdidas')
     expect(texto).toContain('+57 300 123 4567')
 
     // Lo que NO se ve, porque viaja dentro del vCard que el QR guarda en la agenda ajena.

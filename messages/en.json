@@ -1,0 +1,151 @@
+{
+  "app": {
+    "nombre": "Tarjetica",
+    "avisoG2": "We do not store your data on any server.",
+    "descripcion": "Your digital business card. We do not store your data on any server."
+  },
+  "meta": {
+    "editor": "Editor · Tarjetica",
+    "tarjeta": "Your card · Tarjetica",
+    "enlace": "Card · Tarjetica"
+  },
+  "idioma": {
+    "etiqueta": "Language"
+  },
+  "home": {
+    "tagline": "Your digital business card, with no account and no server.",
+    "cta": "Create my card",
+    "comoFunciona": "You fill in your details, they stay on this device, and you share your card as a QR code, as an image, or as a contact file."
+  },
+  "editor": {
+    "abriendo": "Opening your card…",
+    "titulo": "Your card",
+    "subtitulo": "It saves itself on this device while you type.",
+    "foto": "Photo",
+    "fotoAlt": "Your profile photo",
+    "fotoAyuda": "It gets resized and stripped of metadata before being saved. It never travels inside the QR code or the link.",
+    "quitarFoto": "Remove the photo",
+    "fotoTipoNoSoportado": "That file does not look like an image.",
+    "fotoFallo": "The image could not be processed. Try another one.",
+    "fotoNoGuardada": "The photo could not be saved in this browser.",
+    "compartir": "Share",
+    "creandoImagen": "Creating the image…",
+    "guardarImagen": "Save as image",
+    "mostrarQr": "Show QR code",
+    "descargarVcf": "Download my contact (.vcf)",
+    "imagenFallo": "The image could not be created in this browser.",
+    "imagenNoGuardada": "The image could not be saved.",
+    "vcfFallo": "This browser does not allow downloading the file.",
+    "faltaNombre": "Type at least your name to be able to share.",
+    "faltaConfirmacion": "Tick the confirmation above to be able to share.",
+    "notaImagen": "The image comes out the size of a phone, with your QR code inside. It is created right here: it does not leave this device.",
+    "guardando": "Saving…",
+    "guardado": "Saved on this device",
+    "falloGuardado": "Could not save in this browser"
+  },
+  "campos": {
+    "identidad": "Identity",
+    "nombre": "First name *",
+    "apellido": "Last name",
+    "cargo": "Job title",
+    "empresa": "Company",
+    "contacto": "Contact",
+    "correo": "Email",
+    "telefonos": "Phones",
+    "telefonoPlaceholder": "300 000 0000",
+    "etiquetaTelefono": "Label for phone {n}",
+    "quitarTelefono": "Remove phone {n}",
+    "agregarTelefono": "Add phone",
+    "sitioWeb": "Website",
+    "urlPlaceholder": "https://…",
+    "redes": "Social",
+    "linkedin": "LinkedIn",
+    "linkedinPlaceholder": "your-handle",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "facebook": "Facebook",
+    "sinArroba": "without the @",
+    "otrosEnlaces": "Other links",
+    "etiquetaEnlace": "Label for link {n}",
+    "quitarEnlace": "Remove link {n}",
+    "agregarEnlace": "Add link",
+    "enlacePlaceholder": "Portfolio",
+    "dosFrases": "Your card in two sentences",
+    "titular": "Headline",
+    "titularPlaceholder": "Get back the hours your operation takes from you.",
+    "titularAyuda": "One sentence: what you do.",
+    "descripcion": "Description",
+    "descripcionPlaceholder": "Your team drops the repetitive work and goes back to what matters.",
+    "descripcionAyuda": "Up to two sentences: why people look for you.",
+    "descripcionAviso": "Anything fits here, so avoid sensitive data (health, affiliations, beliefs). Everything you write travels in the card you hand out.",
+    "ubicacion": "Location",
+    "ciudad": "City",
+    "ciudadPlaceholder": "Bogotá · Colombia",
+    "ciudadAviso": "It shows on the top line of the card. If you prefer an exact address, think about whether you want it to be your home: you are going to hand this card out."
+  },
+  "avisos": {
+    "alcanceTitulo": "This app is for YOUR own card.",
+    "alcanceCuerpo": "If you make someone else's, their data stays on this phone and in this phone's backups. The image you save goes to your Photos, and the contact to your address book.",
+    "confirmacion": "I confirm this card is mine, or that I have the person's permission to share their data.",
+    "borrarTodo": "Delete my data from this device"
+  },
+  "limites": {
+    "equipo": "Your card lives in this browser, on this device. If you clear the site data or change phones, you lose it: there is no account to recover it from.",
+    "respaldo": "The image you save is your backup.",
+    "senal": "You need a connection the first time you open the app.",
+    "enlaceIrrevocable": "A link you have already handed out cannot be switched off. The data travels inside the link, so there is no server where it could be deleted."
+  },
+  "tarjeta": {
+    "abriendo": "Opening your card…",
+    "sinTarjeta": "There is no card on this device yet.",
+    "crearla": "Create it in the editor",
+    "escanea": "Scan to save me in your contacts",
+    "fotoDe": "Photo of {nombre}",
+    "perfil": "profile",
+    "hechaCon": "Made with"
+  },
+  "qr": {
+    "alt": "QR code with this card's contact details",
+    "fallo": "The code could not be generated in this browser. The phone number below still works.",
+    "noDisponible": "The QR code is not available.",
+    "densidad": "Your code came out very dense ({modulos}×{modulos} squares). It may be hard to scan from another screen.",
+    "densidadRecorte": "Your code came out very dense ({modulos}×{modulos} squares). It may be hard to scan from another screen. Removing {campo} lightens it the fastest.",
+    "recortes": {
+      "de": "the description",
+      "ti": "the headline",
+      "l": "the links",
+      "d": "the location",
+      "t": "the extra phones",
+      "w": "the website",
+      "li": "LinkedIn",
+      "ig": "Instagram",
+      "fb": "Facebook",
+      "tk": "TikTok",
+      "em": "the company",
+      "c": "the job title"
+    }
+  },
+  "enlace": {
+    "titulo": "Shareable link (optional)",
+    "intro": "If you prefer, you can send your card as a link. It is not required: the QR code and the image already work without it.",
+    "quiero": "I want a link",
+    "antesDeCrearlo": "Before creating it, read this:",
+    "publico": "Your data travels inside the link. Anyone who has it can see it, with no password.",
+    "irrevocable": "<fuerte>It cannot be switched off afterwards.</fuerte> There is no server where it could be deleted: whatever you hand out stays alive forever. If you edit your card, a new link is created and the old one keeps showing the old version.",
+    "historial": "The link stays in the <fuerte>browser history</fuerte> of whoever opens it, and if that person has sync turned on, it is copied to their other devices. We cannot prevent that from here.",
+    "mejorNo": "Better not",
+    "creando": "Creating…",
+    "entiendo": "I understand, create it",
+    "copiado": "Copied",
+    "copiar": "Copy link",
+    "ocultar": "Hide",
+    "abriendo": "Opening the card…",
+    "hazLaTuya": "Make your own",
+    "errores": {
+      "vacio": "This link does not carry any card. It may have been cut off when it was copied.",
+      "ilegible": "This card could not be read. The link looks incomplete or got broken when it was copied.",
+      "version-desconocida": "This link was created by a newer version of the app and cannot be read here.",
+      "datos-invalidos": "This card arrived with data that cannot be displayed."
+    }
+  }
+}

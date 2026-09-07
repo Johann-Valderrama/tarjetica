@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import {
   ETIQUETAS_TELEFONO,
   TOPE_DESCRIPCION,
@@ -19,6 +20,10 @@ import { AvisoDeCampo } from '@/features/tarjeta/formulario/avisos'
  *
  * **Ningun campo es obligatorio salvo el nombre.** Una tarjeta con nombre y correo tiene que
  * funcionar igual de bien que una con los 20 campos llenos.
+ *
+ * **Ningun texto visible se escribe aqui (unidad 7a).** Todo sale de `messages/`, incluidos los
+ * `placeholder` y los `aria-label`: un `aria-label` sin traducir deja el formulario en español para
+ * quien navega con lector de pantalla, y eso no se ve en ninguna captura.
  */
 
 type Cambio = (parche: Partial<TarjetaBorrador>) => void
@@ -96,11 +101,12 @@ export function CamposIdentidad({
   tarjeta: TarjetaBorrador
   onCambio: Cambio
 }) {
+  const t = useTranslations('campos')
   return (
-    <Seccion titulo="Identidad">
+    <Seccion titulo={t('identidad')}>
       <CampoTexto
         id="n"
-        etiqueta="Nombre *"
+        etiqueta={t('nombre')}
         valor={tarjeta.n}
         onCambio={(v) => onCambio({ n: v })}
         autoComplete="given-name"
@@ -108,21 +114,21 @@ export function CamposIdentidad({
       />
       <CampoTexto
         id="a"
-        etiqueta="Apellido"
+        etiqueta={t('apellido')}
         valor={tarjeta.a}
         onCambio={(v) => onCambio({ a: v })}
         autoComplete="family-name"
       />
       <CampoTexto
         id="c"
-        etiqueta="Cargo"
+        etiqueta={t('cargo')}
         valor={tarjeta.c}
         onCambio={(v) => onCambio({ c: v })}
         autoComplete="organization-title"
       />
       <CampoTexto
         id="em"
-        etiqueta="Empresa"
+        etiqueta={t('empresa')}
         valor={tarjeta.em}
         onCambio={(v) => onCambio({ em: v })}
         autoComplete="organization"
@@ -138,6 +144,7 @@ export function CamposContacto({
   tarjeta: TarjetaBorrador
   onCambio: Cambio
 }) {
+  const t = useTranslations('campos')
   const telefonos = tarjeta.t ?? []
 
   const cambiarTelefono = (i: number, parche: Partial<{ n: string; e: string }>) => {
@@ -147,10 +154,10 @@ export function CamposContacto({
   }
 
   return (
-    <Seccion titulo="Contacto">
+    <Seccion titulo={t('contacto')}>
       <CampoTexto
         id="co"
-        etiqueta="Correo"
+        etiqueta={t('correo')}
         tipo="email"
         valor={tarjeta.co}
         onCambio={(v) => onCambio({ co: v })}
@@ -159,7 +166,7 @@ export function CamposContacto({
       />
 
       <div className="space-y-2">
-        <Etiqueta htmlFor="tel-0">Teléfonos</Etiqueta>
+        <Etiqueta htmlFor="tel-0">{t('telefonos')}</Etiqueta>
         {telefonos.map((tel, i) => (
           <div key={i} className="flex gap-2">
             <Entrada
@@ -169,15 +176,20 @@ export function CamposContacto({
               inputMode="tel"
               value={tel.n}
               onChange={(e) => cambiarTelefono(i, { n: e.target.value })}
-              placeholder="300 123 4567"
+              placeholder={t('telefonoPlaceholder')}
             />
             <select
-              aria-label={`Etiqueta del teléfono ${i + 1}`}
+              aria-label={t('etiquetaTelefono', { n: i + 1 })}
               name={`tel-etiqueta-${i}`}
               value={tel.e}
               onChange={(e) => cambiarTelefono(i, { e: e.target.value })}
               className="min-h-11 shrink-0 rounded-lg border border-neutral-300 px-2 text-base"
             >
+              {/*
+                Las etiquetas de telefono (`movil`, `casa`...) NO se traducen: son VALORES del
+                modelo que viajan al vCard y al enlace, no texto de interfaz. Traducirlas
+                cambiaria el dato guardado segun el idioma en que se creo la tarjeta.
+              */}
               {ETIQUETAS_TELEFONO.map((et) => (
                 <option key={et} value={et}>
                   {et}
@@ -186,7 +198,7 @@ export function CamposContacto({
             </select>
             <button
               type="button"
-              aria-label={`Quitar el teléfono ${i + 1}`}
+              aria-label={t('quitarTelefono', { n: i + 1 })}
               onClick={() =>
                 onCambio({ t: telefonos.filter((_, j) => j !== i) as TarjetaBorrador['t'] })
               }
@@ -204,18 +216,18 @@ export function CamposContacto({
             }
             className="min-h-11 w-full rounded-lg border border-dashed border-neutral-300 text-sm text-neutral-600"
           >
-            Agregar teléfono
+            {t('agregarTelefono')}
           </button>
         )}
       </div>
 
       <CampoTexto
         id="w"
-        etiqueta="Sitio web"
+        etiqueta={t('sitioWeb')}
         tipo="url"
         valor={tarjeta.w}
         onCambio={(v) => onCambio({ w: v })}
-        placeholder="https://…"
+        placeholder={t('urlPlaceholder')}
         inputMode="url"
       />
     </Seccion>
@@ -223,6 +235,7 @@ export function CamposContacto({
 }
 
 export function CamposRedes({ tarjeta, onCambio }: { tarjeta: TarjetaBorrador; onCambio: Cambio }) {
+  const t = useTranslations('campos')
   const enlaces = tarjeta.l ?? []
 
   const cambiarEnlace = (i: number, parche: Partial<{ u: string; e: string }>) => {
@@ -232,37 +245,37 @@ export function CamposRedes({ tarjeta, onCambio }: { tarjeta: TarjetaBorrador; o
   }
 
   return (
-    <Seccion titulo="Redes">
+    <Seccion titulo={t('redes')}>
       <CampoTexto
         id="li"
-        etiqueta="LinkedIn"
+        etiqueta={t('linkedin')}
         valor={tarjeta.li}
         onCambio={(v) => onCambio({ li: v })}
-        placeholder="tu-usuario"
+        placeholder={t('linkedinPlaceholder')}
       />
       <CampoTexto
         id="ig"
-        etiqueta="Instagram"
+        etiqueta={t('instagram')}
         valor={tarjeta.ig}
         onCambio={(v) => onCambio({ ig: v })}
-        placeholder="sin la @"
+        placeholder={t('sinArroba')}
       />
       <CampoTexto
         id="tk"
-        etiqueta="TikTok"
+        etiqueta={t('tiktok')}
         valor={tarjeta.tk}
         onCambio={(v) => onCambio({ tk: v })}
-        placeholder="sin la @"
+        placeholder={t('sinArroba')}
       />
       <CampoTexto
         id="fb"
-        etiqueta="Facebook"
+        etiqueta={t('facebook')}
         valor={tarjeta.fb}
         onCambio={(v) => onCambio({ fb: v })}
       />
 
       <div className="space-y-2">
-        <Etiqueta htmlFor="enlace-0">Otros enlaces</Etiqueta>
+        <Etiqueta htmlFor="enlace-0">{t('otrosEnlaces')}</Etiqueta>
         {enlaces.map((enlace, i) => (
           <div key={i} className="flex gap-2">
             <Entrada
@@ -272,19 +285,19 @@ export function CamposRedes({ tarjeta, onCambio }: { tarjeta: TarjetaBorrador; o
               inputMode="url"
               value={enlace.u}
               onChange={(e) => cambiarEnlace(i, { u: e.target.value })}
-              placeholder="https://…"
+              placeholder={t('urlPlaceholder')}
             />
             <Entrada
-              aria-label={`Etiqueta del enlace ${i + 1}`}
+              aria-label={t('etiquetaEnlace', { n: i + 1 })}
               name={`enlace-etiqueta-${i}`}
               value={enlace.e}
               onChange={(e) => cambiarEnlace(i, { e: e.target.value })}
-              placeholder="Portafolio"
+              placeholder={t('enlacePlaceholder')}
               className="max-w-[38%]"
             />
             <button
               type="button"
-              aria-label={`Quitar el enlace ${i + 1}`}
+              aria-label={t('quitarEnlace', { n: i + 1 })}
               onClick={() =>
                 onCambio({ l: enlaces.filter((_, j) => j !== i) as TarjetaBorrador['l'] })
               }
@@ -300,7 +313,7 @@ export function CamposRedes({ tarjeta, onCambio }: { tarjeta: TarjetaBorrador; o
             onClick={() => onCambio({ l: [...enlaces, { u: '', e: '' }] as TarjetaBorrador['l'] })}
             className="min-h-11 w-full rounded-lg border border-dashed border-neutral-300 text-sm text-neutral-600"
           >
-            Agregar enlace
+            {t('agregarEnlace')}
           </button>
         )}
       </div>
@@ -327,24 +340,25 @@ export function CamposDeTexto({
   tarjeta: TarjetaBorrador
   onCambio: Cambio
 }) {
+  const t = useTranslations('campos')
   return (
-    <Seccion titulo="Tu tarjeta en dos frases">
+    <Seccion titulo={t('dosFrases')}>
       <div>
-        <Etiqueta htmlFor="ti">Titular</Etiqueta>
+        <Etiqueta htmlFor="ti">{t('titular')}</Etiqueta>
         <Entrada
           id="ti"
           name="ti"
           value={tarjeta.ti ?? ''}
           onChange={(e) => onCambio({ ti: e.target.value === '' ? undefined : e.target.value })}
           maxLength={TOPE_TITULAR}
-          placeholder="Recupera las horas que tu operación te quita."
+          placeholder={t('titularPlaceholder')}
         />
         <Contador actual={tarjeta.ti?.length ?? 0} tope={TOPE_TITULAR} />
-        <p className="mt-1 text-xs text-neutral-600">Una frase: qué haces.</p>
+        <p className="mt-1 text-xs text-neutral-600">{t('titularAyuda')}</p>
       </div>
 
       <div>
-        <Etiqueta htmlFor="de">Descripción</Etiqueta>
+        <Etiqueta htmlFor="de">{t('descripcion')}</Etiqueta>
         <textarea
           id="de"
           name="de"
@@ -352,15 +366,12 @@ export function CamposDeTexto({
           value={tarjeta.de ?? ''}
           onChange={(e) => onCambio({ de: e.target.value === '' ? undefined : e.target.value })}
           maxLength={TOPE_DESCRIPCION}
-          placeholder="Tu equipo deja el trabajo repetitivo y vuelve a lo que importa."
+          placeholder={t('descripcionPlaceholder')}
           className="w-full rounded-lg border border-neutral-300 p-3 text-base focus:border-neutral-900 focus:outline-none"
         />
         <Contador actual={tarjeta.de?.length ?? 0} tope={TOPE_DESCRIPCION} />
-        <p className="mt-1 text-xs text-neutral-600">Hasta dos frases: por qué te buscan.</p>
-        <AvisoDeCampo>
-          Aquí cabe cualquier cosa, así que evita datos delicados (salud, afiliaciones, creencias).
-          Todo lo que escribas viaja en la tarjeta que regalas.
-        </AvisoDeCampo>
+        <p className="mt-1 text-xs text-neutral-600">{t('descripcionAyuda')}</p>
+        <AvisoDeCampo>{t('descripcionAviso')}</AvisoDeCampo>
       </div>
     </Seccion>
   )
@@ -383,20 +394,16 @@ export function CampoUbicacion({
   tarjeta: TarjetaBorrador
   onCambio: Cambio
 }) {
+  const t = useTranslations('campos')
   return (
-    <Seccion titulo="Ubicación">
+    <Seccion titulo={t('ubicacion')}>
       <CampoTexto
         id="d"
-        etiqueta="Ciudad"
+        etiqueta={t('ciudad')}
         valor={tarjeta.d}
         onCambio={(v) => onCambio({ d: v })}
-        placeholder="Bogotá · Colombia"
-        ayuda={
-          <AvisoDeCampo>
-            Sale en la línea de arriba de la tarjeta. Si prefieres una dirección exacta, piensa si
-            quieres que sea la de tu casa: esta tarjeta la vas a repartir.
-          </AvisoDeCampo>
-        }
+        placeholder={t('ciudadPlaceholder')}
+        ayuda={<AvisoDeCampo>{t('ciudadAviso')}</AvisoDeCampo>}
       />
     </Seccion>
   )

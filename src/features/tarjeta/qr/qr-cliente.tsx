@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import QRCode from 'qrcode'
+import { useTranslations } from 'next-intl'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { vcardParaQr } from '@/features/tarjeta/vcard/generar'
 import { medirDensidad, type Densidad } from '@/features/tarjeta/qr/densidad'
@@ -34,6 +35,7 @@ type Estado =
   | { fase: 'fallo' }
 
 export function QrDeContacto({ tarjeta, onDensidad }: { tarjeta: Tarjeta; onDensidad?: (d: Densidad) => void }) {
+  const t = useTranslations('qr')
   const [estado, setEstado] = useState<Estado>({ fase: 'generando' })
   const texto = vcardParaQr(tarjeta)
 
@@ -61,9 +63,7 @@ export function QrDeContacto({ tarjeta, onDensidad }: { tarjeta: Tarjeta; onDens
 
   if (estado.fase === 'fallo') {
     return (
-      <p className="px-4 text-center text-xs text-neutral-600">
-        No se pudo generar el código en este navegador. El teléfono de abajo sigue sirviendo.
-      </p>
+      <p className="px-4 text-center text-xs text-neutral-600">{t('fallo')}</p>
     )
   }
 
@@ -86,7 +86,7 @@ export function QrDeContacto({ tarjeta, onDensidad }: { tarjeta: Tarjeta; onDens
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={estado.dataUrl}
-      alt="Código QR con los datos de contacto de esta tarjeta"
+      alt={t('alt')}
       data-testid="qr-contacto"
       data-margen-modulos={MARGEN_MODULOS}
       data-modulos={estado.densidad.modulos}

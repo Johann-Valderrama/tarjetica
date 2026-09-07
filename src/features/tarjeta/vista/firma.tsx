@@ -1,3 +1,5 @@
+import { useTranslations } from 'next-intl'
+
 /**
  * Unidad 3e del PRP-TD-001: la firma de marca (G4).
  *
@@ -23,9 +25,10 @@ export const MARCA: { nombre: string; dominio: string | null } = {
 }
 
 export function FirmaDeMarca() {
+  const t = useTranslations('tarjeta')
   return (
     <p className="pt-1 text-center text-[11px] tracking-wide text-tinta-suave/70">
-      Hecha con <span className="text-tinta-suave">{MARCA.nombre}</span>
+      {t('hechaCon')} <span className="text-tinta-suave">{MARCA.nombre}</span>
       {MARCA.dominio ? ` · ${MARCA.dominio}` : null}
     </p>
   )

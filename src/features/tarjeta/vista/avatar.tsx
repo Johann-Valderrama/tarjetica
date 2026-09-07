@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import { iniciales } from '@/features/tarjeta/foto/cargar'
 
 /**
@@ -20,6 +21,7 @@ export function Avatar({
   apellido?: string
   tamano?: number
 }) {
+  const t = useTranslations('tarjeta')
   const estilo = { width: tamano, height: tamano }
 
   return (
@@ -32,7 +34,7 @@ export function Avatar({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={fotoDataUrl}
-            alt={`Foto de ${[nombre, apellido].filter(Boolean).join(' ') || 'perfil'}`}
+            alt={t('fotoDe', { nombre: [nombre, apellido].filter(Boolean).join(' ') || t('perfil') })}
             className="h-full w-full object-cover"
           />
         ) : (
