@@ -182,8 +182,8 @@ test('sin confirmar que la tarjeta es tuya, no se puede exportar', async ({ page
     localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
   }, PERFIL.datos)
   await page.reload()
-  await expect(page.getByTestId('exportar-jpeg')).toBeDisabled()
-  await expect(page.getByTestId('descargar-vcf')).toBeDisabled()
+  await expect(page.getByTestId('exportar-jpeg')).toHaveAttribute('aria-disabled', 'true')
+  await expect(page.getByTestId('descargar-vcf')).toHaveAttribute('aria-disabled', 'true')
 })
 
 test('la pantalla de la tarjeta NO tiene ningun control, ni dentro ni fuera del capturable', async ({ page }) => {

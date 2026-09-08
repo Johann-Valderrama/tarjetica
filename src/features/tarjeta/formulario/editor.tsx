@@ -43,6 +43,7 @@ import {
   LimitesDelProducto,
   puedeExportar,
 } from '@/features/tarjeta/formulario/avisos'
+import { BotonDeSalida } from '@/features/tarjeta/formulario/boton-de-salida'
 import { PingDeTarjetaCreada } from '@/features/metricas/ping-de-tarjeta-creada'
 import { SelectorDeIdioma } from '@/shared/idioma/selector-idioma'
 
@@ -107,6 +108,30 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   const [avisoDescarga, setAvisoDescarga] = useState<string | null>(null)
   const [exportando, setExportando] = useState(false)
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const confirmacion = useRef<HTMLDivElement | null>(null)
+
+  /**
+   * Que pasa cuando alguien pulsa un boton que todavia no puede usar.
+   *
+   * En vez de no hacer nada (que es lo que hacia un `disabled` a secas), lleva la vista a lo que
+   * falta, lo resalta un momento y le pone el foco al propio control. Las tres cosas juntas: el
+   * scroll para que se vea, el resalte para que se note cual de todo, y el foco para que quien
+   * navegue con teclado quede parado justo ahi.
+   *
+   * La clase del resalte se quita sola: si se quedara puesta, el segundo intento no animaria nada
+   * y el usuario pensaria que el boton ya ni responde.
+   */
+  const senalarLoQueFalta = () => {
+    const caja = confirmacion.current
+    if (!caja) return
+    caja.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    caja.classList.remove('resaltado')
+    // Forzar un reflujo reinicia la animacion cuando se pulsa dos veces seguidas.
+    void caja.offsetWidth
+    caja.classList.add('resaltado')
+    caja.querySelector('input')?.focus({ preventScroll: true })
+    setTimeout(() => caja.classList.remove('resaltado'), 2600)
+  }
 
   // El autosave: solo ESCRIBE, no toca estado de React de forma sincrona. El "Guardando..." lo
   // pone el manejador del cambio, que es donde de verdad ocurre.
@@ -158,7 +183,10 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
    * que se regala es la tarjeta, no el formulario.
    */
   const exportarImagen = async () => {
-    if (!esExportable(tarjeta)) return
+    // Igual que en el `.vcf`: la puerta la sostiene este codigo desde que el boton usa
+    // `aria-disabled`. Es la contramedida de la unidad 2d y no se debilita, solo cambia quien la
+    // impone; hay un E2E que pulsa el boton bloqueado y comprueba que no sale ninguna imagen.
+    if (!esExportable(tarjeta) || !puedeExportar(confirmado)) return
     setAvisoDescarga(null)
     setExportando(true)
     try {
@@ -265,53 +293,69 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-tinta">{t('editor.compartir')}</h2>
-        <ConfirmacionDeExportacion
-          confirmado={confirmado}
-          onCambio={(v) => {
-            setConfirmado(v)
-            guardarConfirmacion(v)
-          }}
-        />
+        <div ref={confirmacion}>
+          <ConfirmacionDeExportacion
+            confirmado={confirmado}
+            onCambio={(v) => {
+              setConfirmado(v)
+              guardarConfirmacion(v)
+            }}
+          />
+        </div>
         <div className="grid gap-2">
-          <button
-            type="button"
-            data-testid="exportar-jpeg"
-            disabled={!listaParaExportar || exportando}
-            onClick={() => void exportarImagen()}
-            // Deshabilitado tiene que cambiar el TEXTO tambien: el boton activo lleva tinta oscura
-            // sobre el acento, y al apagarse el fondo se vuelve oscuro. Sin esta linea queda
-            // casi-negro sobre casi-negro, o sea un boton que desaparece en vez de verse apagado.
-            className="min-h-11 rounded-lg bg-acento px-4 font-medium text-fondo disabled:cursor-not-allowed disabled:bg-superficie-sutil disabled:text-tinta-tenue"
+          {/*
+            Los tres van por `BotonDeSalida`, que en vez de un `disabled` mudo explica QUE FALTA y
+            al pulsarlo lleva a la confirmacion, la resalta y le da el foco. El porque de
+            `aria-disabled` en vez de `disabled` (y su precio) esta en ese archivo.
+          */}
+          <BotonDeSalida
+            id="exportar-jpeg"
+            variante="primario"
+            habilitado={listaParaExportar && !exportando}
+            onAccion={() => void exportarImagen()}
+            onFalta={senalarLoQueFalta}
           >
             {exportando ? t('editor.creandoImagen') : t('editor.guardarImagen')}
-          </button>
-          <button
-            type="button"
-            data-testid="mostrar-qr"
-            disabled={!listaParaExportar}
-            onClick={() => router.push('/tarjeta')}
-            className="min-h-11 rounded-lg border border-acento px-4 font-medium text-tinta disabled:cursor-not-allowed disabled:border-borde disabled:text-tinta-tenue"
+          </BotonDeSalida>
+          <BotonDeSalida
+            id="mostrar-qr"
+            variante="acento"
+            habilitado={listaParaExportar}
+            onAccion={() => router.push('/tarjeta')}
+            onFalta={senalarLoQueFalta}
           >
-            {t('editor.mostrarQr')}
-          </button>
+            {/*
+              "Ver mi tarjeta", no "Mostrar codigo QR". El boton lleva a la tarjeta ENTERA (nombre,
+              cargo, empresa, los dos bloques de texto, el telefono y la firma, ademas del codigo),
+              asi que el nombre viejo subvendia lo que hace. Lo noto Johann.
+
+              Y no se llama "previsualizacion", que fue lo primero que se propuso: esa pantalla NO
+              es un ensayo previo, es el gesto central del producto, el momento de extenderle el
+              telefono a otra persona en un evento. Nombrar el GESTO sirve para los dos momentos
+              (revisar como quedo y enseñarsela a alguien) sin rebajar ninguno.
+            */}
+            {t('editor.verTarjeta')}
+          </BotonDeSalida>
           {/*
             La descarga del `.vcf` (unidad 4b). Va aqui y no en la vista de la tarjeta porque alli
             no cabe ningun control: esa pantalla es lo que la Ola 5 captura como imagen, y un boton
             adentro saldria en el `.jpeg` que el usuario regala.
           */}
-          <button
-            type="button"
-            data-testid="descargar-vcf"
-            disabled={!listaParaExportar}
-            onClick={() => {
-              if (!esExportable(tarjeta)) return
+          <BotonDeSalida
+            id="descargar-vcf"
+            variante="neutro"
+            habilitado={listaParaExportar}
+            onAccion={() => {
+              // La puerta se comprueba TAMBIEN aqui, no solo en el estado del boton: desde que el
+              // apagado es `aria-disabled`, el navegador ya no la sostiene por nosotros.
+              if (!esExportable(tarjeta) || !puedeExportar(confirmado)) return
               const r = descargarVCard(tarjeta, foto?.dataUrl)
               if (!r.ok) setAvisoDescarga(t('editor.vcfFallo'))
             }}
-            className="min-h-11 rounded-lg border border-borde-fuerte px-4 font-medium text-tinta disabled:cursor-not-allowed disabled:border-borde disabled:text-tinta-tenue"
+            onFalta={senalarLoQueFalta}
           >
             {t('editor.descargarVcf')}
-          </button>
+          </BotonDeSalida>
         </div>
         {aviso && (
           <p role="status" data-testid="aviso-densidad" className="rounded-lg border border-aviso-borde bg-aviso-superficie p-3 text-sm text-tinta">
@@ -332,7 +376,12 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
           <p className="text-sm text-tinta-suave">{t('editor.faltaNombre')}</p>
         )}
         {esExportable(tarjeta) && !confirmado && (
-          <p className="text-sm text-tinta-suave">{t('editor.faltaConfirmacion')}</p>
+          // El `id` no es decoracion: es lo que `aria-describedby` de cada boton apagado enlaza,
+          // asi que un lector de pantalla anuncia QUE FALTA al llegar al boton, no solo que esta
+          // deshabilitado.
+          <p id="que-falta-para-compartir" className="text-sm text-tinta-suave">
+            {t('editor.faltaConfirmacion')}
+          </p>
         )}
         <p className="text-xs text-tinta-suave">{t('editor.notaImagen')}</p>
       </section>
@@ -342,7 +391,11 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
         boton al lado: es opcional, tiene efecto hacia afuera y no se puede revocar. Se ofrece
         visible (invisible = no existe) pero nace apagado.
       */}
-      <GenerarEnlace tarjeta={esExportable(tarjeta) ? tarjeta : null} habilitado={listaParaExportar} />
+      <GenerarEnlace
+        tarjeta={esExportable(tarjeta) ? tarjeta : null}
+        habilitado={listaParaExportar}
+        onFalta={senalarLoQueFalta}
+      />
 
       <LimitesDelProducto />
 

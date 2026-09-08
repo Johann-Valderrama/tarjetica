@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { construirEnlace } from '@/features/tarjeta/enlace/codec'
+import { BotonDeSalida } from '@/features/tarjeta/formulario/boton-de-salida'
 
 /**
  * Unidad 6b del PRP-TD-001: generar el link compartible.
@@ -28,7 +29,16 @@ import { construirEnlace } from '@/features/tarjeta/enlace/codec'
 
 type Estado = { fase: 'apagado' } | { fase: 'advertido' } | { fase: 'generando' } | { fase: 'listo'; enlace: string }
 
-export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null; habilitado: boolean }) {
+export function GenerarEnlace({
+  tarjeta,
+  habilitado,
+  onFalta,
+}: {
+  tarjeta: Tarjeta | null
+  habilitado: boolean
+  /** Igual que los otros botones de salida: apagado no es mudo, lleva a lo que falta. */
+  onFalta: () => void
+}) {
   const t = useTranslations('enlace')
   const [estado, setEstado] = useState<Estado>({ fase: 'apagado' })
   const [copiado, setCopiado] = useState(false)
@@ -57,15 +67,15 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
       <p className="text-sm text-tinta-suave">{t('intro')}</p>
 
       {estado.fase === 'apagado' && (
-        <button
-          type="button"
-          data-testid="abrir-enlace"
-          disabled={!habilitado}
-          onClick={() => setEstado({ fase: 'advertido' })}
-          className="min-h-11 w-full rounded-lg border border-borde-fuerte px-4 text-sm font-medium text-tinta disabled:cursor-not-allowed disabled:border-borde disabled:text-tinta-tenue"
+        <BotonDeSalida
+          id="abrir-enlace"
+          variante="neutro"
+          habilitado={habilitado}
+          onAccion={() => setEstado({ fase: 'advertido' })}
+          onFalta={onFalta}
         >
           {t('quiero')}
-        </button>
+        </BotonDeSalida>
       )}
 
       {(estado.fase === 'advertido' || estado.fase === 'generando') && (

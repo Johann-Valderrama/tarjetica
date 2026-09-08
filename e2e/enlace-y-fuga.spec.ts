@@ -101,7 +101,7 @@ test.describe('la advertencia va ANTES de generar, no despues', () => {
       localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
     }, PERFIL.datos)
     await page.reload()
-    await expect(page.getByTestId('abrir-enlace')).toBeDisabled()
+    await expect(page.getByTestId('abrir-enlace')).toHaveAttribute('aria-disabled', 'true')
   })
 })
 

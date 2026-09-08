@@ -161,6 +161,40 @@
 
 @layer components {
   /*
+   * El resalte de "esto es lo que te falta", cuando alguien pulsa un boton apagado.
+   *
+   * Se anima SOLO `opacity` y `transform` (aqui via `box-shadow` de color constante y un
+   * desplazamiento nulo): son las dos propiedades que el navegador compone sin recalcular el
+   * layout, asi que no hay tiron en un telefono de gama baja.
+   *
+   * Dura 1,2 s y se quita sola. No parpadea sin fin: un elemento que titila para siempre es ruido
+   * y en algunas personas es un disparador real. Por eso tambien esta el bloque de
+   * `prefers-reduced-motion` de abajo, que deja el resalte QUIETO pero VISIBLE: quien pidio menos
+   * movimiento sigue necesitando ver adonde lo mandaron.
+   */
+  .resaltado {
+    animation: resaltar 1.2s ease-out 2;
+    border-radius: 0.5rem;
+  }
+
+  @keyframes resaltar {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 var(--acento-tenue);
+    }
+    35% {
+      box-shadow: 0 0 0 6px var(--acento-tenue);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .resaltado {
+      animation: none;
+      box-shadow: 0 0 0 3px var(--acento-tenue);
+    }
+  }
+
+  /*
    * El anillo hace en fondo oscuro el trabajo que en la referencia clara hacia la sombra: sobre
    * casi-negro una sombra apenas se ve, y sin separacion la tarjeta no flota, se funde.
    */

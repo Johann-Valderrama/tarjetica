@@ -203,7 +203,7 @@ test.describe('la paleta llega a la pantalla, no solo al archivo', () => {
         fondoEsperado: normalizar(token('--superficie')),
         placeholder: getComputedStyle(campo, '::placeholder').color,
         placeholderEsperado: normalizar(token('--tinta-suave')),
-        botonApagado: boton.disabled,
+        botonApagado: boton.getAttribute('aria-disabled') === 'true',
         tintaBoton: getComputedStyle(boton).color,
         tintaEsperada: normalizar(token('--tinta-tenue')),
       }

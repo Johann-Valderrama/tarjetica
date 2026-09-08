@@ -67,11 +67,11 @@ test.describe('2d · la confirmacion es un GATE, no un aviso', () => {
     await irAlEditorLimpio(page)
 
     // Sin nombre no hay nada que exportar.
-    await expect(page.getByTestId('exportar-jpeg')).toBeDisabled()
+    await expect(page.getByTestId('exportar-jpeg')).toHaveAttribute('aria-disabled', 'true')
 
     await page.fill('#n', 'Daniel')
     // Con nombre pero SIN confirmar, sigue bloqueado. Este es el assert que justifica la unidad.
-    await expect(page.getByTestId('exportar-jpeg')).toBeDisabled()
+    await expect(page.getByTestId('exportar-jpeg')).toHaveAttribute('aria-disabled', 'true')
     await expect(page.getByTestId('mostrar-qr')).toBeDisabled()
 
     await page.getByRole('checkbox').check()
