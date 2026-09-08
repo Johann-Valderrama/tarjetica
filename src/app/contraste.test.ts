@@ -75,6 +75,8 @@ const FONDO = componer(token('fondo'), [0, 0, 0])
 const SUPERFICIE = componer(token('superficie'), FONDO)
 const SUP_AVISO = componer(token('aviso-superficie'), FONDO)
 const SUP_PELIGRO = componer(token('peligro-superficie'), FONDO)
+const RELLENO_RESALTE = componer(token('peligro-relleno'), FONDO)
+const RELLENO_RESALTE_FUERTE = componer(token('peligro-relleno-fuerte'), FONDO)
 const ACENTO = componer(token('acento'), FONDO)
 
 /**
@@ -103,6 +105,14 @@ const PARES_DE_TEXTO: Array<[string, string, Rgb]> = [
   */
   ['lo que el usuario escribe, dentro del campo', 'tinta', SUPERFICIE],
   ['el texto de ejemplo del campo (placeholder)', 'tinta-suave', SUPERFICIE],
+  /*
+    El relleno del resalte de "esto es lo que falta" (2026-09-08). Entra en las DOS variantes
+    porque quien pide menos movimiento ve la fuerte, no la normal, y es el caso que Johann tiene
+    encendido en su maquina: si solo se midiera la normal, el par que el ve de verdad quedaria sin
+    medir. El texto es el de la casilla "esta tarjeta es mia", que hereda `--tinta`.
+  */
+  ['la casilla sobre el relleno del resalte', 'tinta', RELLENO_RESALTE],
+  ['la casilla sobre el relleno reforzado (menos movimiento)', 'tinta', RELLENO_RESALTE_FUERTE],
 ]
 
 /** Bordes que le dicen al usuario DONDE esta un control. Estos si caen bajo WCAG 1.4.11. */

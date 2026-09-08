@@ -69,6 +69,18 @@
   --peligro-fuerte: #ff5644;
   --peligro-superficie: rgba(255, 86, 68, 0.1);
   --peligro-borde: rgba(255, 86, 68, 0.65);
+  /*
+   * El RELLENO del resalte de "esto es lo que falta". Es un token aparte de
+   * `--peligro-superficie` a proposito: esa es la superficie de HOVER del boton de borrar, y
+   * subirla para que aqui se note cambiaria ese boton sin que nadie lo pidiera.
+   *
+   * A 0,10 el relleno da 1,10:1 contra el fondo, o sea que practicamente no se ve; a 0,18 da
+   * 1,22:1, que es el "rosado rojizo transparentoso" que se pidio, y el texto de adentro sigue en
+   * 14,85:1 (AAA pide 7). La variante FUERTE es para quien pidio menos movimiento: ahi no hay
+   * parpadeo que llame la atencion, asi que el trabajo lo tiene que hacer el color.
+   */
+  --peligro-relleno: rgba(255, 86, 68, 0.18);
+  --peligro-relleno-fuerte: rgba(255, 86, 68, 0.3);
 }
 
 @layer base {
@@ -188,6 +200,12 @@
    */
   .reclamando {
     border-radius: 0.5rem;
+    /*
+     * El RELLENO no parpadea, solo el anillo. Es deliberado: el parpadeo es lo que llama, y el
+     * relleno es lo que se QUEDA diciendo cual es la caja, tambien cuando los tres ciclos ya
+     * acabaron. Ademas es lo unico que sobrevive con `prefers-reduced-motion: reduce`.
+     */
+    background-color: var(--peligro-relleno);
     box-shadow: 0 0 0 4px var(--peligro-fuerte);
     animation: parpadeo-de-peligro 0.5s ease-in-out 3;
   }
@@ -205,10 +223,20 @@
   /*
    * Con menos movimiento pedido, el borde se queda ENCENDIDO desde el principio, sin parpadear.
    * Se conserva lo que informa (donde hay que mirar) y se quita lo que solo llama la atencion.
+   *
+   * NO es un caso raro: se midio el 2026-09-08 que el propio Chrome de Johann esta asi (Windows
+   * con los efectos de animacion apagados), y por eso reporto "se queda en rojo estatico". O sea
+   * que esta rama NO es el camino excepcional, es el que el que reporto el sintoma esta viendo.
+   *
+   * Por eso se COMPENSA lo que se pierde: sin parpadeo, el unico que puede hacer el trabajo de
+   * llamar es el color, asi que el relleno sube (0,18 -> 0,30) y el anillo engorda (4 -> 5 px). No
+   * se anima nada: se refuerza lo estatico. El texto de adentro sigue en 11,97:1, sobre AAA.
    */
   @media (prefers-reduced-motion: reduce) {
     .reclamando {
       animation: none;
+      background-color: var(--peligro-relleno-fuerte);
+      box-shadow: 0 0 0 5px var(--peligro-fuerte);
     }
   }
 

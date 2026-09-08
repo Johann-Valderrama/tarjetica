@@ -27,6 +27,25 @@ export default defineConfig({
      * `en` a proposito.
      */
     locale: 'es-CO',
+    /**
+     * Movimiento FIJO, agregado el 2026-09-08. Mismo tipo de fallo que el `locale` de arriba, y por
+     * eso va pegado a el: Playwright NO emula esta preferencia por defecto, la hereda del SISTEMA
+     * donde corre. En esta maquina Windows tiene los efectos de animacion APAGADOS, asi que la
+     * suite entera medía la version sin movimiento mientras sus asserts exigian el parpadeo, y tres
+     * pruebas se ponian en rojo sin que el producto tuviera nada.
+     *
+     * Peor que ponerse en rojo: una suite que depende del panel de control de quien la corre da
+     * resultados distintos en dos computadores con el mismo commit.
+     *
+     * Va dentro de `contextOptions` y NO suelto como `locale`: en esta version de Playwright
+     * (1.62.1) `reducedMotion` no existe en el tipo de `use`, asi que suelto rompe el typecheck y,
+     * peor, un `test.use({ reducedMotion: 'reduce' })` dentro de un `describe` se IGNORA EN
+     * SILENCIO. Medido: ese `describe` imprimia `false` al preguntarle a `matchMedia`, o sea que
+     * habria medido el caso contrario al de su nombre. Por eso la version sin movimiento abre su
+     * PROPIO contexto en `e2e/boton-apagado-explica.spec.ts`, igual que el ingles en
+     * `e2e/idiomas.spec.ts`.
+     */
+    contextOptions: { reducedMotion: 'no-preference' },
   },
   webServer: {
     command: 'node node_modules/next/dist/bin/next start --port 3210',

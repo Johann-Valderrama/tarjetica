@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { devices, expect, test, type Page } from '@playwright/test'
 import { PERFILES } from './perfiles.datos'
 
 /**
@@ -155,5 +155,163 @@ test.describe('el boton apagado dice que falta, y lleva hasta alli', () => {
 
     await page.getByRole('checkbox').check()
     await expect(page.locator('.reclamando')).toHaveCount(0)
+  })
+})
+
+/**
+ * El parpadeo se MIDE, fotograma a fotograma, en vez de declararse (2026-09-08).
+ *
+ * **Por que hacia falta.** Las pruebas de arriba comprueban `animationName` y
+ * `animationIterationCount`, o sea lo que el CSS DICE que va a pasar. Eso no es el parpadeo: unos
+ * `@keyframes` con los dos extremos iguales pasan esos asserts y no parpadean nada.
+ *
+ * **El error que se cazo escribiendo el medidor, y que vale mas que el medidor.** Un `box-shadow`
+ * INTERPOLA entre el color y transparente, asi que en mitad del ciclo el valor computado no es
+ * `transparent` sino `rgba(255, 86, 68, 0.47)`. Preguntar "¿esta transparente?" da SIEMPRE que no,
+ * y el medidor reporta CERO parpadeos con la animacion corriendo perfectamente. Hay que leer el
+ * ALFA, no comparar contra una palabra.
+ *
+ * **Los dos casos.** `prefers-reduced-motion: reduce` NO es el caso raro: se midio que el Chrome de
+ * Johann esta asi (Windows con los efectos de animacion apagados), y por eso reporto "se queda en
+ * rojo estatico". Si solo se midiera el caso con movimiento, la rama que el ve de verdad seria la
+ * unica sin prueba.
+ */
+
+/** Dispara el resalte y muestrea el alfa del anillo por fotograma, dentro de la pagina. */
+async function medirElResalte(page: Page) {
+  await editorSinConfirmar(page)
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  await page.getByTestId('abrir-enlace').click({ force: true })
+
+  return page.evaluate(async () => {
+    const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')!
+    /** Alfa de un color computado. Un `rgb(...)` sin cuarto canal es opaco: alfa 1. */
+    const alfa = (valor: string) => {
+      const m = valor.match(/rgba?\(\s*[\d.]+[,\s]+[\d.]+[,\s]+[\d.]+(?:[,/\s]+([\d.]+))?\s*\)/)
+      return m ? (m[1] === undefined ? 1 : Number(m[1])) : null
+    }
+    const anillo: number[] = []
+    let ultimo = { relleno: 0, sombra: '' }
+    const t0 = performance.now()
+    await new Promise<void>((listo) => {
+      const tic = () => {
+        const cs = getComputedStyle(caja)
+        /*
+          Los fotogramas ANTERIORES a que la clase se aplique no tienen sombra, y `alfa('none')` da
+          `null`. Se descartan en vez de guardarse: un `null` se compara como 0 y el contador de
+          abajo lo leeria como un apagon, o sea un parpadeo de regalo que nunca ocurrio. Esto no es
+          un detalle de implementacion, es el mismo error de forma que el de la interpolacion.
+        */
+        const a = alfa(cs.boxShadow)
+        if (a !== null) anillo.push(a)
+        if (a !== null) ultimo = { relleno: alfa(cs.backgroundColor)!, sombra: cs.boxShadow }
+        if (performance.now() - t0 > 2200) return listo()
+        requestAnimationFrame(tic)
+      }
+      requestAnimationFrame(tic)
+    })
+    /*
+      Un ciclo = el alfa BAJA de 0,15 y despues vuelve a subir por encima de 0,5. Los dos umbrales
+      (histeresis) evitan contar de mas cuando el valor tiembla cerca de uno solo.
+    */
+    let ciclos = 0
+    let dentro = false
+    for (const a of anillo) {
+      if (a < 0.15 && !dentro) {
+        ciclos++
+        dentro = true
+      } else if (a > 0.5) dentro = false
+    }
+    return { fotogramas: anillo.length, ciclos, anilloFinal: anillo[anillo.length - 1], ...ultimo }
+  })
+}
+
+test.describe('el resalte parpadea de verdad, medido por fotograma', () => {
+  test('con movimiento: tres apagones y se queda encendido', async ({ page }) => {
+    const m = await medirElResalte(page)
+
+    // Si el muestreo no alcanzo a correr, cualquier conteo de abajo seria un cero enganoso.
+    expect(m.fotogramas, 'el muestreo por fotograma no corrio').toBeGreaterThan(60)
+    expect(m.ciclos, 'el borde no se apago y encendio exactamente 3 veces').toBe(3)
+    expect(m.anilloFinal, 'el borde no quedo encendido al acabar el parpadeo').toBe(1)
+    expect(m.relleno, 'el resalte no tiene relleno, solo borde').toBeGreaterThan(0.1)
+  })
+
+  test('el relleno NO parpadea: es lo que se queda diciendo cual es la caja', async ({ page }) => {
+    // El espejo del anterior. Sin esto, animar tambien el relleno pasaria la prueba de arriba y
+    // dejaria la caja apagada del todo en mitad de cada ciclo, que es justo lo que no se quiere.
+    await editorSinConfirmar(page)
+    await page.getByTestId('abrir-enlace').click({ force: true })
+    const rellenos = await page.evaluate(async () => {
+      const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')!
+      const vistos = new Set<string>()
+      for (let i = 0; i < 40; i++) {
+        vistos.add(getComputedStyle(caja).backgroundColor)
+        await new Promise((r) => requestAnimationFrame(r))
+      }
+      return [...vistos]
+    })
+    expect(rellenos, 'el relleno cambia durante el parpadeo').toHaveLength(1)
+  })
+})
+
+test.describe('con menos movimiento pedido, el color hace el trabajo del parpadeo', () => {
+  /**
+   * Este caso abre su PROPIO contexto en vez de usar `test.use({ reducedMotion: 'reduce' })`, y no
+   * es una preferencia de estilo: se midio el 2026-09-08 que ese `test.use` **no pisa** al
+   * `reducedMotion` del `playwright.config.ts` (el mismo test imprimio `false` con `test.use` y
+   * `true` con un contexto propio). O sea que la version escrita con `test.use` habria medido el
+   * caso CON movimiento mientras su nombre decia lo contrario, y habria pasado en verde el dia que
+   * el producto dejara de respetar la preferencia. `e2e/idiomas.spec.ts` ya abre su propio contexto
+   * por la misma razon; esto sigue ese patron, no inventa uno.
+   */
+  test('no parpadea nada, y a cambio el relleno y el anillo son mas marcados', async ({ browser }, info) => {
+    const ctx = await browser.newContext({
+      ...devices['Pixel 7'],
+      locale: 'es-CO',
+      baseURL: info.project.use.baseURL,
+      reducedMotion: 'reduce',
+    })
+    const page = await ctx.newPage()
+    // Sin esto, un fallo del propio emulado dejaria pasar el resto midiendo el caso equivocado.
+    expect(
+      await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches),
+      'el contexto no quedo en modo "menos movimiento": lo que siga mediria el caso contrario',
+    ).toBe(true)
+
+    try {
+      const m = await medirElResalte(page)
+
+      expect(m.fotogramas, 'el muestreo por fotograma no corrio').toBeGreaterThan(60)
+      expect(m.ciclos, 'se anima algo pese a que se pidio menos movimiento').toBe(0)
+      expect(m.anilloFinal, 'el borde no esta encendido').toBe(1)
+
+      // La compensacion, contra los TOKENS y no contra numeros escritos aqui.
+      const tokens = await page.evaluate(() => {
+        /*
+          El alfa se le pregunta al NAVEGADOR, no se le saca al texto del token con una expresion
+          regular. Razon medida: en `globals.css` estos tokens estan escritos como
+          `rgba(255, 86, 68, 0.18)`, pero el CSS ya construido los guarda como `#ff56442e`, o sea
+          hexadecimal de ocho digitos. Un lector de texto que espere un `rgba(...)` devuelve null
+          contra el build de produccion, que es justo lo que esta suite mide.
+        */
+        const cs = getComputedStyle(document.documentElement)
+        const sonda = document.createElement('span')
+        document.body.appendChild(sonda)
+        const a = (n: string) => {
+          sonda.style.backgroundColor = cs.getPropertyValue(n).trim()
+          const m = getComputedStyle(sonda).backgroundColor.match(/rgba?\([^)]*?([\d.]+)\s*\)/)
+          return m ? Number(m[1]) : 1
+        }
+        const r = { normal: a('--peligro-relleno'), fuerte: a('--peligro-relleno-fuerte') }
+        sonda.remove()
+        return r
+      })
+      expect(tokens.fuerte, 'el relleno reforzado no es mas fuerte que el normal').toBeGreaterThan(tokens.normal)
+      expect(m.relleno, 'no se aplico el relleno reforzado').toBeCloseTo(tokens.fuerte, 2)
+      expect(m.sombra, 'el anillo no engordo para compensar la falta de parpadeo').toContain('5px')
+    } finally {
+      await ctx.close()
+    }
   })
 })
