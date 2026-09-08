@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { ningunValorEsCopyDeLaInterfaz } from './fuga.helpers'
 import { PERFILES } from './perfiles.datos'
 
@@ -178,9 +180,24 @@ test.describe('un link roto no deja al desconocido mirando una pantalla en blanc
   ] as const) {
     test(`${nombre}: sale un mensaje, no una pantalla vacia`, async ({ page }) => {
       await page.goto(`/t${fragmento}`)
-      await expect(page.getByTestId('aviso-enlace')).toBeVisible()
-      const texto = (await page.getByTestId('aviso-enlace').textContent())!
-      expect(texto.length).toBeGreaterThan(20)
+
+      /*
+        Se espera la FASE, no un largo minimo. El assert anterior era `texto.length > 20` sobre el
+        `data-testid`, que sirve tanto para el aviso de CARGA como para el de error: si llegaba
+        antes de que terminara la decodificacion, media "Abriendo la tarjeta...", que tiene
+        exactamente 20 caracteres. Fallaba por uno, y con un umbral un poco mas bajo habria pasado
+        midiendo el estado equivocado, que es peor. Lo caso el panel de revision, 2026-09-08.
+      */
+      const aviso = page.locator('[data-testid="aviso-enlace"][data-fase="fallo"]')
+      await expect(aviso).toBeVisible()
+
+      // Y que diga algo de verdad: uno de los mensajes de error reales, no una cadena cualquiera.
+      const mensajes: string[] = Object.values(
+        JSON.parse(readFileSync(join(process.cwd(), 'messages', 'es-CO.json'), 'utf8')).enlace.errores,
+      )
+      expect(mensajes, 'el aviso no trae ninguno de los mensajes de error').toContain(
+        (await aviso.textContent())!.replace(/\s*Haz la tuya\.$/, '').trim(),
+      )
     })
   }
 })

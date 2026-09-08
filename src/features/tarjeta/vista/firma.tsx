@@ -24,10 +24,19 @@ export const MARCA: { nombre: string; dominio: string | null } = {
   dominio: null,
 }
 
+/**
+ * `text-tinta-suave` a secas, no `/70`.
+ *
+ * Esa opacidad estuvo escrita desde la Ola 3 y **nunca se aplico**: Tailwind no sabe ponerle
+ * opacidad a un token que es `var(--x)` con un hexadecimal adentro, asi que la declaracion sale
+ * invalida y ni siquiera llega al CSS generado (verificado el 2026-09-08 con un grep sobre el
+ * build). Quitarla no cambia NADA en pantalla: solo hace que el codigo diga lo que de verdad se
+ * ve, que es lo que ya iba dentro del `.jpeg` aprobado. Lo caza `src/app/contraste.test.ts`.
+ */
 export function FirmaDeMarca() {
   const t = useTranslations('tarjeta')
   return (
-    <p className="pt-1 text-center text-[11px] tracking-wide text-tinta-suave/70">
+    <p className="pt-1 text-center text-[11px] tracking-wide text-tinta-suave">
       {t('hechaCon')} <span className="text-tinta-suave">{MARCA.nombre}</span>
       {MARCA.dominio ? ` · ${MARCA.dominio}` : null}
     </p>

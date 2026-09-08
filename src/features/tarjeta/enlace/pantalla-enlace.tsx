@@ -61,11 +61,11 @@ export function PantallaEnlace() {
     }
   }, [])
 
-  if (estado.fase === 'leyendo') return <Aviso>{t('abriendo')}</Aviso>
+  if (estado.fase === 'leyendo') return <Aviso fase="leyendo">{t('abriendo')}</Aviso>
 
   if (estado.fase === 'fallo') {
     return (
-      <Aviso>
+      <Aviso fase="fallo">
         {t(`errores.${estado.motivo}`)}{' '}
         <Link href="/" className="text-acento underline underline-offset-4">
           {t('hazLaTuya')}
@@ -78,10 +78,19 @@ export function PantallaEnlace() {
   return <VistaTarjeta tarjeta={estado.tarjeta} qr={<QrDeContacto tarjeta={estado.tarjeta} />} />
 }
 
-function Aviso({ children }: { children: React.ReactNode }) {
+/**
+ * El aviso lleva su FASE en un atributo, y no es decoracion.
+ *
+ * "Abriendo la tarjeta..." y "este enlace no se pudo leer" salian por el mismo `data-testid`, asi
+ * que una prueba que esperaba el aviso podia leer el de CARGA creyendo que leia el de error. Paso:
+ * el assert media `texto.length > 20` y "Abriendo la tarjeta..." mide exactamente 20, o sea fallaba
+ * por un caracter. Con un umbral un poco mas bajo habria pasado midiendo el estado equivocado, y
+ * eso nadie lo nota. Con la fase declarada, la prueba espera el estado que dice estar probando.
+ */
+function Aviso({ fase, children }: { fase: 'leyendo' | 'fallo'; children: React.ReactNode }) {
   return (
     <main className="mx-auto w-full max-w-md p-6">
-      <p role="status" data-testid="aviso-enlace" className="text-sm text-tinta-suave">
+      <p role="status" data-testid="aviso-enlace" data-fase={fase} className="text-sm text-tinta-suave">
         {children}
       </p>
     </main>

@@ -97,6 +97,40 @@
   input[type='radio'] {
     accent-color: var(--acento);
   }
+
+  /*
+   * El fondo del campo y el color del texto de ejemplo los pintaba el NAVEGADOR, no este proyecto.
+   *
+   * Con `color-scheme: dark` Chrome les pone un gris propio, y el texto de ejemplo quedaba en
+   * `rgb(156,163,175)` sobre `rgb(59,59,59)`: **4,41:1 medido el 2026-09-08**, por debajo del 4,5
+   * minimo de AA, en el formulario principal del producto. Y al ser un default del navegador,
+   * cambia entre Chrome, Safari y Firefox, o sea que ni siquiera es un numero estable que auditar.
+   *
+   * Fijarlo con los tokens lo pone bajo control y lo vuelve medible: el texto escrito queda en
+   * 16,90:1 y el de ejemplo en 7,44:1, los dos AAA, y se distinguen entre si por el salto de brillo.
+   */
+  input,
+  textarea,
+  select {
+    background-color: var(--superficie);
+    color: var(--tinta);
+  }
+
+  /*
+   * `input::placeholder`, no `::placeholder` a secas. El preflight de Tailwind ya declara
+   * `input::placeholder, textarea::placeholder { color: #9ca3af }`, y un `::placeholder` pelado
+   * tiene MENOS especificidad, asi que pierde: medido el 2026-09-08, el campo seguia pintando el
+   * gris de Tailwind con la regla escrita.
+   *
+   * Y esto el test de tokens NO lo puede ver: ese archivo mide los VALORES de la paleta, no si el
+   * CSS llega a aplicarse. Por eso el color real del texto de ejemplo se mide en el navegador,
+   * dentro del E2E de superficie.
+   */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--tinta-suave);
+    opacity: 1; /* Firefox lo atenua por su cuenta; sin esto el numero medido no seria el real. */
+  }
 }
 
 @layer components {

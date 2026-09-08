@@ -162,6 +162,63 @@ test.describe('7e · las cuatro pantallas a 375 px', () => {
   }
 })
 
+/**
+ * Que el CSS de la paleta LLEGUE a aplicarse.
+ *
+ * `src/app/contraste.test.ts` mide los VALORES de los tokens, y eso es todo lo que puede medir: no
+ * ve si una regla se aplica de verdad. Los dos fallos que aparecieron el 2026-09-08 vivian justo en
+ * ese hueco, y los dos eran MUDOS:
+ *
+ * - `text-tinta-suave/40` no se aplicaba (Tailwind no le pone opacidad a un token `var(--x)`), asi
+ *   que los botones apagados se quedaban con la tinta del boton activo.
+ * - `::placeholder` a secas perdia por especificidad contra el `input::placeholder` del preflight
+ *   de Tailwind, y el campo seguia pintando el gris de Tailwind con la regla escrita.
+ *
+ * En los dos casos el codigo se leia bien, el build pasaba y el test de tokens pasaba. Lo unico que
+ * los distingue es preguntarle al NAVEGADOR de que color quedo la cosa.
+ */
+test.describe('la paleta llega a la pantalla, no solo al archivo', () => {
+  test.use({ viewport: { width: ANCHO_TELEFONO, height: 667 } })
+
+  test('el campo, su texto de ejemplo y el boton apagado usan los tokens, no los del navegador', async ({ page }) => {
+    await page.goto('/editor')
+    await expect(page.getByRole('heading', { name: 'Tu tarjeta' })).toBeVisible()
+
+    const medido = await page.evaluate(() => {
+      const raiz = getComputedStyle(document.documentElement)
+      const token = (n: string) => raiz.getPropertyValue(n).trim()
+      // `#a1a5ac` y `rgb(161, 165, 172)` son el mismo color: se comparan ya normalizados por el
+      // navegador, pintando el token en un elemento de mentira y leyendo como lo resuelve.
+      const sonda = document.createElement('span')
+      sonda.style.display = 'none'
+      document.body.appendChild(sonda)
+      const normalizar = (valor: string) => {
+        sonda.style.color = valor
+        return getComputedStyle(sonda).color
+      }
+      const campo = document.querySelector('#ti') as HTMLElement
+      const boton = document.querySelector('[data-testid="exportar-jpeg"]') as HTMLButtonElement
+      const r = {
+        fondoCampo: getComputedStyle(campo).backgroundColor,
+        fondoEsperado: normalizar(token('--superficie')),
+        placeholder: getComputedStyle(campo, '::placeholder').color,
+        placeholderEsperado: normalizar(token('--tinta-suave')),
+        botonApagado: boton.disabled,
+        tintaBoton: getComputedStyle(boton).color,
+        tintaEsperada: normalizar(token('--tinta-tenue')),
+      }
+      sonda.remove()
+      return r
+    })
+
+    expect(medido.fondoCampo, 'el fondo del campo lo sigue pintando el navegador').toBe(medido.fondoEsperado)
+    expect(medido.placeholder, 'el texto de ejemplo lo sigue pintando el navegador').toBe(medido.placeholderEsperado)
+    // El boton nace deshabilitado porque no hay tarjeta: es justo el estado que se rompio.
+    expect(medido.botonApagado).toBe(true)
+    expect(medido.tintaBoton, 'el boton apagado se quedo con la tinta del boton activo').toBe(medido.tintaEsperada)
+  })
+})
+
 test.describe('7c · la metrica no toca la ruta de la tarjeta', () => {
   test.use({ viewport: { width: ANCHO_TELEFONO, height: 667 } })
 

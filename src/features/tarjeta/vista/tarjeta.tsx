@@ -189,7 +189,7 @@ function BloqueDelQr({
           Respaldo por si alguien monta la vista sin pasarle el codigo. Antes decia "se construye
           en la Ola 4 del plan": jerga interna en una pantalla que abre un desconocido.
         */}
-        {qr ?? <span className="px-6 text-center text-xs text-neutral-500">{t('qr.noDisponible')}</span>}
+        {qr ?? <span className="px-6 text-center text-xs text-neutral-600">{t('qr.noDisponible')}</span>}
         </div>
       </div>
       {telefono && <p className="text-center text-base tracking-wide text-tinta">{telefono.n}</p>}

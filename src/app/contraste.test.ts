@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs'
+import { globSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 /**
@@ -93,6 +94,15 @@ const PARES_DE_TEXTO: Array<[string, string, Rgb]> = [
   ['peligro sobre el fondo (el boton de borrar)', 'peligro', FONDO],
   ['peligro sobre su propia superficie (ese boton en hover)', 'peligro', SUP_PELIGRO],
   ['acento sobre el fondo (enlaces y foco)', 'acento', FONDO],
+  /*
+    Los dos pares del CAMPO DE TEXTO. Entraron el 2026-09-08, despues de medir que no los pintaba
+    este proyecto sino el NAVEGADOR: con `color-scheme: dark`, Chrome le ponia al texto de ejemplo
+    un `rgb(156,163,175)` sobre un `rgb(59,59,59)` propio, o sea 4,41:1 en el formulario principal
+    del producto, por debajo del minimo de AA. Y al venir del navegador, el numero ni siquiera era
+    estable entre Chrome, Safari y Firefox. Ahora los fija `globals.css` y se miden aqui.
+  */
+  ['lo que el usuario escribe, dentro del campo', 'tinta', SUPERFICIE],
+  ['el texto de ejemplo del campo (placeholder)', 'tinta-suave', SUPERFICIE],
 ]
 
 /** Bordes que le dicen al usuario DONDE esta un control. Estos si caen bajo WCAG 1.4.11. */
@@ -128,6 +138,34 @@ describe('los bordes que identifican un control pasan 3:1', () => {
    */
   it('`--borde` es decorativo y se queda por debajo a proposito', () => {
     expect(contraste(componer(token('borde'), FONDO), FONDO)).toBeLessThan(NO_TEXTUAL)
+  })
+})
+
+/**
+ * La tinta de los controles DESHABILITADOS, declarada como contrato en vez de quedar sin medir.
+ *
+ * Una revision externa midio los cuatro botones apagados del editor y saco 3,65:1 y 3,92:1, por
+ * debajo del 4,5:1 de AA. El dato es correcto y no se discute; lo que se decide aqui es que se
+ * queda asi, y por que:
+ *
+ * - WCAG 2.x **exime** a los componentes deshabilitados del requisito de contraste (1.4.3 y 1.4.11
+ *   hablan de controles activos). No es incumplimiento.
+ * - Subirlo tiene un costo real en el producto: un boton apagado que contrasta como uno encendido
+ *   deja de leerse como apagado, y el editor tiene tres botones que nacen deshabilitados hasta que
+ *   la persona escribe su nombre. El estado tiene que distinguirse a simple vista.
+ *
+ * Lo que NO se acepta es que quede sin numero: por eso el rango va escrito. Si alguien baja el
+ * token, el piso de 3 lo detiene antes de que el boton desaparezca (que es el defecto que ya
+ * ocurrio con `text-tinta-suave/40`); si alguien lo sube pensando que "mas contraste es mejor", el
+ * techo de 4,5 obliga a volver a leer esta nota antes de borrar la distincion.
+ */
+describe('el estado deshabilitado se ve apagado, y esta medido', () => {
+  it('`--tinta-tenue` cae entre 3:1 y 4,5:1 sobre las dos superficies donde se usa', () => {
+    for (const fondo of [FONDO, SUPERFICIE]) {
+      const medido = contraste(componer(token('tinta-tenue'), fondo), fondo)
+      expect(medido).toBeGreaterThanOrEqual(NO_TEXTUAL)
+      expect(medido).toBeLessThan(4.5)
+    }
   })
 })
 
@@ -181,15 +219,25 @@ describe('ninguna pantalla se sale de la paleta', () => {
    */
   const OPACIDAD_SOBRE_TOKEN = /\b(?:text|bg|border)-(?:tinta|tinta-suave|tinta-tenue|fondo|superficie|superficie-sutil|borde|borde-fuerte|acento|aviso|peligro)[a-z-]*\/\d+/
 
-  it.each(PANTALLAS)('%s no le pone opacidad a un token', (ruta) => {
-    const fuente = sinComentarios(readFileSync(new URL(`../${ruta}`, import.meta.url), 'utf8'))
-    const culpables = fuente
-      .split('\n')
-      .map((linea, i) => ({ n: i + 1, linea: linea.trim() }))
-      .filter(({ linea }) => OPACIDAD_SOBRE_TOKEN.test(linea))
-      .map(({ n, linea }) => `${n}: ${linea}`)
-
-    expect(culpables, `${ruta} usa el modificador /N sobre un token: no se aplica, agrega un token`).toEqual([])
+  /**
+   * Este guard corre sobre TODO `src`, no sobre la lista de pantallas, y la diferencia no es de
+   * estilo: la primera version solo miraba la lista y por eso **no vio** que `vista/firma.tsx`
+   * llevaba `text-tinta-suave/70` desde la Ola 3, o sea el mismo defecto, escrito dos olas antes,
+   * dentro del elemento que se captura como `.jpeg`. Lo encontro una auditoria, no el test.
+   *
+   * Ponerle opacidad a un token no es correcto en NINGUN archivo, asi que no hay razon para que el
+   * guard tenga una lista: una lista es justo por donde se escapo.
+   */
+  it('ningun archivo de src le pone opacidad a un token', () => {
+    const archivos = globSync('**/*.tsx', { cwd: fileURLToPath(new URL('..', import.meta.url)) })
+    const culpables: string[] = []
+    for (const archivo of archivos) {
+      const fuente = sinComentarios(readFileSync(new URL(`../${archivo}`, import.meta.url), 'utf8'))
+      fuente.split('\n').forEach((linea, i) => {
+        if (OPACIDAD_SOBRE_TOKEN.test(linea)) culpables.push(`${archivo}:${i + 1}: ${linea.trim()}`)
+      })
+    }
+    expect(culpables, 'el modificador /N no se aplica sobre estos tokens: agrega un token en su lugar').toEqual([])
   })
 
   it.each(PANTALLAS)('%s usa solo los tokens', (ruta) => {

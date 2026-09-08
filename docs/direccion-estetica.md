@@ -49,17 +49,33 @@ página de Zelandia y dijo "la quiero así", y esa referencia usa una **sans pes
 | `--superficie` | `#141416` | La tarjeta. Un paso más clara que el lienzo: es lo que la hace FLOTAR sin depender de una sombra, que en fondo oscuro casi no se ve |
 | `--superficie-sutil` | `rgba(255,255,255,0.04)` | Paneles internos y el fondo del monograma |
 | `--borde` | `rgba(255,255,255,0.10)` | Separación por defecto |
-| `--borde-fuerte` | `rgba(255,255,255,0.18)` | Píldoras y controles |
+| `--borde-fuerte` | `rgba(255,255,255,0.36)` | Píldoras y controles. **Subió de 0,18 el 2026-09-08:** a 0,18 daba 1,64:1 contra el fondo, y este es el borde que dice dónde está un control, así que WCAG 1.4.11 le pide 3:1. A 0,36 da 3,25:1. Lo mide `src/app/contraste.test.ts`. No afecta la vista de la tarjeta, que usa `--borde` |
 | `--tinta` | `#F5F5F7` | Texto principal |
-| `--tinta-suave` | `#A1A5AC` | Texto secundario |
+| `--tinta-suave` | `#A1A5AC` | Texto secundario, y el texto de ejemplo de los campos |
+| `--tinta-tenue` | `#6B6F76` | Controles DESHABILITADOS. Existe como token propio y no como una opacidad porque `text-tinta-suave/40` **no se aplica**: Tailwind no le puede poner opacidad a un token que es `var(--x)` con hexadecimal adentro, genera CSS inválido y el navegador lo descarta |
 | `--acento` | `#FF9101` | El punto de la ubicación, el aro del avatar, enlaces |
 | `--acento-tenue` | `rgba(255,145,1,0.28)` | Halos y anillos |
+| `--aviso` | `#FFCF7A` | Texto de advertencia. Es el acento de la marca aclarado, para que se lea sobre el fondo oscuro |
+| `--aviso-superficie` | `rgba(255,145,1,0.10)` | El fondo de las cajas de advertencia |
+| `--aviso-borde` | `rgba(255,145,1,0.55)` | Su marco. Alfa alta porque un color saturado sobre casi-negro pierde contraste rápido: a 0,38 daba 2,12:1 |
+| `--peligro` | `#FF9A8F` | El texto del botón de borrar |
+| `--peligro-superficie` | `rgba(255,86,68,0.10)` | Ese botón al pasar el cursor |
+| `--peligro-borde` | `rgba(255,86,68,0.65)` | Su marco, por la misma razón que el de aviso |
 | Radios | `24px` tarjeta · `16px` bloques · `999px` píldoras | Promedio de las dos referencias |
 | Sombra de la tarjeta | `0 24px 60px -20px rgba(0,0,0,0.8)` + anillo `inset 0 0 0 1px var(--borde)` | En oscuro el anillo hace el trabajo que en claro hacía la sombra |
 
 **Contraste, medido y no estimado** (WCAG, AA normal = 4.5): tinta 18,18:1 · tinta suave 8,00:1 ·
 acento 8,77:1 sobre el fondo. Sobre la superficie de la tarjeta: 16,90 / 7,44 / 8,15. **Los seis
 pares pasan AAA.** El script está en el commit de esta ola.
+
+> **Actualización 2026-09-08.** Esa medición cubría solo la VISTA de la tarjeta, que era lo único
+> pintado con estos tokens: el editor seguía con la paleta clara de Tailwind y sus títulos eran
+> casi invisibles sobre el fondo oscuro. Al repintarlo se ampliaron los tokens (las filas nuevas de
+> la tabla de arriba) y la medición dejó de ser un script suelto: vive en
+> `src/app/contraste.test.ts`, **lee los valores de `globals.css` en vez de traer una copia**, y
+> corre en la suite. Mide doce pares de texto contra 7:1, tres bordes de control contra el 3:1 de
+> WCAG 1.4.11, y además vigila que ninguna pantalla se salga de los tokens y que nadie les ponga el
+> modificador de opacidad.
 
 ## Tipografía
 
