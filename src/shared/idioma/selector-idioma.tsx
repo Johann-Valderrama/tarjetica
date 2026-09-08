@@ -41,7 +41,7 @@ export function SelectorDeIdioma() {
           iniciar(() => router.refresh())
         }}
         // Tokens de la direccion estetica: un `bg-white` aqui es un parche blanco sobre el fondo oscuro.
-        className="min-h-11 rounded-lg border border-borde bg-superficie px-2 text-base text-tinta"
+        className="min-h-11 rounded-lg border border-borde-fuerte bg-superficie px-2 text-base text-tinta"
       >
         {IDIOMAS.map((idioma) => (
           <option key={idioma} value={idioma}>

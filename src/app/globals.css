@@ -13,12 +13,54 @@
   --fondo: #0a0a0b;
   --superficie: #141416;
   --superficie-sutil: rgba(255, 255, 255, 0.04);
+  /*
+   * DOS bordes con roles distintos, y solo uno tiene que cumplir contraste.
+   *
+   * `--borde` es DECORATIVO: el anillo de la tarjeta y el marco de los bloques. WCAG no le pide
+   * contraste a una linea que no identifica un control, y subirlo ensuciaria la vista de la tarjeta,
+   * que ya esta aprobada.
+   *
+   * `--borde-fuerte` es el borde que DICE DONDE ESTA UN CONTROL (los inputs y los botones del
+   * editor). Ese si cae bajo WCAG 1.4.11, que pide 3:1 contra el fondo. Estaba en 0.18, que da
+   * **1,64:1** medido: los campos del editor practicamente no tenian borde sobre el casi-negro.
+   * A 0.36 da 3,25:1 y pasa. Lo vigila `src/app/contraste.test.ts`, que lo lee de aqui.
+   */
   --borde: rgba(255, 255, 255, 0.1);
-  --borde-fuerte: rgba(255, 255, 255, 0.18);
+  --borde-fuerte: rgba(255, 255, 255, 0.36);
   --tinta: #f5f5f7;
   --tinta-suave: #a1a5ac;
+  /*
+   * Tinta de los controles DESHABILITADOS. Existe como token propio y no como una opacidad porque
+   * `text-tinta-suave/40` **no funciona**: Tailwind no puede aplicarle opacidad a un color que es
+   * `var(--x)` en hexadecimal, genera CSS invalido, el navegador lo descarta y gana la clase de
+   * al lado. Medido el 2026-09-08: el boton de exportar apagado quedaba con la tinta OSCURA del
+   * boton activo sobre superficie oscura, o sea invisible, con la clase escrita y todo. Es el fallo
+   * mudo que un token explicito cierra. A 3,92:1 se lee como apagado, no como ausente.
+   */
+  --tinta-tenue: #6b6f76;
   --acento: #ff9101;
   --acento-tenue: rgba(255, 145, 1, 0.28);
+
+  /*
+   * Aviso y peligro, agregados al repintar el editor (2026-09-08, opcion A).
+   *
+   * La Ola 3 fijo la paleta oscura pero solo pinto la VISTA de la tarjeta; el editor se quedo con
+   * los `amber-*` y `red-*` de Tailwind, que estan calculados para fondo claro. Sobre casi-negro un
+   * `text-amber-900` es ilegible, asi que el aviso necesitaba su propio par claro.
+   *
+   * Los valores no son un gusto: todos los pares que usan estos tokens estan medidos en
+   * `src/app/contraste.test.ts`. El texto pasa AAA (7:1) y los BORDES pasan el 3:1 de WCAG 1.4.11.
+   * El ambar es el acento de la marca aclarado; el rojo es el minimo que se lee sobre el fondo sin
+   * gritar. Los dos bordes van en alfa alta (0,55 y 0,65) porque un color saturado sobre casi-negro
+   * pierde contraste mucho mas rapido de lo que parece: a 0,38 daban 2,12 y 1,78, o sea marcos que
+   * el ojo casi no separa del fondo.
+   */
+  --aviso: #ffcf7a;
+  --aviso-superficie: rgba(255, 145, 1, 0.1);
+  --aviso-borde: rgba(255, 145, 1, 0.55);
+  --peligro: #ff9a8f;
+  --peligro-superficie: rgba(255, 86, 68, 0.1);
+  --peligro-borde: rgba(255, 86, 68, 0.65);
 }
 
 @layer base {
@@ -45,6 +87,15 @@
   ::selection {
     background-color: var(--acento-tenue);
     color: var(--tinta);
+  }
+
+  /*
+   * La casilla marcada la pinta el SISTEMA, no la hoja de estilos: sin esto sale del azul del
+   * navegador, que era el unico elemento de toda la app fuera de la paleta. Se vio en una captura.
+   */
+  input[type='checkbox'],
+  input[type='radio'] {
+    accent-color: var(--acento);
   }
 }
 

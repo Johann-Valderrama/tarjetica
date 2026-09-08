@@ -52,9 +52,9 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
   }
 
   return (
-    <section className="space-y-3 rounded-lg border border-neutral-300 p-3">
-      <h3 className="text-sm font-semibold text-neutral-900">{t('titulo')}</h3>
-      <p className="text-sm text-neutral-600">{t('intro')}</p>
+    <section className="space-y-3 rounded-lg border border-borde-fuerte p-3">
+      <h3 className="text-sm font-semibold text-tinta">{t('titulo')}</h3>
+      <p className="text-sm text-tinta-suave">{t('intro')}</p>
 
       {estado.fase === 'apagado' && (
         <button
@@ -62,7 +62,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
           data-testid="abrir-enlace"
           disabled={!habilitado}
           onClick={() => setEstado({ fase: 'advertido' })}
-          className="min-h-11 w-full rounded-lg border border-neutral-400 px-4 text-sm font-medium text-neutral-800 disabled:cursor-not-allowed disabled:border-neutral-200 disabled:text-neutral-400"
+          className="min-h-11 w-full rounded-lg border border-borde-fuerte px-4 text-sm font-medium text-tinta disabled:cursor-not-allowed disabled:border-borde disabled:text-tinta-tenue"
         >
           {t('quiero')}
         </button>
@@ -72,7 +72,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
         <div
           role="alert"
           data-testid="advertencia-enlace"
-          className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+          className="space-y-2 rounded-lg border border-aviso-borde bg-aviso-superficie p-3 text-sm text-tinta"
         >
           <p className="font-semibold">{t('antesDeCrearlo')}</p>
           {/*
@@ -90,7 +90,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
               type="button"
               data-testid="cancelar-enlace"
               onClick={() => setEstado({ fase: 'apagado' })}
-              className="min-h-11 flex-1 rounded-lg border border-amber-400 px-4 text-sm font-medium"
+              className="min-h-11 flex-1 rounded-lg border border-aviso-borde px-4 text-sm font-medium"
             >
               {t('mejorNo')}
             </button>
@@ -99,7 +99,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
               data-testid="confirmar-enlace"
               disabled={estado.fase === 'generando'}
               onClick={() => void generar()}
-              className="min-h-11 flex-1 rounded-lg bg-amber-900 px-4 text-sm font-semibold text-amber-50 disabled:bg-amber-300"
+              className="min-h-11 flex-1 rounded-lg bg-acento px-4 text-sm font-semibold text-fondo disabled:bg-superficie-sutil disabled:text-tinta-tenue"
             >
               {estado.fase === 'generando' ? t('creando') : t('entiendo')}
             </button>
@@ -111,7 +111,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
         <div className="space-y-2">
           <p
             data-testid="enlace-generado"
-            className="break-all rounded-lg border border-neutral-300 bg-neutral-50 p-2 font-mono text-xs text-neutral-700"
+            className="break-all rounded-lg border border-borde-fuerte bg-superficie p-2 font-mono text-xs text-tinta"
           >
             {estado.enlace}
           </p>
@@ -120,7 +120,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
               type="button"
               data-testid="copiar-enlace"
               onClick={() => void copiar(estado.enlace)}
-              className="min-h-11 flex-1 rounded-lg bg-neutral-900 px-4 text-sm font-medium text-white"
+              className="min-h-11 flex-1 rounded-lg bg-acento px-4 text-sm font-medium text-fondo"
             >
               {copiado ? t('copiado') : t('copiar')}
             </button>
@@ -130,7 +130,7 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
                 setEstado({ fase: 'apagado' })
                 setCopiado(false)
               }}
-              className="min-h-11 rounded-lg border border-neutral-300 px-4 text-sm text-neutral-700"
+              className="min-h-11 rounded-lg border border-borde-fuerte px-4 text-sm text-tinta"
             >
               {t('ocultar')}
             </button>

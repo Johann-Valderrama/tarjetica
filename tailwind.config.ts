@@ -17,8 +17,15 @@ const config: Config = {
         'borde-fuerte': 'var(--borde-fuerte)',
         tinta: 'var(--tinta)',
         'tinta-suave': 'var(--tinta-suave)',
+        'tinta-tenue': 'var(--tinta-tenue)',
         acento: 'var(--acento)',
         'acento-tenue': 'var(--acento-tenue)',
+        aviso: 'var(--aviso)',
+        'aviso-superficie': 'var(--aviso-superficie)',
+        'aviso-borde': 'var(--aviso-borde)',
+        peligro: 'var(--peligro)',
+        'peligro-superficie': 'var(--peligro-superficie)',
+        'peligro-borde': 'var(--peligro-borde)',
       },
       fontFamily: {
         // La referencia que Johann señalo usa una SANS PESADA, no un serif editorial. Se dejo de

@@ -21,7 +21,7 @@ export function AvisoDeAlcance() {
   return (
     <div
       role="note"
-      className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+      className="rounded-lg border border-aviso-borde bg-aviso-superficie p-3 text-sm text-tinta"
     >
       <p className="font-semibold">{t('alcanceTitulo')}</p>
       <p className="mt-1">{t('alcanceCuerpo')}</p>
@@ -31,7 +31,7 @@ export function AvisoDeAlcance() {
 
 /** Advertencia corta que va PEGADA a un campo delicado, no en una nota al pie. */
 export function AvisoDeCampo({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1 text-xs text-amber-700">{children}</p>
+  return <p className="mt-1 text-xs text-aviso">{children}</p>
 }
 
 export function ConfirmacionDeExportacion({
@@ -43,7 +43,7 @@ export function ConfirmacionDeExportacion({
 }) {
   const t = useTranslations('avisos')
   return (
-    <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border border-neutral-300 p-3 text-sm">
+    <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border border-borde-fuerte p-3 text-sm">
       <input
         type="checkbox"
         name="confirmacion-propia"
@@ -70,7 +70,7 @@ export function BotonBorrarTodo({ onBorrar }: { onBorrar: () => void }) {
     <button
       type="button"
       onClick={onBorrar}
-      className="min-h-11 w-full rounded-lg border border-red-300 px-4 text-sm font-medium text-red-700 hover:bg-red-50"
+      className="min-h-11 w-full rounded-lg border border-peligro-borde px-4 text-sm font-medium text-peligro hover:bg-peligro-superficie"
     >
       {t('borrarTodo')}
     </button>

@@ -30,7 +30,7 @@ type Cambio = (parche: Partial<TarjetaBorrador>) => void
 
 export function Etiqueta({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
   return (
-    <label htmlFor={htmlFor} className="block text-sm font-medium text-neutral-700">
+    <label htmlFor={htmlFor} className="block text-sm font-medium text-tinta">
       {children}
     </label>
   )
@@ -44,7 +44,7 @@ export function Entrada({
     <input
       {...props}
       className={
-        'min-h-11 w-full rounded-lg border border-neutral-300 px-3 text-base focus:border-neutral-900 focus:outline-none ' +
+        'min-h-11 w-full rounded-lg border border-borde-fuerte px-3 text-base focus:border-acento focus:outline-none ' +
         className
       }
     />
@@ -54,7 +54,7 @@ export function Entrada({
 export function Seccion({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <fieldset className="space-y-3">
-      <legend className="text-lg font-semibold text-neutral-900">{titulo}</legend>
+      <legend className="text-lg font-semibold text-tinta">{titulo}</legend>
       {children}
     </fieldset>
   )
@@ -183,7 +183,7 @@ export function CamposContacto({
               name={`tel-etiqueta-${i}`}
               value={tel.e}
               onChange={(e) => cambiarTelefono(i, { e: e.target.value })}
-              className="min-h-11 shrink-0 rounded-lg border border-neutral-300 px-2 text-base"
+              className="min-h-11 shrink-0 rounded-lg border border-borde-fuerte px-2 text-base"
             >
               {/*
                 Las etiquetas de telefono (`movil`, `casa`...) NO se traducen: son VALORES del
@@ -202,7 +202,7 @@ export function CamposContacto({
               onClick={() =>
                 onCambio({ t: telefonos.filter((_, j) => j !== i) as TarjetaBorrador['t'] })
               }
-              className="min-h-11 shrink-0 rounded-lg border border-neutral-300 px-3 text-neutral-600"
+              className="min-h-11 shrink-0 rounded-lg border border-borde-fuerte px-3 text-tinta-suave"
             >
               ×
             </button>
@@ -214,7 +214,7 @@ export function CamposContacto({
             onClick={() =>
               onCambio({ t: [...telefonos, { n: '', e: 'movil' }] as TarjetaBorrador['t'] })
             }
-            className="min-h-11 w-full rounded-lg border border-dashed border-neutral-300 text-sm text-neutral-600"
+            className="min-h-11 w-full rounded-lg border border-dashed border-borde-fuerte text-sm text-tinta-suave"
           >
             {t('agregarTelefono')}
           </button>
@@ -301,7 +301,7 @@ export function CamposRedes({ tarjeta, onCambio }: { tarjeta: TarjetaBorrador; o
               onClick={() =>
                 onCambio({ l: enlaces.filter((_, j) => j !== i) as TarjetaBorrador['l'] })
               }
-              className="min-h-11 shrink-0 rounded-lg border border-neutral-300 px-3 text-neutral-600"
+              className="min-h-11 shrink-0 rounded-lg border border-borde-fuerte px-3 text-tinta-suave"
             >
               ×
             </button>
@@ -311,7 +311,7 @@ export function CamposRedes({ tarjeta, onCambio }: { tarjeta: TarjetaBorrador; o
           <button
             type="button"
             onClick={() => onCambio({ l: [...enlaces, { u: '', e: '' }] as TarjetaBorrador['l'] })}
-            className="min-h-11 w-full rounded-lg border border-dashed border-neutral-300 text-sm text-neutral-600"
+            className="min-h-11 w-full rounded-lg border border-dashed border-borde-fuerte text-sm text-tinta-suave"
           >
             {t('agregarEnlace')}
           </button>
@@ -354,7 +354,7 @@ export function CamposDeTexto({
           placeholder={t('titularPlaceholder')}
         />
         <Contador actual={tarjeta.ti?.length ?? 0} tope={TOPE_TITULAR} />
-        <p className="mt-1 text-xs text-neutral-600">{t('titularAyuda')}</p>
+        <p className="mt-1 text-xs text-tinta-suave">{t('titularAyuda')}</p>
       </div>
 
       <div>
@@ -367,10 +367,10 @@ export function CamposDeTexto({
           onChange={(e) => onCambio({ de: e.target.value === '' ? undefined : e.target.value })}
           maxLength={TOPE_DESCRIPCION}
           placeholder={t('descripcionPlaceholder')}
-          className="w-full rounded-lg border border-neutral-300 p-3 text-base focus:border-neutral-900 focus:outline-none"
+          className="w-full rounded-lg border border-borde-fuerte p-3 text-base focus:border-acento focus:outline-none"
         />
         <Contador actual={tarjeta.de?.length ?? 0} tope={TOPE_DESCRIPCION} />
-        <p className="mt-1 text-xs text-neutral-600">{t('descripcionAyuda')}</p>
+        <p className="mt-1 text-xs text-tinta-suave">{t('descripcionAyuda')}</p>
         <AvisoDeCampo>{t('descripcionAviso')}</AvisoDeCampo>
       </div>
     </Seccion>
@@ -381,7 +381,7 @@ export function CamposDeTexto({
 function Contador({ actual, tope }: { actual: number; tope: number }) {
   const apretado = actual > tope - 15
   return (
-    <p className={'mt-1 text-right text-xs ' + (apretado ? 'text-amber-700' : 'text-neutral-500')}>
+    <p className={'mt-1 text-right text-xs ' + (apretado ? 'text-aviso' : 'text-tinta-suave')}>
       {actual} / {tope}
     </p>
   )
