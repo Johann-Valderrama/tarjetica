@@ -13,11 +13,20 @@
  * es el gate fisico 5d, en telefonos reales y dentro de esas apps.
  */
 
-/** Las tres vias, de la mejor a la peor. */
+/**
+ * Las tres vias. **El orden entre las dos primeras depende del DISPOSITIVO, no es fijo.**
+ *
+ * Hasta el 2026-09-08 `compartir` iba primero siempre, y el comentario de aqui abajo afirmaba que
+ * la descarga "sirve en Android y en escritorio". Era falso en la mitad que importa: en escritorio
+ * **nunca se llegaba** a la descarga, porque Chrome de Windows responde que SI puede compartir
+ * archivos y ganaba la hoja del sistema. Johann lo reporto usando la app en su computador: le salia
+ * la hoja de Windows con una lista de apps, sin poder elegir carpeta, donde esperaba la descarga de
+ * toda la vida. La suposicion estaba escrita en el codigo y nadie la habia medido.
+ */
 export type Via =
   /** Hoja del sistema. La unica que guarda en Fotos en iOS. */
   | 'compartir'
-  /** Descarga clasica. Sirve en Android y en escritorio. */
+  /** Descarga clasica. Es la que espera quien esta en un computador con mouse. */
   | 'descarga'
   /** Abrir la imagen para que el usuario la guarde con una pulsacion larga. El ultimo recurso. */
   | 'pulsacion-larga'
@@ -45,9 +54,23 @@ export function elegirVia(
   navegador: NavegadorParaCompartir | undefined,
   archivo: File,
   soportaDescarga: boolean,
+  esTactil: boolean,
 ): Via {
-  if (navegador?.share && navegador.canShare?.({ files: [archivo] })) return 'compartir'
+  const puedeCompartir = Boolean(navegador?.share && navegador.canShare?.({ files: [archivo] }))
+
+  /*
+    En TACTIL la hoja del sistema va primero, y esa sigue siendo la razon original de esta unidad:
+    en iOS Safari `<a download>` NO guarda en Fotos, asi que sin la hoja el boton principal del
+    producto no hace nada util justo en los telefonos de una conferencia.
+
+    Con MOUSE va primero la descarga. No es una preferencia estetica: en un computador la hoja del
+    sistema no deja elegir carpeta y ofrece una lista de apps que no viene al caso, mientras que la
+    descarga clasica es exactamente lo que la persona espera y le da su carpeta.
+  */
+  if (esTactil && puedeCompartir) return 'compartir'
   if (soportaDescarga) return 'descarga'
+  // Un tactil sin descarga (iOS viejo) o un escritorio raro: la hoja sigue siendo mejor que nada.
+  if (puedeCompartir) return 'compartir'
   return 'pulsacion-larga'
 }
 
@@ -55,6 +78,23 @@ export function elegirVia(
 export function soportaDescargaDeAncla(documento: Document | undefined = globalThis.document): boolean {
   if (!documento) return false
   return 'download' in documento.createElement('a')
+}
+
+/**
+ * ¿La persona esta tocando la pantalla con el dedo, o apuntando con un mouse?
+ *
+ * Se pregunta por el PUNTERO y no por el sistema operativo ni por el user agent: lo que decide cual
+ * via sirve es como interactua la persona, y un user agent hay que mantenerlo a mano cada vez que
+ * sale un dispositivo nuevo. `(pointer: coarse)` reporta el puntero PRIMARIO, asi que un portatil
+ * con pantalla tactil y mouse cuenta como mouse, que es lo correcto.
+ *
+ * Sin `matchMedia` (entorno de prueba, navegador viejo) devuelve `false`, o sea escritorio: es el
+ * lado seguro, porque una descarga que no era la ideal se ve y se puede repetir, mientras que una
+ * hoja del sistema que no aparece deja al usuario sin saber que paso.
+ */
+export function esPantallaTactil(ventana: Window | undefined = globalThis.window): boolean {
+  if (!ventana?.matchMedia) return false
+  return ventana.matchMedia('(pointer: coarse)').matches
 }
 
 export type ResultadoGuardado =
@@ -75,7 +115,7 @@ export async function guardarImagen(
 ): Promise<ResultadoGuardado> {
   if (typeof document === 'undefined') return { ok: false, motivo: 'sin-navegador' }
 
-  const via = elegirVia(navegador, archivo, soportaDescargaDeAncla())
+  const via = elegirVia(navegador, archivo, soportaDescargaDeAncla(), esPantallaTactil())
 
   if (via === 'compartir') {
     try {
