@@ -170,6 +170,30 @@ describe('el estado deshabilitado se ve apagado, y esta medido', () => {
 })
 
 /**
+ * Lo que el NAVEGADOR pinta si el proyecto no lo fija.
+ *
+ * Son tres superficies que no se ven en ningun `className` y que aparecieron una por una, cada vez
+ * porque alguien abrio la app y miro: el fondo de los campos, el texto de ejemplo y el
+ * autorrelleno. Las tres las pintaba Chrome con sus propios colores, calculados para otro tema, y
+ * ninguna medicion de tokens las delataba porque el problema no era el valor del token sino que
+ * nadie lo estuviera usando.
+ *
+ * Este guard no comprueba que se APLIQUEN (eso es del E2E, que le pregunta al navegador): comprueba
+ * que la regla siga escrita. Es el minimo que evita que se borren "limpiando" CSS que parece muerto.
+ */
+describe('las superficies que pinta el navegador estan cubiertas', () => {
+  it.each([
+    ['el fondo y la tinta de los campos', /input,[\s\S]{0,40}select\s*\{[\s\S]{0,120}background-color:\s*var\(--superficie\)/],
+    ['el texto de ejemplo', /input::placeholder/],
+    // `background-color` no funciona en este estado: Chrome lo ignora. La sombra interior es la
+    // unica via, asi que se exige ESA, no una cualquiera.
+    ['el autorrelleno de Chrome', /input:-webkit-autofill[\s\S]{0,400}box-shadow:[^;]*var\(--superficie\) inset/],
+  ])('%s', (_nombre, patron) => {
+    expect(CSS).toMatch(patron)
+  })
+})
+
+/**
  * El guard que impide que la paleta clara vuelva a entrar.
  *
  * Medir los tokens no basta: el defecto que origino todo esto NO fue un token malo, fue una

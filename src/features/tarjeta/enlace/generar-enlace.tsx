@@ -84,6 +84,13 @@ export function GenerarEnlace({ tarjeta, habilitado }: { tarjeta: Tarjeta | null
             <li>{t('publico')}</li>
             <li>{t.rich('irrevocable', { fuerte: (c) => <strong>{c}</strong> })}</li>
             <li>{t.rich('historial', { fuerte: (c) => <strong>{c}</strong> })}</li>
+            {/*
+              La foto. Va AQUI y no solo en la ayuda del campo, que esta arriba del formulario:
+              Johann genero un enlace, no vio su foto y lo reporto como un fallo. No lo es (es la
+              invariante G5, y la sostiene el tipo), pero enterarse DESPUES de repartir el enlace es
+              enterarse tarde. Donde se toma la decision es donde tiene que estar el dato.
+            */}
+            <li>{t.rich('sinFoto', { fuerte: (c) => <strong>{c}</strong> })}</li>
           </ul>
           <div className="flex gap-2 pt-1">
             <button

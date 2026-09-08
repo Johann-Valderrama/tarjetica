@@ -131,6 +131,32 @@
     color: var(--tinta-suave);
     opacity: 1; /* Firefox lo atenua por su cuenta; sin esto el numero medido no seria el real. */
   }
+
+  /*
+   * El AUTORRELLENO de Chrome, que es la tercera cosa que pintaba el navegador por su cuenta.
+   *
+   * Cuando Chrome rellena un campo le pone un fondo azul claro propio y pisa el nuestro: en un tema
+   * oscuro queda un rectangulo celeste en medio del formulario, con la tinta clara encima. Johann lo
+   * vio en el campo de ciudad. Medido el 2026-09-08: el proyecto no tenia NI UNA regla de
+   * `:-webkit-autofill` entre sus 203.
+   *
+   * `background-color` NO sirve aqui: Chrome lo ignora a proposito en este estado. La unica via es
+   * una sombra interior que tape el area, y `-webkit-text-fill-color` para el texto, que tampoco
+   * obedece a `color`. Es un apaño conocido y feo, y se documenta para que nadie lo "limpie"
+   * pensando que es codigo muerto.
+   *
+   * `:has(> input:-webkit-autofill)` no hace falta: el borde lo pinta el propio input.
+   */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--superficie) inset;
+    box-shadow: 0 0 0 1000px var(--superficie) inset;
+    -webkit-text-fill-color: var(--tinta);
+    caret-color: var(--tinta);
+  }
 }
 
 @layer components {

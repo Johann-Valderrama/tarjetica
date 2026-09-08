@@ -52,7 +52,7 @@ test.describe('la advertencia va ANTES de generar, no despues', () => {
     await expect(page.getByTestId('abrir-enlace')).toBeVisible()
   })
 
-  test('la advertencia dice las TRES cosas, y aparece antes del enlace', async ({ page }) => {
+  test('la advertencia dice las CUATRO cosas, y aparece antes del enlace', async ({ page }) => {
     await page.goto('/editor')
     await page.evaluate((t) => {
       localStorage.clear()
@@ -71,6 +71,13 @@ test.describe('la advertencia va ANTES de generar, no despues', () => {
     expect(texto, 'falta decir que es publico para quien lo tenga').toContain('cualquiera que lo tenga')
     expect(texto, 'falta decir que NO se puede desactivar').toContain('no se puede desactivar')
     expect(texto, 'falta decir lo del historial del navegador').toContain('historial del navegador')
+    /*
+      La cuarta entro el 2026-09-08. Johann genero un enlace, no vio su foto y lo reporto como un
+      fallo: no lo es (la foto fuera del enlace es la invariante G5, y la sostiene el tipo), pero
+      solo se decia en la ayuda del campo de foto, arriba del formulario. Enterarse DESPUES de
+      repartir el enlace es enterarse tarde.
+    */
+    expect(texto, 'falta decir que la foto no viaja en el enlace').toContain('foto no viaja en el enlace')
   })
 
   test('"mejor no" lo deja como estaba, sin generar nada', async ({ page }) => {

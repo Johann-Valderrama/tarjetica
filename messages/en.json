@@ -141,6 +141,7 @@
     "ocultar": "Hide",
     "abriendo": "Opening the card…",
     "hazLaTuya": "Make your own",
+    "sinFoto": "Your <fuerte>photo does not travel in the link</fuerte>: whoever opens it sees your initials. That is on purpose, not an oversight: the photo would make the link about 70 times longer and it would stop working to send over WhatsApp. The photo does show in the image you save and in the contact file.",
     "errores": {
       "vacio": "This link does not carry any card. It may have been cut off when it was copied.",
       "ilegible": "This card could not be read. The link looks incomplete or got broken when it was copied.",

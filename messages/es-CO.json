@@ -141,6 +141,7 @@
     "ocultar": "Ocultar",
     "abriendo": "Abriendo la tarjeta…",
     "hazLaTuya": "Haz la tuya",
+    "sinFoto": "Tu <fuerte>foto no viaja en el enlace</fuerte>: quien lo abra verá tus iniciales. Es a propósito, no un olvido: la foto haría el enlace unas 70 veces más largo y dejaría de servir para mandarlo por WhatsApp. La foto sí sale en la imagen que guardas y en el archivo de contacto.",
     "errores": {
       "vacio": "Este enlace no trae ninguna tarjeta. Puede que se haya cortado al copiarlo.",
       "ilegible": "No se pudo leer esta tarjeta. El enlace parece incompleto o quedó partido al copiarlo.",
