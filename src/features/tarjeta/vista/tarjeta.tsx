@@ -75,10 +75,39 @@ function Ubicacion({ ciudad }: { ciudad?: string }) {
   )
 }
 
+/**
+ * **Sin foto no se pinta el hueco de la foto** (2026-09-08).
+ *
+ * Antes salia un monograma de iniciales, con el argumento de que se lee como una decision de diseño
+ * y un icono generico se lee como un campo sin llenar. En la practica no fue asi: Johann abrio un
+ * enlace compartido, que por G5 NUNCA lleva foto, y lo describio como que **"se ve como si faltara
+ * algo"**. El monograma tampoco escapaba de eso.
+ *
+ * Y quitarlo no es solo estetico: el avatar mide 68 px, y en esta vista el QR ABSORBE la holgura,
+ * asi que esos pixeles se los queda el codigo. MEDIDO con la tarjeta llena, antes y despues:
+ *
+ * | pantalla                          | antes  | despues |
+ * |-----------------------------------|--------|---------|
+ * | 320x568 (iPhone SE de 2016)       | 2,01   | 2,39    |
+ * | 360x640 (Android chico)           | 3,42   | 3,61    |
+ * | 375x667 (el peor caso del PRP)    | 3,77   | 3,94    |
+ * | 390x844 (iPhone 14)               | 4,13   | 4,13    |
+ *
+ * En px por cuadrito, con piso de lectura en 2,5. Mejora en todas las pantallas chicas, **pero la
+ * de 320 px sigue por debajo**: gana 29 px de codigo, no los 68 del avatar, porque el resto del
+ * layout se queda con la diferencia. Esa pantalla esta fuera del caso que el PRP declara (375), asi
+ * que aqui se deja dicho en vez de arreglado: quien decida si 320 entra al contrato es el operador,
+ * no este comentario.
+ *
+ * El monograma SIGUE en el editor, y ahi si tiene sentido: ese circulo es el sitio donde vas a
+ * poner tu foto, asi que marcar el hueco es justo lo que se quiere.
+ */
 function Encabezado({ tarjeta, fotoDataUrl }: { tarjeta: Tarjeta; fotoDataUrl?: string }) {
   return (
     <header className="flex items-center gap-4">
-      <Avatar fotoDataUrl={fotoDataUrl} nombre={tarjeta.n} apellido={tarjeta.a} tamano={68} />
+      {fotoDataUrl && (
+        <Avatar fotoDataUrl={fotoDataUrl} nombre={tarjeta.n} apellido={tarjeta.a} tamano={68} />
+      )}
       <div className="min-w-0">
         <h1 className="break-words font-display text-[26px] font-extrabold leading-[1.1] text-tinta">
           {[tarjeta.n, tarjeta.a].filter(Boolean).join(' ')}

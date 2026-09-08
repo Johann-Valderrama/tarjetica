@@ -124,7 +124,9 @@ test.describe('3d · superficie a 375 px', () => {
   test('la tarjeta minima (solo nombre) tambien renderiza', async ({ page }) => {
     await sembrarYAbrir(page, { n: 'Ana' })
     await expect(page.getByRole('heading', { name: 'Ana' })).toBeVisible()
-    await expect(page.getByTestId('monograma-vista')).toHaveText('A')
+    // Sin foto no se pinta el hueco de la foto (2026-09-08): antes salia un monograma de iniciales
+    // y se leia como que faltaba algo. Los 68 px que ocupaba se los queda el codigo QR.
+    await expect(page.getByTestId('monograma-vista')).toHaveCount(0)
     const desborde = await page.evaluate(
       () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
     )

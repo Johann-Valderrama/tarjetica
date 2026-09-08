@@ -173,9 +173,25 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
 
     expect(enlace).not.toContain('data:image')
     expect(enlace).not.toContain('AAAAAAAA')
-    // Y al abrirlo, la tarjeta sale con monograma, no con la foto: la invariante funcionando.
+    /*
+      Y al abrirlo, la tarjeta sale SIN foto y sin hueco de foto: la invariante funcionando.
+
+      Antes esto se comprobaba viendo el monograma de iniciales, pero desde el 2026-09-08 la vista
+      no pinta nada cuando no hay foto (se leia como que faltaba algo, y sus 68 px se los queda el
+      QR). Asi que la prueba pasa a ser la que de verdad importaba desde el principio: **que no haya
+      NINGUNA imagen con datos incrustados**. Es mas fuerte que la anterior, porque no depende de
+      como se dibuje el estado sin foto.
+    */
     await page.goto(enlace)
-    await expect(page.getByTestId('monograma-vista')).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    const imagenesConDatos = await page.evaluate(() =>
+      [...document.querySelectorAll('img')]
+        .map((i) => i.getAttribute('src') ?? '')
+        .filter((src) => src.startsWith('data:image') && !src.includes('svg')).length,
+    )
+    // El QR tambien es un `data:image`, asi que se espera EXACTAMENTE uno: el codigo, no una foto.
+    expect(imagenesConDatos, 'la vista del enlace trae mas imagenes de las que deberia').toBe(1)
+    expect(await page.getByTestId('qr-contacto').getAttribute('src')).toMatch(/^data:image/)
   })
 })
 
