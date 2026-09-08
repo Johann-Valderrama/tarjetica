@@ -125,12 +125,12 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
     const caja = confirmacion.current
     if (!caja) return
     caja.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    caja.classList.remove('resaltado')
-    // Forzar un reflujo reinicia la animacion cuando se pulsa dos veces seguidas.
+    caja.classList.remove('reclamando')
+    // Forzar un reflujo reinicia la animacion cuando se pulsa dos veces seguidas. Sin esto, el
+    // segundo intento no parpadea y se lee como que el boton dejo de responder.
     void caja.offsetWidth
-    caja.classList.add('resaltado')
+    caja.classList.add('reclamando')
     caja.querySelector('input')?.focus({ preventScroll: true })
-    setTimeout(() => caja.classList.remove('resaltado'), 2600)
   }
 
   // El autosave: solo ESCRIBE, no toca estado de React de forma sincrona. El "Guardando..." lo
@@ -144,6 +144,18 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
       if (temporizador.current) clearTimeout(temporizador.current)
     }
   }, [tarjeta])
+
+  /**
+   * El borde rojo se apaga cuando la persona MARCA la casilla, no a los N segundos.
+   *
+   * Un temporizador apagaria la señal mientras alguien todavia la esta buscando, y el punto de que
+   * el borde se quede encendido es justo ese: sigue diciendo "es aqui" hasta que se actua. Va en un
+   * efecto y no en el manejador del checkbox porque la confirmacion tambien puede cambiar por otra
+   * via (el boton de borrar todo la desmarca).
+   */
+  useEffect(() => {
+    if (confirmado) confirmacion.current?.classList.remove('reclamando')
+  }, [confirmado])
 
   const cambiar = (parche: Partial<TarjetaBorrador>) => {
     setGuardado('guardando')

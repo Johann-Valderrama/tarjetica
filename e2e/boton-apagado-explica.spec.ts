@@ -108,15 +108,52 @@ test.describe('el boton apagado dice que falta, y lleva hasta alli', () => {
     // El foco es la parte que sirve con teclado y con lector de pantalla, no solo la animacion.
     await expect(page.getByRole('checkbox')).toBeFocused()
 
-    // Y el resalte: se comprueba por estado COMPUTADO, no por la clase, porque una clase presente
-    // con la animacion mal definida no resalta nada.
-    const resaltado = await page.evaluate(() => {
-      const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')
-      return caja ? getComputedStyle(caja).animationName !== 'none' || getComputedStyle(caja).boxShadow !== 'none' : false
+    /*
+      El resalte se comprueba por estado COMPUTADO, no por la clase: una clase presente con la
+      animacion mal escrita no resalta nada. Se exigen las TRES propiedades que Johann pidio:
+      que el borde sea ROJO, que parpadee 3 veces, y que al acabar SIGA encendido.
+    */
+    const resalte = await page.evaluate(() => {
+      const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')!
+      const cs = getComputedStyle(caja)
+      return { animacion: cs.animationName, vueltas: cs.animationIterationCount, sombra: cs.boxShadow }
     })
-    expect(resaltado, 'la confirmacion no se resalto').toBe(true)
+    expect(resalte.animacion, 'la confirmacion no se resalto').toBe('parpadeo-de-peligro')
+    expect(resalte.vueltas, 'el borde no parpadea exactamente 3 veces').toBe('3')
+
+    // El rojo se compara contra el TOKEN, no contra un valor escrito a mano aqui: asi el test no
+    // trae su propia copia del color, que es la forma de que pase mientras la app usa otro.
+    const rojo = await page.evaluate(() => {
+      const sonda = document.createElement('span')
+      sonda.style.color = getComputedStyle(document.documentElement).getPropertyValue('--peligro-fuerte').trim()
+      document.body.appendChild(sonda)
+      const c = getComputedStyle(sonda).color
+      sonda.remove()
+      return c
+    })
+    expect(resalte.sombra, 'el borde del resalte no es el rojo de peligro').toContain(rojo)
+
+    // Y lo que de verdad pidio: que al TERMINAR el parpadeo el borde siga encendido.
+    await page.waitForTimeout(1800)
+    const alFinal = await page.evaluate(() => {
+      const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')!
+      return { sombra: getComputedStyle(caja).boxShadow, sigueLaClase: caja.classList.contains('reclamando') }
+    })
+    expect(alFinal.sigueLaClase, 'el resalte se quito solo antes de que la persona actuara').toBe(true)
+    expect(alFinal.sombra, 'el borde no se quedo encendido al acabar el parpadeo').toContain(rojo)
 
     // Y quedo a la vista, que era el punto del gesto.
     await expect(page.getByRole('checkbox')).toBeInViewport()
+  })
+
+  test('el borde se apaga cuando la persona marca la casilla, no por tiempo', async ({ page }) => {
+    // El espejo del anterior. Sin este, un resalte que NUNCA se quita pasaria la prueba de arriba
+    // y dejaria el borde rojo puesto para siempre, incluso con todo ya confirmado.
+    await editorSinConfirmar(page)
+    await page.getByTestId('exportar-jpeg').click({ force: true })
+    await expect(page.locator('.reclamando')).toHaveCount(1)
+
+    await page.getByRole('checkbox').check()
+    await expect(page.locator('.reclamando')).toHaveCount(0)
   })
 })

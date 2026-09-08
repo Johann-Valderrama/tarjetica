@@ -24,6 +24,7 @@ const config: Config = {
         'aviso-superficie': 'var(--aviso-superficie)',
         'aviso-borde': 'var(--aviso-borde)',
         peligro: 'var(--peligro)',
+        'peligro-fuerte': 'var(--peligro-fuerte)',
         'peligro-superficie': 'var(--peligro-superficie)',
         'peligro-borde': 'var(--peligro-borde)',
       },

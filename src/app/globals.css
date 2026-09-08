@@ -59,6 +59,14 @@
   --aviso-superficie: rgba(255, 145, 1, 0.1);
   --aviso-borde: rgba(255, 145, 1, 0.55);
   --peligro: #ff9a8f;
+  /*
+   * El rojo PLENO, para bordes que reclaman atencion. Es distinto de `--peligro` a proposito: ese
+   * es para TEXTO sobre fondo oscuro, y por eso tiene que ser claro (un rojo saturado no se lee
+   * como texto ahi). Un BORDE no necesita ser claro, necesita leerse como ROJO, y con el tono claro
+   * se veia salmon. Se vio en un filmstrip de la animacion, no en una medicion: el contraste daba
+   * de sobra en los dos casos.
+   */
+  --peligro-fuerte: #ff5644;
   --peligro-superficie: rgba(255, 86, 68, 0.1);
   --peligro-borde: rgba(255, 86, 68, 0.65);
 }
@@ -163,34 +171,44 @@
   /*
    * El resalte de "esto es lo que te falta", cuando alguien pulsa un boton apagado.
    *
-   * Se anima SOLO `opacity` y `transform` (aqui via `box-shadow` de color constante y un
-   * desplazamiento nulo): son las dos propiedades que el navegador compone sin recalcular el
-   * layout, asi que no hay tiron en un telefono de gama baja.
+   * Pedido por Johann con esta forma exacta: borde ROJO, que **prenda y apague tres veces y al
+   * final se quede encendido**. Lo de quedarse encendido es lo que lo hace util: un parpadeo que
+   * termina y desaparece obliga a mirar en el momento justo, y quien estaba leyendo otra cosa se
+   * pierde la señal. El borde que persiste sigue diciendo "es aqui" hasta que la persona actua.
    *
-   * Dura 1,2 s y se quita sola. No parpadea sin fin: un elemento que titila para siempre es ruido
-   * y en algunas personas es un disparador real. Por eso tambien esta el bloque de
-   * `prefers-reduced-motion` de abajo, que deja el resalte QUIETO pero VISIBLE: quien pidio menos
-   * movimiento sigue necesitando ver adonde lo mandaron.
+   * Por eso el borde encendido vive en la CLASE y la animacion solo lo apaga y lo vuelve a
+   * encender: cuando los tres ciclos terminan, el elemento se queda en el estado de la clase, sin
+   * depender de `forwards` ni del ultimo fotograma.
+   *
+   * Se anima `box-shadow` y no `border`: un borde real empuja el layout y movería todo lo de
+   * abajo en cada parpadeo; la sombra se pinta encima sin ocupar espacio.
+   *
+   * Y NO se quita sola por tiempo: se quita cuando la persona marca la casilla, que es cuando deja
+   * de faltar. Un temporizador apagaria la señal mientras alguien todavia la esta buscando.
    */
-  .resaltado {
-    animation: resaltar 1.2s ease-out 2;
+  .reclamando {
     border-radius: 0.5rem;
+    box-shadow: 0 0 0 4px var(--peligro-fuerte);
+    animation: parpadeo-de-peligro 0.5s ease-in-out 3;
   }
 
-  @keyframes resaltar {
+  @keyframes parpadeo-de-peligro {
     0%,
     100% {
-      box-shadow: 0 0 0 0 var(--acento-tenue);
+      box-shadow: 0 0 0 4px var(--peligro-fuerte);
     }
-    35% {
-      box-shadow: 0 0 0 6px var(--acento-tenue);
+    50% {
+      box-shadow: 0 0 0 4px transparent;
     }
   }
 
+  /*
+   * Con menos movimiento pedido, el borde se queda ENCENDIDO desde el principio, sin parpadear.
+   * Se conserva lo que informa (donde hay que mirar) y se quita lo que solo llama la atencion.
+   */
   @media (prefers-reduced-motion: reduce) {
-    .resaltado {
+    .reclamando {
       animation: none;
-      box-shadow: 0 0 0 3px var(--acento-tenue);
     }
   }
 
