@@ -120,6 +120,9 @@ const BORDES_DE_CONTROL: Array<[string, string, Rgb]> = [
   ['borde-fuerte sobre el fondo (los campos del editor)', 'borde-fuerte', FONDO],
   ['aviso-borde sobre el fondo (la caja de advertencia)', 'aviso-borde', FONDO],
   ['peligro-borde sobre el fondo (el boton de borrar)', 'peligro-borde', FONDO],
+  // El anillo del resalte de "esto es lo que falta", en su estado de REPOSO (alfa 1). Es el que
+  // identifica el control, asi que es el que tiene que pasar 1.4.11.
+  ['peligro-fuerte sobre el fondo (el anillo del resalte)', 'peligro-fuerte', FONDO],
 ]
 
 describe('el texto de la interfaz pasa AAA', () => {
@@ -170,6 +173,29 @@ describe('los bordes que identifican un control pasan 3:1', () => {
  * techo de 4,5 obliga a volver a leer esta nota antes de borrar la distincion.
  */
 describe('el estado deshabilitado se ve apagado, y esta medido', () => {
+  /**
+   * El punto BAJO del latido se declara como rango, no se sube (2026-09-09).
+   *
+   * Con menos movimiento pedido el anillo late entre `--peligro-fuerte` (alfa 1) y
+   * `--peligro-latido` (0,45), y ese punto bajo da 2,06:1 contra el fondo, por debajo del 3:1 de
+   * WCAG 1.4.11. **No es un incumplimiento y por eso no se sube:** 1.4.11 mide el estado en REPOSO
+   * de lo que identifica un control, y aqui el reposo es el anillo pleno, que ya se mide arriba. El
+   * punto bajo es un instante de 0,45 s dentro de un latido que dura 1,8 s, y mientras tanto el
+   * relleno reforzado sigue puesto.
+   *
+   * Subirlo hasta 3:1 exigiria alfa ~0,65, y ahi el latido deja de verse, que era justo lo que
+   * Johann pidio que se notara. Lo que no se acepta es dejarlo sin numero.
+   */
+  it('el punto bajo del latido se atenua sin desaparecer', () => {
+    const bajo = contraste(componer(token('peligro-latido'), FONDO), FONDO)
+    expect(bajo, 'el latido se apaga tanto que parece un destello').toBeGreaterThan(1.5)
+    expect(bajo, 'el latido no baja lo suficiente para notarse').toBeLessThan(NO_TEXTUAL)
+
+    // Y que de verdad SEA un punto bajo del alto, no un valor suelto que alguien igualo sin querer.
+    const alto = contraste(componer(token('peligro-fuerte'), FONDO), FONDO)
+    expect(alto, 'el latido no tiene amplitud: el punto alto y el bajo se parecen').toBeGreaterThan(bajo * 1.5)
+  })
+
   it('`--tinta-tenue` cae entre 3:1 y 4,5:1 sobre las dos superficies donde se usa', () => {
     for (const fondo of [FONDO, SUPERFICIE]) {
       const medido = contraste(componer(token('tinta-tenue'), fondo), fondo)

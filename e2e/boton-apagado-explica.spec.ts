@@ -177,13 +177,20 @@ test.describe('el boton apagado dice que falta, y lleva hasta alli', () => {
  * unica sin prueba.
  */
 
-/** Dispara el resalte y muestrea el alfa del anillo por fotograma, dentro de la pagina. */
-async function medirElResalte(page: Page) {
+/**
+ * Dispara el resalte y muestrea el alfa del anillo por fotograma, dentro de la pagina.
+ *
+ * Los umbrales son parametros porque los dos casos miden ciclos de AMPLITUD distinta: con
+ * movimiento el anillo se va a cero, y con menos movimiento solo baja a 0,45 y vuelve. Contar el
+ * latido con el umbral del parpadeo daria CERO y se leeria como "no anima nada", que es justo la
+ * conclusion equivocada.
+ */
+async function medirElResalte(page: Page, umbrales = { bajo: 0.15, alto: 0.5 }) {
   await editorSinConfirmar(page)
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
   await page.getByTestId('abrir-enlace').click({ force: true })
 
-  return page.evaluate(async () => {
+  return page.evaluate(async (u) => {
     const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')!
     /** Alfa de un color computado. Un `rgb(...)` sin cuarto canal es opaco: alfa 1. */
     const alfa = (valor: string) => {
@@ -217,13 +224,19 @@ async function medirElResalte(page: Page) {
     let ciclos = 0
     let dentro = false
     for (const a of anillo) {
-      if (a < 0.15 && !dentro) {
+      if (a < u.bajo && !dentro) {
         ciclos++
         dentro = true
-      } else if (a > 0.5) dentro = false
+      } else if (a > u.alto) dentro = false
     }
-    return { fotogramas: anillo.length, ciclos, anilloFinal: anillo[anillo.length - 1], ...ultimo }
-  })
+    return {
+      fotogramas: anillo.length,
+      ciclos,
+      minimo: Math.min(...anillo),
+      anilloFinal: anillo[anillo.length - 1],
+      ...ultimo,
+    }
+  }, umbrales)
 }
 
 test.describe('el resalte parpadea de verdad, medido por fotograma', () => {
@@ -233,6 +246,7 @@ test.describe('el resalte parpadea de verdad, medido por fotograma', () => {
     // Si el muestreo no alcanzo a correr, cualquier conteo de abajo seria un cero enganoso.
     expect(m.fotogramas, 'el muestreo por fotograma no corrio').toBeGreaterThan(60)
     expect(m.ciclos, 'el borde no se apago y encendio exactamente 3 veces').toBe(3)
+    expect(m.minimo, 'el borde nunca llego a apagarse del todo').toBeLessThan(0.05)
     expect(m.anilloFinal, 'el borde no quedo encendido al acabar el parpadeo').toBe(1)
     expect(m.relleno, 'el resalte no tiene relleno, solo borde').toBeGreaterThan(0.1)
   })
@@ -255,7 +269,7 @@ test.describe('el resalte parpadea de verdad, medido por fotograma', () => {
   })
 })
 
-test.describe('con menos movimiento pedido, el color hace el trabajo del parpadeo', () => {
+test.describe('con menos movimiento pedido, el borde LATE en vez de parpadear', () => {
   /**
    * Este caso abre su PROPIO contexto en vez de usar `test.use({ reducedMotion: 'reduce' })`, y no
    * es una preferencia de estilo: se midio el 2026-09-08 que ese `test.use` **no pisa** al
@@ -265,7 +279,7 @@ test.describe('con menos movimiento pedido, el color hace el trabajo del parpade
    * el producto dejara de respetar la preferencia. `e2e/idiomas.spec.ts` ya abre su propio contexto
    * por la misma razon; esto sigue ese patron, no inventa uno.
    */
-  test('no parpadea nada, y a cambio el relleno y el anillo son mas marcados', async ({ browser }, info) => {
+  test('late 2 veces sin apagarse, con el relleno y el anillo mas marcados', async ({ browser }, info) => {
     const ctx = await browser.newContext({
       ...devices['Pixel 7'],
       locale: 'es-CO',
@@ -280,11 +294,21 @@ test.describe('con menos movimiento pedido, el color hace el trabajo del parpade
     ).toBe(true)
 
     try {
-      const m = await medirElResalte(page)
+      // Umbrales propios: este ciclo baja a 0,45, no a cero.
+      const m = await medirElResalte(page, { bajo: 0.6, alto: 0.9 })
 
       expect(m.fotogramas, 'el muestreo por fotograma no corrio').toBeGreaterThan(60)
-      expect(m.ciclos, 'se anima algo pese a que se pidio menos movimiento').toBe(0)
-      expect(m.anilloFinal, 'el borde no esta encendido').toBe(1)
+      expect(m.ciclos, 'el borde no latio exactamente 2 veces').toBe(2)
+      expect(m.anilloFinal, 'el borde no quedo encendido al acabar el latido').toBe(1)
+
+      /*
+        Lo que separa un LATIDO de un destello, y la razon por la que este caso puede animar aunque
+        se haya pedido menos movimiento: el anillo se atenua pero NUNCA se apaga. Sin este assert,
+        subir la animacion del caso con movimiento a esta rama pasaria en verde y le devolveria el
+        destello completo justo a quien pidio lo contrario.
+      */
+      expect(m.minimo, 'el anillo se apaga: eso ya no es un latido, es un destello').toBeGreaterThan(0.35)
+      expect(m.minimo, 'el latido es tan sutil que no se va a notar').toBeLessThan(0.6)
 
       // La compensacion, contra los TOKENS y no contra numeros escritos aqui.
       const tokens = await page.evaluate(() => {

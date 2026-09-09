@@ -81,6 +81,12 @@
    */
   --peligro-relleno: rgba(255, 86, 68, 0.18);
   --peligro-relleno-fuerte: rgba(255, 86, 68, 0.3);
+  /*
+   * El punto BAJO del latido de quien pidio menos movimiento. No baja a transparente a proposito:
+   * a 0,45 el anillo se atenua lo suficiente para que el ojo lo cace, sin llegar a apagarse, que es
+   * lo que convierte una señal en un destello.
+   */
+  --peligro-latido: rgba(255, 86, 68, 0.45);
 }
 
 @layer base {
@@ -221,22 +227,37 @@
   }
 
   /*
-   * Con menos movimiento pedido, el borde se queda ENCENDIDO desde el principio, sin parpadear.
-   * Se conserva lo que informa (donde hay que mirar) y se quita lo que solo llama la atencion.
+   * Con menos movimiento pedido NO se apaga la señal: se BAJA de intensidad.
    *
-   * NO es un caso raro: se midio el 2026-09-08 que el propio Chrome de Johann esta asi (Windows
-   * con los efectos de animacion apagados), y por eso reporto "se queda en rojo estatico". O sea
-   * que esta rama NO es el camino excepcional, es el que el que reporto el sintoma esta viendo.
+   * La primera version dejaba el borde fijo, sin animar. Es la lectura literal de la preferencia y
+   * es defendible, pero Johann probo el resultado y pidio "un parpadeo basico, que se haga notar".
+   * Tiene razon, y la norma le da la razon: `prefers-reduced-motion` existe por el movimiento
+   * ESPACIAL (traslacion, escala, parallax), que es el que produce mareo vestibular. Aqui no se
+   * mueve nada de sitio: solo cambia el alfa de una sombra.
    *
-   * Por eso se COMPENSA lo que se pierde: sin parpadeo, el unico que puede hacer el trabajo de
-   * llamar es el color, asi que el relleno sube (0,18 -> 0,30) y el anillo engorda (4 -> 5 px). No
-   * se anima nada: se refuerza lo estatico. El texto de adentro sigue en 11,97:1, sobre AAA.
+   * Lo que SI se cuida es el otro riesgo, el de los destellos (WCAG 2.3.1 pide menos de 3 por
+   * segundo). Tres diferencias medidas contra la version con movimiento:
+   *   - mas LENTO: 0,9 s por ciclo, o sea 1,1 destellos por segundo, un tercio del limite;
+   *   - menos CICLOS: 2 en vez de 3;
+   *   - y sobre todo NO se apaga: el anillo baja a `--peligro-latido` (0,45) y vuelve, en vez de
+   *     irse a transparente. Late, no parpadea.
+   * El relleno reforzado y el anillo de 5 px se quedan: el latido se suma a eso, no lo reemplaza.
    */
   @media (prefers-reduced-motion: reduce) {
     .reclamando {
-      animation: none;
       background-color: var(--peligro-relleno-fuerte);
       box-shadow: 0 0 0 5px var(--peligro-fuerte);
+      animation: latido-de-peligro 0.9s ease-in-out 2;
+    }
+
+    @keyframes latido-de-peligro {
+      0%,
+      100% {
+        box-shadow: 0 0 0 5px var(--peligro-fuerte);
+      }
+      50% {
+        box-shadow: 0 0 0 5px var(--peligro-latido);
+      }
     }
   }
 
