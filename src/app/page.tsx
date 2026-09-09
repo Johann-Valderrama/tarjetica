@@ -27,7 +27,6 @@ export default async function Home() {
       <header className="space-y-2">
         <h1 className="font-display text-3xl font-extrabold text-tinta">{t('app.nombre')}</h1>
         <p className="text-base text-tinta-suave">{t('home.tagline')}</p>
-        <p className="font-semibold text-tinta">{t('app.avisoG2')}</p>
       </header>
 
       <p className="text-sm text-tinta-suave">{t('home.comoFunciona')}</p>
