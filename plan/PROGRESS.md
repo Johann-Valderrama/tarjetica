@@ -55,7 +55,7 @@ https://github.com/Johann-Valderrama/tarjetica (público, MIT detectado por GitH
 ## Next action
 
 🤖 **No queda ninguna unidad de agente del PRP.** El producto esta completo y **publicado** desde el
-2026-09-10 en **https://tarjetica-ochre.vercel.app**, en la cuenta personal de Johann.
+2026-09-10 en **https://tarjetica-app.vercel.app**, en la cuenta personal de Johann.
 
 🙋 **Lo que depende de Johann:**
 
@@ -250,7 +250,7 @@ Modelo esperado: Sonnet.M. Si eres mas debil, avisa y espera.
   Ola 5: un doble de la capa que falla no verifica nada, y la hoja de compartir es del sistema
   operativo, no del navegador
 - [x] **Ola 7d, deploy: HECHO el 2026-09-10.** En la cuenta **personal** de Johann en Vercel.
-  URL publica de produccion: **https://tarjetica-ochre.vercel.app**
+  URL publica de produccion: **https://tarjetica-app.vercel.app**
 
   Verificado contra la URL REAL, no contra el build local: 25/25 asserts de cabeceras, la CSP sale
   en `default-src 'self'` con nonce por peticion, **cero peticiones a un dominio ajeno** (D1 se
@@ -262,8 +262,11 @@ Modelo esperado: Sonnet.M. Si eres mas debil, avisa y espera.
   - La URL larga de cada despliegue (`tarjetica-<hash>-...vercel.app`) y el alias
     `tarjetica-johann09-4767s-projects.vercel.app` devuelven 200 **con la pagina de login de
     Vercel**: tienen la proteccion de despliegues que Vercel pone por defecto. No son publicas.
-  - La publica es `tarjetica-ochre.vercel.app`, que Vercel asigno sola porque el nombre corto estaba
-    tomado.
+  - La publica era `tarjetica-ochre.vercel.app`, que Vercel asigno sola porque el nombre corto estaba
+    tomado. **El mismo dia Johann pidio un nombre mejor:** se renombro el proyecto a `tarjetica-app`
+    y se agrego `tarjetica-app.vercel.app` como dominio DEL PROYECTO (no de un despliegue suelto, asi
+    sigue a cada deploy de produccion futuro). `tarjetica-ochre` sigue viva a proposito, para no
+    romper un enlace que ya se hubiera repartido. Nada del codigo tenia la URL escrita a mano.
 
   **Por que estuvo bloqueado tres sesiones, y dos diagnosticos mios que resultaron falsos:**
   1. Las sesiones anteriores afirmaban "no hay sesion" mirando `~/.vercel/auth.json`, que es la
