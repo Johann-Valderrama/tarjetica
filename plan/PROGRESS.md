@@ -54,23 +54,10 @@ https://github.com/Johann-Valderrama/tarjetica (público, MIT detectado por GitH
 
 ## Next action
 
-🤖 **No queda ninguna unidad de agente del PRP.** Lo unico que sigue es la 7d, que es 🙋 de
-Johann, y no hay ninguna decision abierta esperandolo: la de la paleta se cerro el 2026-09-08.
+🤖 **No queda ninguna unidad de agente del PRP.** El producto esta completo y **publicado** desde el
+2026-09-10 en **https://tarjetica-ochre.vercel.app**, en la cuenta personal de Johann.
 
 🙋 **Lo que depende de Johann:**
-
-- **Unidad 7d, el despliegue.** Es lo unico que separa lo construido de la meta original
-  ("cualquier persona"). Bloqueado por el acceso a Vercel: **re-medido el 2026-09-07**, no hay
-  ninguna llave `VERCEL_*` en el mapa de entorno, no existe `~/.vercel/auth.json` y el proyecto no
-  esta enlazado. Lo desbloquea un `vercel login` de Johann, que es interactivo, o un token en el
-  archivo de entorno de la raiz de OPS. Despues:
-  `cd "C:\OPS\_VelOS\proyectos\tarjetica" && vercel link --yes && vercel --prod`.
-- **DECISION: la home dice DOS VECES la misma frase.** "No guardamos tus datos en ningun servidor."
-  (clave `avisoG2`) se pinta como linea suelta en negrilla y otra vez como titulo del bloque de
-  limites, separadas por un parrafo. Se vio MIRANDO la captura; ninguna medicion lo delata, y es copy
-  visible, asi que no se toco. Opciones: **(A)** se quita la linea suelta y el bloque de limites se
-  queda con el titular (recomendada: el bloque es el que trae el detalle); **(B)** se quita del bloque
-  y se deja arriba; **(C)** se queda repetida a proposito, por enfasis.
 
 - **DECISION ABIERTA: ¿la pantalla de 320 px entra al contrato?** Con la tarjeta llena, ahi el QR
   queda en **2,39 px por cuadrito** y el piso de lectura es 2,5, incluso despues de quitarle el
@@ -78,7 +65,7 @@ Johann, y no hay ninguna decision abierta esperandolo: la de la paleta se cerro 
   codigo y no se toco. Opciones: **(A)** entra, y se busca de donde sacarle pixeles al codigo;
   **(B)** no entra, y queda como limite conocido y escrito. Recomendada la B mientras el peor caso
   declarado siga siendo 375: un iPhone SE de 2016 ya casi no aparece en un evento. El de la Ola 7 (`4b1903e`) ya esta en `origin/main`.
-- **Gate fisico 4e:** escanear el QR de la tarjeta LLENA de una pantalla a otra, a unos 20 cm, con
+- **Gate fisico 4e, ya se puede contra la URL real:** escanear el QR de la tarjeta LLENA de una pantalla a otra, a unos 20 cm, con
   brillo normal de evento y luz artificial de interior. En un iPhone SE con todos los campos el
   codigo queda en **2,55 px por cuadrito**, sobre el piso de 2,5 pero sin sobra. Si no se lee, la
   palanca ya esta construida: el aviso de densidad dice que campo quitar.
@@ -262,40 +249,35 @@ Modelo esperado: Sonnet.M. Si eres mas debil, avisa y espera.
   además desde el navegador embebido de Instagram y de LinkedIn. Es el único punto abierto de la
   Ola 5: un doble de la capa que falla no verifica nada, y la hoja de compartir es del sistema
   operativo, no del navegador
-- [ ] **Ola 7, deploy: DECIDIDO el destino, BLOQUEADO el acceso. CAUSA CORREGIDA el 2026-09-10.**
-  Johann eligio su Vercel **personal** (no el equipo ZelandiaIO), "por ahora".
+- [x] **Ola 7d, deploy: HECHO el 2026-09-10.** En la cuenta **personal** de Johann en Vercel.
+  URL publica de produccion: **https://tarjetica-ochre.vercel.app**
 
-  **Lo que decia este documento hasta hoy era un FALSO NEGATIVO:** afirmaba "sin
-  `~/.vercel/auth.json`", pero en Windows el CLI de Vercel **no guarda ahi**, guarda en
-  `%APPDATA%\com.vercel.cli\Data\`. Se estaba mirando la ruta de Linux y por eso salia que no
-  habia sesion. Medido hoy con `probar-sesion-vercel.mjs`, que existe justo para esto.
+  Verificado contra la URL REAL, no contra el build local: 25/25 asserts de cabeceras, la CSP sale
+  en `default-src 'self'` con nonce por peticion, **cero peticiones a un dominio ajeno** (D1 se
+  sostiene en produccion) y el editor carga sin errores de JS.
 
-  **La causa real, medida el 2026-09-10:**
-  - SI hay sesion guardada (el token empieza en `vca_`), pero la API responde **403** a
-    `GET /v2/user`, o sea el token ya no sirve.
-  - El scope por defecto del CLI es un **EQUIPO** (identificador del equipo, en el registro interno),
-    no la cuenta personal. Lo levanto Johann, no la medicion.
-  - Ese scope de equipo es uno donde Johann **no puede** desplegar por ahora; no es "el equivocado
-    por descuido". El motivo está en el registro interno del proyecto.
+  **Tres trampas que un "200" escondia, medidas antes de dar la URL:**
+  - `tarjetica.vercel.app` responde 200 pero **no es este proyecto**: el nombre ya lo tenia otra
+    persona. Se comprobo por CONTENIDO, no por codigo de estado.
+  - La URL larga de cada despliegue (`tarjetica-<hash>-...vercel.app`) y el alias
+    `tarjetica-johann09-4767s-projects.vercel.app` devuelven 200 **con la pagina de login de
+    Vercel**: tienen la proteccion de despliegues que Vercel pone por defecto. No son publicas.
+  - La publica es `tarjetica-ochre.vercel.app`, que Vercel asigno sola porque el nombre corto estaba
+    tomado.
 
-  **Lo desbloquean tres pasos, en orden:** `vercel login` con la cuenta PERSONAL (interactivo, es de
-  Johann) -> `vercel switch` al scope personal, porque el `currentTeam` guardado sobrevive al login
-  -> `vercel link --yes && vercel --prod` desde la raiz de `tarjetica`. La alternativa sin navegador
-  es un token personal en el archivo de entorno de la raiz de OPS.
+  **Por que estuvo bloqueado tres sesiones, y dos diagnosticos mios que resultaron falsos:**
+  1. Las sesiones anteriores afirmaban "no hay sesion" mirando `~/.vercel/auth.json`, que es la
+     ruta de Linux. En Windows el CLI guarda en `%APPDATA%\com.vercel.cli\Data\`.
+  2. **El 2026-09-10 afirme que el scope del CLI apuntaba a un equipo ajeno y lo quite. Era FALSO:**
+     ese identificador `team_...` era la propia cuenta personal de Johann. Vercel convirtio las
+     cuentas gratuitas en "equipos personales" con ID `team_`, asi que un `currentTeam` guardado NO
+     prueba que se este en un equipo de otro. Lo que lo prueba es `vercel teams ls`, que aqui lista
+     UNO solo: `johann09-4767s-projects`. Quitarlo fue inofensivo, pero el razonamiento no.
+  3. La causa real era una sola: el token guardado estaba vencido (403). Y los dos primeros logins de
+     Johann no quedaron guardados; el tercero si, corrido desde una terminal de administrador.
 
-  **Los correos que recibe Johann NO son de Vercel ni de Tarjetica: son de GitHub Actions, y son de
-  ESTA bitacora.** Corregido el 2026-09-10 cuando Johann mostro el correo; la version anterior de
-  este parrafo decia "vienen de otro proyecto del equipo" y era falsa, escrita sin ver el correo.
-  Medido: el CI del repositorio compartido donde vivia esta bitacora falla por deuda tecnica
-  preexistente, ajena a esta rama (que solo cambia `.gitignore` y sus propios archivos), no por nada
-  de este proyecto. El detalle del repositorio y la deuda estan en el registro interno del proyecto.
-
-  Consecuencia que aplica a cualquier PR de ese repositorio compartido, no solo a este: el gate de
-  CI no esta gateando por esa deuda ajena. Se reporto al responsable del repositorio; no se arregla
-  de paso.
-
-  Ya NO es cierto que el repo sirva un placeholder: el producto esta completo, faltan solo los dos
-  gates fisicos
+  Ya NO es cierto que el repo sirva un placeholder: el producto esta completo y publicado. Faltan solo
+  los dos gates fisicos, que ahora se pueden hacer contra la URL real
 - [~] `alta-baja-de-repos-por-ops`, a medias: el descriptor `_PROYECTO.md` de `tarjetica` YA quedó
   escrito (2026-09-04; gitignoreado en el repo público porque apunta al privado). **Falta regenerar**
   `C:\OPS\_VelOS\proyectos\_MAPA.md`, donde `tarjetica` todavía NO figura: ese archivo tenía cambios
