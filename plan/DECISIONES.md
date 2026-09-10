@@ -439,4 +439,18 @@
   correr**, no solo por la medicion. Se le ofrecieron bajar a 0,30 o sumar un tercer ciclo y eligio
   dejarlo : Johann.
 
+- 2026-09-10 **La bitacora se muda a ESTE repo y se vuelve publica.** SUPERA a D3, que la dejaba en
+  un repositorio privado. El proyecto es opensource: quien lo clone deberia poder leer por que esta
+  construido asi, no solo como. De 1.769 lineas, el 97% era tecnico y entro tal cual : Johann.
+
+- 2026-09-10 **Lo privado se SEPARO por contenido, no por carpeta.** Un puñado de fragmentos (las
+  razones de negocio detras de dos decisiones, e infraestructura interna de un repositorio ajeno)
+  salio a un registro interno del autor; en su lugar quedan frases neutras que conservan la decision
+  sin el motivo. Nada se borro : Opus, con el criterio de Johann.
+
+- 2026-09-10 **Dos de las tres muestras NO eran publicables, y ninguna medicion de texto lo dice.**
+  Llevaban un nombre real, un cargo, un telefono y un QR con el vCard completo, todo dentro de la
+  IMAGEN. Se vio abriendolas. La tercera si entro: su perfil es un fixture que ya vive en
+  `e2e/perfiles.datos.ts` : Opus, tras mirar.
+
 (Registrado en Engram: observacion 1243, proyecto `ops`.)
