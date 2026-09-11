@@ -14,6 +14,18 @@
 
 ## Estado
 
+✅ **Primera ronda de uso real en PRODUCCION** (2026-09-11, commits `3cfc860` a `3cc4b35`, todos
+desplegados en https://tarjetica-app.vercel.app y verificados ALLI, no solo en local). Johann lleno su
+tarjeta en el celular y en el computador y reporto dos cosas; detras habia cinco defectos:
+- La web escrita sin `https://` bloqueaba compartir, y **apagaba el guardado automatico en silencio**
+  (lo escrito despues se perdia al recargar). Tambien una fila de enlace vacia y un correo a medias.
+  Arreglo: guardar es permisivo (`BorradorGuardable`), compartir sigue estricto (`esExportable`).
+- El boton apagado llevaba siempre a la casilla y decia "escribe tu nombre" con el nombre escrito.
+  Ahora lleva al primer campo que falla y lo nombra.
+- En el computador la tarjeta dejaba ~200 px de blanco alrededor del QR. Ahora mide lo que necesita;
+  el QR no cambio de tamaño en ningun caso medido.
+Verificado: typecheck, lint, build, **151 unitarios**, 25/25 cabeceras y **120/120 E2E**.
+
 ✅ **El resalte LATE tambien para quien pidio menos movimiento** (2026-09-09). Johann probo el
 borde fijo y pidio "un parpadeo basico, que se haga notar". Se puede y ademas es correcto: la
 preferencia existe por el movimiento ESPACIAL, no por un cambio de alfa. Late 2 veces en 0,9 s por
