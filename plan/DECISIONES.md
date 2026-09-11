@@ -473,4 +473,10 @@
   escribir ya no apaga el guardado. La regla estricta queda donde protege: todo lo que sale de la app
   pasa por `esExportable`. Un guardian vigila que las dos reglas tengan las mismas claves : Johann.
 
+- 2026-09-11 **En pantalla, la tarjeta mide lo que necesita y queda centrada; ya no se estira al alto
+  de la ventana.** En un computador dejaba unos 200 px de blanco alrededor del QR, que no puede ser mas
+  ancho que la tarjeta. El QR pide un alto igual a su ancho y cede solo si no cabe, asi que en un
+  telefono bajo sigue encogiendose sin scroll. Medido: el QR no cambio en ningun caso : Johann
+  reporto, Opus midio.
+
 (Registrado en Engram: observacion 1243, proyecto `ops`.)
