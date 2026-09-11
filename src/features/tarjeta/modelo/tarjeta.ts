@@ -194,6 +194,45 @@ export type TarjetaBorrador = z.infer<typeof TarjetaBorrador>
 /** Lo que devuelve el almacenamiento cuando no hay nada guardado, o cuando lo guardado no sirve. */
 export const BORRADOR_VACIO: TarjetaBorrador = {}
 
+/**
+ * Lo que se GUARDA en el dispositivo: el borrador tal como se esta escribiendo (2026-09-11).
+ *
+ * **Por que es una regla aparte y mas permisiva.** Antes, guardar exigia el mismo formato que
+ * compartir, asi que cualquier campo a medio escribir (un correo como `johann@`, una web sin
+ * `https://`, una fila de enlace recien agregada y todavia vacia) hacia fallar la validacion y el
+ * guardado automatico dejaba de guardar EN SILENCIO. Todo lo escrito despues vivia solo en la
+ * pestaña y se perdia al recargar. Un borrador es justamente lo que todavia no esta terminado.
+ *
+ * **Lo que conserva.** Mismas claves, `strictObject` (una clave desconocida se rechaza, asi que un
+ * dato manipulado a mano en el almacenamiento sigue sin entrar), y tipos correctos. Solo suelta el
+ * FORMATO. Los topes son holgados a proposito: nadie los alcanza tecleando, y frenan la basura.
+ *
+ * **Por que es seguro.** Un borrador solo se pinta dentro de campos del editor, que escapan el
+ * texto. Donde un dato se vuelve un enlace clicable (la vista de la tarjeta, el QR, el `.vcf`, el
+ * link compartible) manda `esExportable`, que sigue usando `Tarjeta`, la regla estricta.
+ *
+ * Tiene que tener las MISMAS claves que `Tarjeta`: lo vigila un test, porque un campo nuevo que se
+ * agregue alla y no aca haria que el borrador guardado lo rechazara entero.
+ */
+const TextoGuardable = z.string().max(1000)
+export const BorradorGuardable = z.strictObject({
+  n: TextoGuardable.optional(),
+  a: TextoGuardable.optional(),
+  c: TextoGuardable.optional(),
+  em: TextoGuardable.optional(),
+  co: TextoGuardable.optional(),
+  t: z.array(z.strictObject({ n: TextoGuardable, e: z.enum(ETIQUETAS_TELEFONO) })).max(10).optional(),
+  w: TextoGuardable.optional(),
+  ig: TextoGuardable.optional(),
+  tk: TextoGuardable.optional(),
+  fb: TextoGuardable.optional(),
+  li: TextoGuardable.optional(),
+  l: z.array(z.strictObject({ u: TextoGuardable, e: TextoGuardable })).max(10).optional(),
+  d: TextoGuardable.optional(),
+  ti: TextoGuardable.optional(),
+  de: TextoGuardable.optional(),
+})
+
 /** ¿Este borrador ya cumple el contrato de salida? Puerta de las exportaciones (Olas 4, 5 y 6). */
 export function esExportable(borrador: TarjetaBorrador): borrador is Tarjeta {
   return Tarjeta.safeParse(borrador).success

@@ -400,3 +400,37 @@ test.describe('el boton apagado lleva al campo que falla', () => {
     await expect(casilla).not.toHaveClass(/reclamando/)
   })
 })
+
+/**
+ * El borrador a medio escribir sobrevive a una recarga (2026-09-11, opcion A de Johann).
+ *
+ * Antes, guardar exigia el mismo formato que compartir, asi que un correo sin terminar apagaba el
+ * guardado automatico EN SILENCIO: al recargar se perdia todo lo escrito despues. Ahora guardar es
+ * permisivo y compartir sigue siendo estricto. Esta prueba cubre las DOS mitades, porque la segunda
+ * es la que protege: sin ella, "arreglar" el guardado aflojando tambien la exportacion pasaria verde.
+ */
+test.describe('guardar es permisivo, compartir sigue siendo estricto', () => {
+  test('un correo a medias y un enlace vacio se guardan y sobreviven a recargar', async ({ page }) => {
+    await page.goto('/editor')
+    await page.evaluate(() => localStorage.clear())
+    await page.reload()
+    await page.locator('#n').fill('Johann')
+    await page.locator('#co').fill('johann@')
+    await page.getByRole('button', { name: 'Agregar enlace' }).click()
+    await page.locator('#a').fill('Valderrama') // escrito DESPUES de lo incompleto: es lo que se perdia
+
+    // El guardado automatico tiene un retardo: se espera a que el almacenamiento lo refleje.
+    await expect
+      .poll(() => page.evaluate(() => localStorage.getItem('tarjetica.tarjeta') ?? ''))
+      .toContain('Valderrama')
+    await page.reload()
+
+    await expect(page.locator('#n')).toHaveValue('Johann')
+    await expect(page.locator('#co')).toHaveValue('johann@')
+    await expect(page.locator('#a'), 'se perdio lo escrito despues del campo incompleto').toHaveValue('Valderrama')
+
+    // Y la otra mitad: con el correo incompleto, compartir SIGUE bloqueado.
+    await page.getByRole('checkbox').check()
+    await expect(page.getByTestId('mostrar-qr')).toHaveAttribute('aria-disabled', 'true')
+  })
+})

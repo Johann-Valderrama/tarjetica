@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  BorradorGuardable,
   campoQueImpideExportar,
   completarEsquema,
   esExportable,
@@ -178,5 +179,13 @@ describe('campoQueImpideExportar', () => {
 
   it('devuelve null cuando la tarjeta ya se puede exportar', () => {
     expect(campoQueImpideExportar({ n: 'Johann', w: 'https://johannvalderrama.com' })).toBeNull()
+  })
+})
+
+describe('BorradorGuardable y Tarjeta no se desincronizan', () => {
+  it('tienen exactamente las mismas claves', () => {
+    // Si alguien agrega un campo a `Tarjeta` y no a `BorradorGuardable`, el `strictObject` del
+    // borrador rechazaria esa clave y la tarjeta guardada entera se descartaria al leerla.
+    expect(Object.keys(BorradorGuardable.shape).sort()).toEqual(Object.keys(Tarjeta.shape).sort())
   })
 })

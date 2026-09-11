@@ -151,3 +151,27 @@ describe('la web sin https no apaga el guardado (2026-09-11)', () => {
   })
 })
 
+describe('el borrador a medio escribir se guarda igual (2026-09-11, opcion A)', () => {
+  it('un correo sin terminar se guarda tal cual, no apaga el guardado', () => {
+    instalar(almacenFalso())
+    expect(guardarTarjeta({ n: 'Johann', co: 'johann@' })).toBe(true)
+    expect(leerTarjeta()).toEqual({ n: 'Johann', co: 'johann@' })
+  })
+
+  it('una fila de enlace recien agregada y vacia tampoco apaga el guardado', () => {
+    // Otra perdida silenciosa, encontrada al escribir esta opcion: pulsar "Agregar enlace" y no
+    // llenarlo todavia hacia fallar la validacion estricta y dejaba de guardar todo lo demas.
+    instalar(almacenFalso())
+    expect(guardarTarjeta({ n: 'Johann', l: [{ u: '', e: '' }] })).toBe(true)
+  })
+
+  it('lo permisivo es el FORMATO, no la forma: la basura se sigue rechazando al leer', () => {
+    // El espejo que importa. Si la regla permisiva aceptara cualquier cosa, un dato manipulado a
+    // mano en el almacenamiento entraria al editor.
+    for (const basura of [{ n: 123 }, { n: 'X', clave_rara: 'y' }, { t: 'no es una lista' }]) {
+      instalar(almacenFalso({ 'tarjetica.tarjeta': JSON.stringify({ v: 1, d: basura }) }))
+      expect(leerTarjeta(), JSON.stringify(basura)).toEqual({})
+    }
+  })
+})
+

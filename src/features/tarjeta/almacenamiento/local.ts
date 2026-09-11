@@ -1,8 +1,8 @@
 import {
   BORRADOR_VACIO,
+  BorradorGuardable,
   FotoLocal,
   normalizarDirecciones,
-  TarjetaBorrador,
   type TarjetaBorrador as TipoBorrador,
 } from '@/features/tarjeta/modelo/tarjeta'
 
@@ -128,7 +128,8 @@ export function leerTarjetaDetallado(): { valor: TipoBorrador; motivo: MotivoDeF
   // Se normaliza ANTES de validar, igual que al guardar: una tarjeta con la web sin `https://` no
   // es "datos invalidos" que haya que tirar enteros, es una web escrita como la escribe la gente.
   const crudoValor = crudo.valor as TipoBorrador
-  const validado = TarjetaBorrador.safeParse(
+  // Regla PERMISIVA, la misma que al guardar: lo que se pudo guardar se tiene que poder leer.
+  const validado = BorradorGuardable.safeParse(
     crudoValor && typeof crudoValor === 'object' ? normalizarDirecciones(crudoValor) : crudoValor,
   )
   if (!validado.success) return { valor: BORRADOR_VACIO, motivo: 'datos-invalidos' }
@@ -144,7 +145,9 @@ export function guardarTarjeta(borrador: TipoBorrador): boolean {
     momento: todo lo escrito despues vivia solo en la pestaña, y se perdia al recargar. Lo destapo
     el reporte de Johann en produccion.
   */
-  const validado = TarjetaBorrador.safeParse(normalizarDirecciones(borrador))
+  // Regla PERMISIVA (ver `BorradorGuardable`): un borrador a medio escribir se guarda igual. La
+  // estricta se aplica al compartir, no aqui.
+  const validado = BorradorGuardable.safeParse(normalizarDirecciones(borrador))
   if (!validado.success) return false
   return escribirCrudo(CLAVE_TARJETA, validado.data)
 }
