@@ -465,8 +465,12 @@
 
 - 2026-09-11 **El boton apagado lleva al PRIMER CAMPO que impide exportar, y el aviso lo nombra.**
   Antes llevaba siempre a la casilla y decia siempre "escribe tu nombre", aunque el nombre ya
-  estuviera escrito. **Deuda que queda, anotada:** cualquier OTRO campo a medio escribir (un correo
-  sin terminar) sigue apagando el guardado mientras este invalido; esto solo lo arreglo para la web :
-  Opus.
+  estuviera escrito. ~~Deuda que queda: cualquier otro campo a medio escribir sigue apagando el
+  guardado~~ **SUPERADA el mismo dia**, ver la entrada siguiente : Opus.
+
+- 2026-09-11 **Guardar es PERMISIVO, compartir sigue ESTRICTO** (opcion A). Nace `BorradorGuardable`:
+  mismas claves y rechaza claves desconocidas, pero no exige formato, asi que un campo a medio
+  escribir ya no apaga el guardado. La regla estricta queda donde protege: todo lo que sale de la app
+  pasa por `esExportable`. Un guardian vigila que las dos reglas tengan las mismas claves : Johann.
 
 (Registrado en Engram: observacion 1243, proyecto `ops`.)
