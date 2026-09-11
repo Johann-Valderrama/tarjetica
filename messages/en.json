@@ -41,7 +41,8 @@
     "notaImagen": "The image comes out the size of a phone, with your QR code inside. It is created right here: it does not leave this device.",
     "guardando": "Saving…",
     "guardado": "Saved on this device",
-    "falloGuardado": "Could not save in this browser"
+    "falloGuardado": "Could not save in this browser",
+    "revisaCampo": "Check the “{campo}” field: it can’t be shared as it is."
   },
   "campos": {
     "identidad": "Identity",

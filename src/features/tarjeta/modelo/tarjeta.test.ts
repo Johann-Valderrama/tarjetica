@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  campoQueImpideExportar,
+  completarEsquema,
   esExportable,
+  normalizarDirecciones,
   FotoLocal,
   Tarjeta,
   TarjetaBorrador,
@@ -118,5 +121,62 @@ describe('TarjetaBorrador (lo que se guarda mientras se escribe)', () => {
   it('esExportable separa el borrador del contrato de salida', () => {
     expect(esExportable({})).toBe(false)
     expect(esExportable({ n: 'Daniel' })).toBe(true)
+  })
+})
+
+/**
+ * La web escrita "a lo humano" (2026-09-11). Lo reporto Johann en produccion: con
+ * `johannvalderrama.com` en el campo web, los botones de compartir se quedaban apagados y la pantalla
+ * decia "escribe al menos tu nombre", con el nombre ya escrito. Ningun fixture lo cubria porque
+ * todos traian la web con su `https://`.
+ */
+describe('completarEsquema', () => {
+  it('completa el https de un dominio pelado, como lo escribe la gente', () => {
+    expect(completarEsquema('johannvalderrama.com')).toBe('https://johannvalderrama.com')
+    expect(completarEsquema('www.johannvalderrama.com')).toBe('https://www.johannvalderrama.com')
+    expect(completarEsquema('  midominio.co/portafolio  ')).toBe('https://midominio.co/portafolio')
+  })
+
+  it('no toca lo que ya trae esquema', () => {
+    expect(completarEsquema('https://a.com')).toBe('https://a.com')
+    expect(completarEsquema('http://a.com')).toBe('http://a.com')
+  })
+
+  it('NO afloja la regla de seguridad: un javascript: pasa sin cambios y se sigue rechazando', () => {
+    // El espejo que importa. Si esta funcion le antepusiera https:// a cualquier cosa, un
+    // `javascript:alert(1)` saldria como `https://javascript:alert(1)` y la validacion cambiaria
+    // de sentido sin que ningun test de esquema lo notara.
+    const peligroso = 'javascript:alert(1)'
+    expect(completarEsquema(peligroso)).toBe(peligroso)
+    expect(Tarjeta.safeParse({ n: 'X', w: completarEsquema(peligroso) }).success).toBe(false)
+  })
+
+  it('no inventa una URL de un texto que no parece dominio', () => {
+    expect(completarEsquema('mi pagina')).toBe('mi pagina')
+    expect(completarEsquema('sinpunto')).toBe('sinpunto')
+    expect(completarEsquema(undefined)).toBeUndefined()
+  })
+
+  it('la tarjeta que reporto Johann pasa a ser exportable', () => {
+    const suya: TarjetaBorrador = { n: 'Johann', a: 'Valderrama', co: 'johann09@gmail.com', w: 'johannvalderrama.com' }
+    expect(esExportable(suya), 'la precondicion: sin normalizar SI bloquea').toBe(false)
+    expect(esExportable(normalizarDirecciones(suya))).toBe(true)
+  })
+
+  it('normaliza tambien los enlaces extra, sin tocar su etiqueta', () => {
+    const b: TarjetaBorrador = { n: 'X', l: [{ u: 'portafolio.com', e: 'Portafolio' }] }
+    expect(normalizarDirecciones(b).l).toEqual([{ u: 'https://portafolio.com', e: 'Portafolio' }])
+  })
+})
+
+describe('campoQueImpideExportar', () => {
+  it('dice CUAL campo impide exportar, no solo que no se puede', () => {
+    expect(campoQueImpideExportar({})).toEqual({ campo: 'n', indice: undefined })
+    expect(campoQueImpideExportar({ n: 'Johann', c: 'x'.repeat(81) })?.campo).toBe('c')
+    expect(campoQueImpideExportar({ n: 'Johann', t: [{ n: '12', e: 'movil' }] })).toEqual({ campo: 't', indice: 0 })
+  })
+
+  it('devuelve null cuando la tarjeta ya se puede exportar', () => {
+    expect(campoQueImpideExportar({ n: 'Johann', w: 'https://johannvalderrama.com' })).toBeNull()
   })
 })

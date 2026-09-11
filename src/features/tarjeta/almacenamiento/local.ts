@@ -1,6 +1,7 @@
 import {
   BORRADOR_VACIO,
   FotoLocal,
+  normalizarDirecciones,
   TarjetaBorrador,
   type TarjetaBorrador as TipoBorrador,
 } from '@/features/tarjeta/modelo/tarjeta'
@@ -124,7 +125,12 @@ export function leerTarjetaDetallado(): { valor: TipoBorrador; motivo: MotivoDeF
   const crudo = leerCrudo(CLAVE_TARJETA)
   if (!crudo.ok) return { valor: BORRADOR_VACIO, motivo: crudo.motivo }
 
-  const validado = TarjetaBorrador.safeParse(crudo.valor)
+  // Se normaliza ANTES de validar, igual que al guardar: una tarjeta con la web sin `https://` no
+  // es "datos invalidos" que haya que tirar enteros, es una web escrita como la escribe la gente.
+  const crudoValor = crudo.valor as TipoBorrador
+  const validado = TarjetaBorrador.safeParse(
+    crudoValor && typeof crudoValor === 'object' ? normalizarDirecciones(crudoValor) : crudoValor,
+  )
   if (!validado.success) return { valor: BORRADOR_VACIO, motivo: 'datos-invalidos' }
 
   return { valor: validado.data, motivo: null }
@@ -132,7 +138,13 @@ export function leerTarjetaDetallado(): { valor: TipoBorrador; motivo: MotivoDeF
 
 /** Guarda la tarjeta. Devuelve `false` si el navegador no dejo guardar (para poder avisar). */
 export function guardarTarjeta(borrador: TipoBorrador): boolean {
-  const validado = TarjetaBorrador.safeParse(borrador)
+  /*
+    Se normaliza ANTES de validar (2026-09-11). Sin esto, escribir la web como `midominio.com`
+    hacia fallar la validacion y el guardado automatico dejaba de guardar EN SILENCIO desde ese
+    momento: todo lo escrito despues vivia solo en la pestaña, y se perdia al recargar. Lo destapo
+    el reporte de Johann en produccion.
+  */
+  const validado = TarjetaBorrador.safeParse(normalizarDirecciones(borrador))
   if (!validado.success) return false
   return escribirCrudo(CLAVE_TARJETA, validado.data)
 }

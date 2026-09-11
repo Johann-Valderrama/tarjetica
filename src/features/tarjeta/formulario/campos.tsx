@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import {
+  completarEsquema,
   ETIQUETAS_TELEFONO,
   TOPE_DESCRIPCION,
   TOPE_TITULAR,
@@ -227,6 +228,9 @@ export function CamposContacto({
         tipo="url"
         valor={tarjeta.w}
         onCambio={(v) => onCambio({ w: v })}
+        // Al SALIR del campo, no al escribir: completar mientras se teclea convertiria la primera
+        // letra en `https://j`. El blur ocurre antes del clic en un boton, asi que llega a tiempo.
+        onBlur={() => onCambio({ w: completarEsquema(tarjeta.w) })}
         placeholder={t('urlPlaceholder')}
         inputMode="url"
       />
@@ -285,6 +289,7 @@ export function CamposRedes({ tarjeta, onCambio }: { tarjeta: TarjetaBorrador; o
               inputMode="url"
               value={enlace.u}
               onChange={(e) => cambiarEnlace(i, { u: e.target.value })}
+              onBlur={() => cambiarEnlace(i, { u: completarEsquema(enlace.u) ?? enlace.u })}
               placeholder={t('urlPlaceholder')}
             />
             <Entrada

@@ -339,3 +339,64 @@ test.describe('con menos movimiento pedido, el borde LATE en vez de parpadear', 
     }
   })
 })
+
+/**
+ * El boton apagado lleva a lo que DE VERDAD falta, no siempre a la casilla (2026-09-11).
+ *
+ * Reportado por Johann en produccion, con captura: tarjeta llena, casilla marcada, y los botones
+ * seguian apagados. La pantalla decia "escribe al menos tu nombre" con el nombre ya escrito, y el
+ * boton lo llevaba a la casilla que ya habia marcado. La causa era la web escrita como
+ * `johannvalderrama.com`, sin `https://`, que la validacion rechazaba sin decirlo.
+ *
+ * Estas pruebas repiten ESE recorrido, con las teclas, no inyectando el dato ya arreglado: si la
+ * normalizacion dejara de correr, la primera se pondria roja.
+ */
+test.describe('el boton apagado lleva al campo que falla', () => {
+  test('la web sin https ya no bloquea: se completa sola y se puede compartir', async ({ page }) => {
+    await page.goto('/editor')
+    await page.evaluate(() => localStorage.clear())
+    await page.reload()
+    await page.locator('#n').fill('Johann')
+    await page.locator('#w').fill('johannvalderrama.com')
+    await page.getByRole('checkbox').check()
+
+    await expect(page.getByTestId('mostrar-qr')).toHaveAttribute('aria-disabled', 'false')
+    await expect(page.locator('#w')).toHaveValue('https://johannvalderrama.com')
+  })
+
+  test('una tarjeta YA GUARDADA con la web sin https tambien queda desbloqueada', async ({ page }) => {
+    // El caso real de Johann: la tarjeta ya estaba guardada en su navegador ANTES del arreglo.
+    // Sin normalizar al cargar, seguiria bloqueada hasta que tocara justo ese campo.
+    await page.goto('/editor')
+    await page.evaluate(() => {
+      localStorage.clear()
+      localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: { n: 'Johann', w: 'johannvalderrama.com' } }))
+    })
+    await page.reload()
+    await page.getByRole('checkbox').check()
+    await expect(page.getByTestId('mostrar-qr')).toHaveAttribute('aria-disabled', 'false')
+  })
+
+  test('con otro campo roto, el aviso lo nombra y el boton lleva a ESE campo', async ({ page }) => {
+    // Un correo a medio escribir, TECLEADO: es un estado al que una persona llega de verdad. (Un
+    // cargo de 81 caracteres inyectado en el almacenamiento no sirve: el campo corta al escribir y
+    // al cargar se descarta, asi que la prueba mediria un estado que no existe.)
+    await page.goto('/editor')
+    await page.evaluate(() => localStorage.clear())
+    await page.reload()
+    await page.locator('#n').fill('Johann')
+    await page.locator('#co').fill('johann@')
+    await page.getByRole('checkbox').check()
+
+    const aviso = page.locator('#que-falta-para-compartir')
+    await expect(aviso, 'el aviso sigue diciendo "escribe tu nombre" con el nombre escrito').not.toContainText('nombre')
+    await expect(aviso).toContainText('Correo')
+
+    await page.getByTestId('mostrar-qr').click({ force: true })
+    await expect(page.locator('#co'), 'el boton no llevo al campo que falla').toBeFocused()
+    await expect(page.locator('#co')).toHaveClass(/reclamando/)
+    // Y lo que Johann vio: la casilla YA marcada no se vuelve a resaltar como si faltara.
+    const casilla = page.locator('input[name="confirmacion-propia"]').locator('xpath=ancestor::div[1]')
+    await expect(casilla).not.toHaveClass(/reclamando/)
+  })
+})

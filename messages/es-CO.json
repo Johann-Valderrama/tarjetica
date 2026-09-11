@@ -41,7 +41,8 @@
     "notaImagen": "La imagen sale del tamaño de un teléfono, con tu código QR adentro. Se crea aquí mismo: no sale de este dispositivo.",
     "guardando": "Guardando…",
     "guardado": "Guardado en este dispositivo",
-    "falloGuardado": "No se pudo guardar en este navegador"
+    "falloGuardado": "No se pudo guardar en este navegador",
+    "revisaCampo": "Revisa el campo «{campo}»: así como está no se puede compartir."
   },
   "campos": {
     "identidad": "Identidad",

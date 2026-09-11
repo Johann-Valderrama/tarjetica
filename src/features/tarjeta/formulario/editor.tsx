@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import {
   BORRADOR_VACIO,
+  campoQueImpideExportar,
   esExportable,
+  normalizarDirecciones,
   type FotoLocal,
   type TarjetaBorrador,
 } from '@/features/tarjeta/modelo/tarjeta'
@@ -97,8 +99,12 @@ export function Editor() {
 
 function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   const t = useTranslations()
+  const tCampos = useTranslations('campos')
   const router = useRouter()
-  const [tarjeta, setTarjeta] = useState<TarjetaBorrador>(inicial)
+  // Se normaliza AL CARGAR, no solo al editar: una tarjeta guardada antes del arreglo (con la web
+  // escrita como `midominio.com`) seguiria bloqueada hasta que la persona tocara ese campo, sin
+  // ninguna pista de que es ese el que falla.
+  const [tarjeta, setTarjeta] = useState<TarjetaBorrador>(() => normalizarDirecciones(inicial))
   const [foto, setFoto] = useState<FotoLocal | null>(() => leerFoto())
   // Se siembra de lo guardado: la puerta de exportacion vive en dos pantallas (el `.vcf` aqui,
   // el `.jpeg` en la vista de la tarjeta), asi que la confirmacion tiene que sobrevivir al salto.
@@ -122,15 +128,25 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
    * y el usuario pensaria que el boton ya ni responde.
    */
   const senalarLoQueFalta = () => {
-    const caja = confirmacion.current
-    if (!caja) return
-    caja.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    caja.classList.remove('reclamando')
+    /*
+      Primero la TARJETA, despues la confirmacion: marcar la casilla no sirve de nada si un campo no
+      pasa la validacion. Antes esta funcion llevaba SIEMPRE a la casilla, y con la casilla ya
+      marcada y la web sin `https://` mandaba a la persona a mirar justo lo que estaba bien
+      (2026-09-11, reportado por Johann en produccion).
+    */
+    const falla = campoQueImpideExportar(tarjeta)
+    const destino = falla
+      ? document.getElementById(idDelCampo(falla.campo, falla.indice))
+      : confirmacion.current
+    if (!destino) return
+    destino.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    destino.classList.remove('reclamando')
     // Forzar un reflujo reinicia la animacion cuando se pulsa dos veces seguidas. Sin esto, el
     // segundo intento no parpadea y se lee como que el boton dejo de responder.
-    void caja.offsetWidth
-    caja.classList.add('reclamando')
-    caja.querySelector('input')?.focus({ preventScroll: true })
+    void destino.offsetWidth
+    destino.classList.add('reclamando')
+    const control = destino instanceof HTMLInputElement ? destino : destino.querySelector('input, textarea, select')
+    ;(control as HTMLElement | null)?.focus({ preventScroll: true })
   }
 
   // El autosave: solo ESCRIBE, no toca estado de React de forma sincrona. El "Guardando..." lo
@@ -156,6 +172,16 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   useEffect(() => {
     if (confirmado) confirmacion.current?.classList.remove('reclamando')
   }, [confirmado])
+
+  // Lo mismo para un CAMPO resaltado: su borde rojo se apaga cuando la tarjeta ya pasa, o sea
+  // cuando la persona arreglo lo que faltaba, no por tiempo.
+  const exportable = esExportable(tarjeta)
+  useEffect(() => {
+    if (!exportable) return
+    document.querySelectorAll('.reclamando').forEach((el) => {
+      if (el !== confirmacion.current) el.classList.remove('reclamando')
+    })
+  }, [exportable])
 
   const cambiar = (parche: Partial<TarjetaBorrador>) => {
     setGuardado('guardando')
@@ -221,6 +247,17 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   }
 
   const listaParaExportar = esExportable(tarjeta) && puedeExportar(confirmado)
+
+  // Que dice el aviso cuando la TARJETA no pasa: sin nombre, el mensaje de siempre (es el caso mas
+  // comun y el unico campo obligatorio); con otro campo roto, el nombre de ESE campo.
+  const falla = campoQueImpideExportar(tarjeta)
+  const claveDeLaFalla = falla && falla.campo !== 'n' ? etiquetaDelCampo(falla.campo) : null
+  const avisoQueFalta = claveDeLaFalla
+    ? t('editor.revisaCampo', {
+        // La etiqueta del nombre trae un asterisco ("Nombre *") que no pinta nada en una frase.
+        campo: tCampos(claveDeLaFalla).replace(/\s*\*$/, ''),
+      })
+    : t('editor.faltaNombre')
 
   /**
    * El aviso de densidad (unidad 4f). Se mide en cuanto la tarjeta es exportable, no al pulsar el
@@ -385,7 +422,11 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
           </p>
         )}
         {!esExportable(tarjeta) && (
-          <p className="text-sm text-tinta-suave">{t('editor.faltaNombre')}</p>
+          // Mismo `id` que el aviso de la confirmacion (nunca salen los dos a la vez): asi el
+          // `aria-describedby` de los botones apagados tambien anuncia ESTE motivo.
+          <p id="que-falta-para-compartir" className="text-sm text-tinta-suave">
+            {avisoQueFalta}
+          </p>
         )}
         {esExportable(tarjeta) && !confirmado && (
           // El `id` no es decoracion: es lo que `aria-describedby` de cada boton apagado enlaza,
@@ -429,3 +470,23 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   )
 }
 
+/**
+ * El `id` del control de cada campo del modelo. Coincide con la clave (`n`, `co`, `w`...) salvo en
+ * las listas, que llevan su indice. Si un campo nuevo no esta aqui, cae al nombre en vez de a nada.
+ */
+function idDelCampo(campo: string, indice?: number): string {
+  if (campo === 't') return `tel-${indice ?? 0}`
+  if (campo === 'l') return `enlace-${indice ?? 0}`
+  return campo
+}
+
+/** La etiqueta visible de cada campo, para que el aviso nombre el que falla con sus palabras. */
+const ETIQUETA_DEL_CAMPO = {
+  n: 'nombre', a: 'apellido', c: 'cargo', em: 'empresa', co: 'correo', t: 'telefonos',
+  w: 'sitioWeb', li: 'linkedin', ig: 'instagram', tk: 'tiktok', fb: 'facebook',
+  l: 'otrosEnlaces', d: 'ciudad', ti: 'titular', de: 'descripcion',
+} as const
+
+function etiquetaDelCampo(campo: string) {
+  return campo in ETIQUETA_DEL_CAMPO ? ETIQUETA_DEL_CAMPO[campo as keyof typeof ETIQUETA_DEL_CAMPO] : null
+}

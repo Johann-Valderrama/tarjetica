@@ -39,6 +39,50 @@ const UrlNavegable = (max: number) =>
       { message: 'Tiene que ser una direccion que empiece por http:// o https://' },
     )
 
+/**
+ * Completa el `https://` de una direccion escrita "a lo humano" (2026-09-11).
+ *
+ * **Por que existe.** Casi todo el mundo escribe su web como `midominio.com`, y `UrlNavegable` la
+ * rechazaba: la tarjeta dejaba de ser exportable y los botones de compartir se quedaban apagados
+ * sin decir por que. Lo encontro Johann usando la app en produccion; ningun test lo cubria, porque
+ * todos los fixtures traian la web con su `https://`.
+ *
+ * **Lo que NO afloja.** La regla de seguridad sigue intacta: esto solo toca lo que NO trae esquema.
+ * Un `javascript:alert(1)` ya trae uno, asi que pasa sin cambios y `UrlNavegable` lo sigue
+ * rechazando. Tampoco inventa una URL de cualquier texto: si no hay un punto, o hay espacios, no
+ * parece un dominio y se deja tal cual para que la validacion lo diga.
+ */
+export function completarEsquema(valor: string | undefined): string | undefined {
+  if (!valor) return valor
+  const limpio = valor.trim()
+  // Ya trae esquema, bueno o malo: lo decide `UrlNavegable`, no esta funcion.
+  if (/^[a-z][a-z0-9+.-]*:/i.test(limpio)) return limpio
+  if (!limpio.includes('.') || /\s/.test(limpio)) return limpio
+  return `https://${limpio}`
+}
+
+/** Aplica `completarEsquema` a los dos campos de direccion: la web y los enlaces extra. */
+export function normalizarDirecciones(borrador: TarjetaBorrador): TarjetaBorrador {
+  const salida = { ...borrador }
+  if (salida.w !== undefined) salida.w = completarEsquema(salida.w)
+  if (salida.l) salida.l = salida.l.map((e) => ({ ...e, u: completarEsquema(e.u) ?? e.u }))
+  return salida
+}
+
+/**
+ * El PRIMER campo que impide exportar la tarjeta, o `null` si ya se puede (2026-09-11).
+ *
+ * Antes, la pantalla solo sabia "no es exportable" y lo traducia siempre como "escribe tu nombre",
+ * y el boton apagado llevaba siempre a la casilla de confirmacion. Con el nombre escrito y la web
+ * sin `https://`, eso mandaba a la persona a revisar justo lo que ya estaba bien.
+ */
+export function campoQueImpideExportar(borrador: TarjetaBorrador): { campo: string; indice?: number } | null {
+  const r = Tarjeta.safeParse(borrador)
+  if (r.success) return null
+  const [campo, indice] = r.error.issues[0].path
+  return { campo: String(campo), indice: typeof indice === 'number' ? indice : undefined }
+}
+
 export const ETIQUETAS_TELEFONO = ['movil', 'whatsapp', 'oficina'] as const
 
 export const Telefono = z.strictObject({

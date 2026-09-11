@@ -131,3 +131,23 @@ describe('almacenamiento local (unidad 1d)', () => {
     expect(leerFoto()).toBeNull()
   })
 })
+
+describe('la web sin https no apaga el guardado (2026-09-11)', () => {
+  it('guarda una tarjeta con la web escrita como midominio.com, ya completada', () => {
+    instalar(almacenFalso())
+    // Antes, esto devolvia `false`: el guardado automatico dejaba de guardar en silencio y todo lo
+    // escrito despues de la web se perdia al recargar. Lo destapo el reporte de Johann.
+    expect(guardarTarjeta({ n: 'Johann', w: 'johannvalderrama.com' })).toBe(true)
+    expect(leerTarjeta()).toEqual({ n: 'Johann', w: 'https://johannvalderrama.com' })
+  })
+
+  it('una tarjeta vieja guardada con la web sin https se recupera, no se tira entera', () => {
+    instalar(
+      almacenFalso({
+        'tarjetica.tarjeta': JSON.stringify({ v: 1, d: { n: 'Johann', w: 'johannvalderrama.com' } }),
+      }),
+    )
+    expect(leerTarjeta()).toEqual({ n: 'Johann', w: 'https://johannvalderrama.com' })
+  })
+})
+
