@@ -453,4 +453,20 @@
   IMAGEN. Se vio abriendolas. La tercera si entro: su perfil es un fixture que ya vive en
   `e2e/perfiles.datos.ts` : Opus, tras mirar.
 
+- 2026-09-11 **La web se acepta sin `https://`: la app lo completa sola.** Casi todo el mundo la
+  escribe como `midominio.com`, y la validacion la rechazaba sin decirlo. Se completa al salir del
+  campo, al cargar y al guardar. La regla de seguridad no se afloja: solo se toca lo que NO trae
+  esquema, asi que un `javascript:` sigue rechazado : Johann reporto, Opus midio.
+
+- 2026-09-11 **El guardado automatico se normaliza ANTES de validar.** Sin esto, desde que alguien
+  escribia una web sin esquema la tarjeta dejaba de guardarse EN SILENCIO, y todo lo escrito despues
+  se perdia al recargar. Era el defecto grave detras del reporte, y ningun test lo cubria porque todos
+  los fixtures traian la web completa : Opus, tras medir.
+
+- 2026-09-11 **El boton apagado lleva al PRIMER CAMPO que impide exportar, y el aviso lo nombra.**
+  Antes llevaba siempre a la casilla y decia siempre "escribe tu nombre", aunque el nombre ya
+  estuviera escrito. **Deuda que queda, anotada:** cualquier OTRO campo a medio escribir (un correo
+  sin terminar) sigue apagando el guardado mientras este invalido; esto solo lo arreglo para la web :
+  Opus.
+
 (Registrado en Engram: observacion 1243, proyecto `ops`.)
