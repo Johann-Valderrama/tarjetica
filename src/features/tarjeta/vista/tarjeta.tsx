@@ -50,10 +50,27 @@ export function VistaTarjeta({
   const paraImagen = dimension !== undefined
   return (
     <div
-      className="mx-auto flex w-full max-w-md flex-col overflow-hidden p-3"
+      className={`mx-auto flex w-full max-w-md flex-col overflow-hidden p-3 ${paraImagen ? '' : 'justify-center'}`}
       style={dimension ? { width: dimension.ancho, maxWidth: 'none' } : { height: '100dvh' }}
     >
-      <article id={ID_CAPTURABLE} data-capturable className="tarjeta-superficie flex min-h-0 flex-1 flex-col overflow-hidden rounded-tarjeta p-4">
+      {/*
+        La tarjeta mide LO QUE NECESITA, no el alto de la pantalla (2026-09-11). Antes crecia hasta
+        `100dvh` y el QR, que no puede ser mas ancho que la tarjeta, dejaba el resto vacio: medido en
+        un computador de 900 px de alto, la seccion del QR media 605 px para un codigo de 392, o sea
+        unos 200 px de blanco repartidos arriba y abajo. Lo reporto Johann con captura.
+
+        Ahora la tarjeta es `flex-initial` (no crece) y queda centrada en la pantalla. Lo que hacia el
+        alto fijo NO se pierde: si el contenido no cabe (un telefono bajo), la tarjeta se encoge
+        (`min-h-0`) y quien cede es el QR, igual que antes. Es un contenedor de ancho
+        (`inline-size`) para que el QR pueda pedir "tanto alto como ancho tengo" con `100cqw`.
+      */}
+      <article
+        id={ID_CAPTURABLE}
+        data-capturable
+        className={`tarjeta-superficie flex min-h-0 flex-initial flex-col overflow-hidden rounded-tarjeta p-4 ${
+          paraImagen ? '' : '[container-type:inline-size]'
+        }`}
+      >
         <Ubicacion ciudad={tarjeta.d} />
         <Encabezado tarjeta={tarjeta} fotoDataUrl={fotoDataUrl} />
         <Discurso tarjeta={tarjeta} />
@@ -172,7 +189,7 @@ function BloqueDelQr({
   const telefono = tarjeta.t?.[0]
 
   return (
-    <section className={`mt-4 flex flex-col gap-1 ${paraImagen ? '' : 'min-h-0 flex-1 justify-center'}`}>
+    <section className={`mt-4 flex flex-col gap-1 ${paraImagen ? '' : 'min-h-0 flex-initial'}`}>
       <p className="text-center text-xs text-tinta-suave">{t('tarjeta.escanea')}</p>
       {/*
         **La tarjeta cabe en UNA SOLA VISUAL por construccion, no por calibracion.** Es el requisito
@@ -188,11 +205,12 @@ function BloqueDelQr({
         de codigo, un vCard completo cae bajo el piso de lectura de 2,5 px por cuadrito. Lo vigila
         `scripts/medir-densidad-qr.mjs`.
 
-        La teja se dimensiona con `flex-1` y NO con `h-full` (arreglado en la Ola 4, con el QR real
-        adentro). Con `h-full` la teja valia el alto ENTERO de la seccion, asi que el telefono de
-        abajo y la firma se salian y quedaban uno encima del otro: se veia en la captura y ningun
-        assert lo delataba, porque no habia scroll y el QR seguia siendo grande. Con `flex-1` la
-        teja se queda con lo que sobra despues del texto, que es lo que siempre se quiso decir.
+        La teja pide un alto IGUAL a su ancho (`h-[100cqw]`) y cede cuando no cabe (`min-h-0`). Hasta
+        el 2026-09-11 se dimensionaba con `flex-1`, o sea "todo lo que sobre", y en una pantalla alta
+        eso era mas de lo que un cuadrado limitado por el ancho puede ocupar: 200 px de blanco en un
+        computador. Historia que sigue valiendo: con `h-full` la teja valia el alto ENTERO de la
+        seccion y el telefono de abajo y la firma se salian, uno encima del otro (Ola 4); ningun
+        assert lo delataba, porque no habia scroll y el QR seguia siendo grande.
       */}
       {/*
         La teja es un CUADRADO del lado menor entre lo ancho y lo alto que queda. Se resuelve con
@@ -206,7 +224,9 @@ function BloqueDelQr({
         className={
           paraImagen
             ? 'flex items-center justify-center'
-            : 'flex min-h-0 flex-1 items-center justify-center [container-type:size]'
+            : // Pide un alto IGUAL a su ancho (`100cqw` resuelve contra la tarjeta) y puede ceder
+              // (`min-h-0`) cuando no cabe. Asi el cuadrado nunca deja blanco arriba y abajo.
+              'flex h-[100cqw] min-h-0 flex-initial items-center justify-center [container-type:size]'
         }
       >
         <div
