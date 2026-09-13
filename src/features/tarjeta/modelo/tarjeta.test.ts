@@ -107,6 +107,32 @@ describe('Tarjeta (unidad 1c)', () => {
       expect(Tarjeta.safeParse({ n: 'J', l: [{ u: veneno, e: 'x' }] }).success).toBe(false)
     }
   })
+
+  it('acepta handles con o sin arroba y URLs completas de cada red', () => {
+    expect(Tarjeta.safeParse({ n: 'J', li: 'ana-restrepo', ig: '@ana.rios', tk: '@anarios', fb: 'ana.rios' }).success).toBe(true)
+    expect(
+      Tarjeta.safeParse({
+        n: 'J',
+        li: 'https://www.linkedin.com/in/ana-restrepo',
+        ig: 'https://instagram.com/ana.rios/',
+        tk: 'http://www.tiktok.com/@anarios',
+        fb: 'https://m.facebook.com/ana.rios',
+      }).success,
+    ).toBe(true)
+  })
+
+  it('rechaza esquemas peligrosos, espacios y hosts ajenos en redes', () => {
+    for (const [campo, valor] of [
+      ['li', 'javascript:alert(1)'],
+      ['ig', 'ana rios'],
+      ['tk', 'https://example.com/@anarios'],
+      ['fb', 'https://facebook.com.example.org/ana'],
+    ] as const) {
+      expect(Tarjeta.safeParse({ n: 'J', [campo]: valor }).success, `${campo}: ${valor}`).toBe(false)
+      // El borrador sigue siendo permisivo: el dato a medio escribir se conserva para corregirlo.
+      expect(BorradorGuardable.safeParse({ [campo]: valor }).success).toBe(true)
+    }
+  })
 })
 
 describe('TarjetaBorrador (lo que se guarda mientras se escribe)', () => {

@@ -1,4 +1,4 @@
-import type { Tarjeta, Telefono } from '@/features/tarjeta/modelo/tarjeta'
+import { urlDeRedSocial, type RedSocial, type Tarjeta, type Telefono } from '@/features/tarjeta/modelo/tarjeta'
 
 /**
  * Unidad 4a del PRP-TD-001: el vCard 3.0, generado EN EL CLIENTE.
@@ -101,6 +101,14 @@ function tipoDeTelefono(etiqueta: Telefono['e']): string {
 function lineasDeContenido(t: Tarjeta): string[] {
   const l: string[] = []
 
+  const agregarRed = (valor: string | undefined, red: RedSocial) => {
+    if (!valor) return
+    const url = urlDeRedSocial(valor, red)
+    // `Tarjeta` ya hizo esta validacion. La guarda evita emitir una URL torcida si un llamador de
+    // JavaScript esquiva el tipo en tiempo de ejecucion.
+    if (url) l.push(`URL:${escaparValor(url)}`)
+  }
+
   // Solo FN. Ver el gotcha 1 de arriba.
   l.push(`FN:${escaparValor([t.n, t.a].filter(Boolean).join(' '))}`)
   if (t.c) l.push(`TITLE:${escaparValor(t.c)}`)
@@ -114,10 +122,10 @@ function lineasDeContenido(t: Tarjeta): string[] {
 
   // Las redes viajan como URL completas: un cliente de contactos las abre, y un humano que mira el
   // contacto reconoce de que red se trata sin que haga falta una etiqueta aparte.
-  if (t.li) l.push(`URL:https://linkedin.com/in/${escaparValor(t.li)}`)
-  if (t.ig) l.push(`URL:https://instagram.com/${escaparValor(t.ig)}`)
-  if (t.tk) l.push(`URL:https://tiktok.com/@${escaparValor(t.tk)}`)
-  if (t.fb) l.push(`URL:https://facebook.com/${escaparValor(t.fb)}`)
+  agregarRed(t.li, 'linkedin')
+  agregarRed(t.ig, 'instagram')
+  agregarRed(t.tk, 'tiktok')
+  agregarRed(t.fb, 'facebook')
   for (const enlace of t.l ?? []) l.push(`URL:${escaparValor(enlace.u)}`)
 
   // El `;` de ADR es ESTRUCTURAL (son 7 componentes). Lo que se escapa es el valor que va adentro,

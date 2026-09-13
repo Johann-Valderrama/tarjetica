@@ -146,6 +146,34 @@ describe('vCard: telefonos y enlaces', () => {
     expect(urls).toContain('URL:https://facebook.com/mariapena')
     expect(urls).toContain('URL:https://example.com/portafolio')
   })
+
+  it('un handle con arroba produce una sola arroba y una sola URL canonica', () => {
+    const tarjeta: Tarjeta = { n: 'Ana', li: '@anarios', ig: '@ana.rios', tk: '@anarios', fb: '@ana.rios' }
+    const urls = desplegar(vcardParaQr(tarjeta)).filter((l) => l.startsWith('URL:'))
+    expect(urls).toEqual([
+      'URL:https://linkedin.com/in/anarios',
+      'URL:https://instagram.com/ana.rios',
+      'URL:https://tiktok.com/@anarios',
+      'URL:https://facebook.com/ana.rios',
+    ])
+  })
+
+  it('una URL completa de la red no recibe un segundo prefijo', () => {
+    const tarjeta: Tarjeta = {
+      n: 'Ana',
+      li: 'https://www.linkedin.com/in/ana-restrepo',
+      ig: 'https://instagram.com/ana.rios/',
+      tk: 'http://www.tiktok.com/@anarios',
+      fb: 'https://m.facebook.com/ana.rios',
+    }
+    const urls = desplegar(vcardParaQr(tarjeta)).filter((l) => l.startsWith('URL:'))
+    expect(urls).toEqual([
+      'URL:https://www.linkedin.com/in/ana-restrepo',
+      'URL:https://instagram.com/ana.rios/',
+      'URL:http://www.tiktok.com/@anarios',
+      'URL:https://m.facebook.com/ana.rios',
+    ])
+  })
 })
 
 describe('las dos invariantes que no puede romper nadie', () => {

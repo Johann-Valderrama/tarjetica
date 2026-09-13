@@ -39,6 +39,53 @@ const UrlNavegable = (max: number) =>
       { message: 'Tiene que ser una direccion que empiece por http:// o https://' },
     )
 
+const REDES = {
+  linkedin: { dominio: 'linkedin.com', prefijo: 'https://linkedin.com/in/', maxHandle: 60 },
+  instagram: { dominio: 'instagram.com', prefijo: 'https://instagram.com/', maxHandle: 40 },
+  tiktok: { dominio: 'tiktok.com', prefijo: 'https://tiktok.com/@', maxHandle: 40 },
+  facebook: { dominio: 'facebook.com', prefijo: 'https://facebook.com/', maxHandle: 60 },
+} as const
+
+export type RedSocial = keyof typeof REDES
+
+/**
+ * Convierte un handle o una URL completa de una red en una unica URL navegable.
+ *
+ * Los handles conservan los prefijos que ya usaba el vCard. Una URL completa se acepta solo si es
+ * HTTP(S) y su host pertenece a la red: comparar por dominio evita confundir
+ * `facebook.com.example.org` con Facebook. Se permiten subdominios oficiales como `www` y `m`.
+ */
+export function urlDeRedSocial(valor: string, red: RedSocial): string | null {
+  const limpio = valor.trim()
+  if (!limpio || /\s/u.test(limpio)) return null
+
+  const configuracion = REDES[red]
+  const sinArroba = limpio.startsWith('@') ? limpio.slice(1) : limpio
+  if (/^[a-zA-Z0-9._-]+$/u.test(sinArroba) && sinArroba.length <= configuracion.maxHandle) {
+    return `${configuracion.prefijo}${sinArroba}`
+  }
+
+  try {
+    const url = new URL(limpio)
+    const protocoloValido = url.protocol === 'http:' || url.protocol === 'https:'
+    const hostValido =
+      url.hostname === configuracion.dominio || url.hostname.endsWith(`.${configuracion.dominio}`)
+    if (!protocoloValido || !hostValido || url.username || url.password || url.port) return null
+    return url.href
+  } catch {
+    return null
+  }
+}
+
+const DireccionDeRedSocial = (red: RedSocial) =>
+  z
+    .string()
+    // Una URL completa pesa mas que un handle. El techo sigue siendo el de las otras URLs.
+    .max(300)
+    .refine((valor) => urlDeRedSocial(valor, red) !== null, {
+      message: `Tiene que ser un handle o una URL de ${red}`,
+    })
+
 /**
  * Completa el `https://` de una direccion escrita "a lo humano" (2026-09-11).
  *
@@ -134,14 +181,14 @@ export const Tarjeta = z.strictObject({
   w: UrlNavegable(300).optional(),
 
   // redes
-  /** instagram (usuario, sin @) */
-  ig: z.string().max(40).optional(),
-  /** tiktok (usuario, sin @) */
-  tk: z.string().max(40).optional(),
-  /** facebook (usuario o pagina) */
-  fb: z.string().max(60).optional(),
-  /** linkedin (usuario o vanity URL) */
-  li: z.string().max(60).optional(),
+  /** instagram (handle con/sin @ o URL completa) */
+  ig: DireccionDeRedSocial('instagram').optional(),
+  /** tiktok (handle con/sin @ o URL completa) */
+  tk: DireccionDeRedSocial('tiktok').optional(),
+  /** facebook (handle/pagina con/sin @ o URL completa) */
+  fb: DireccionDeRedSocial('facebook').optional(),
+  /** linkedin (handle con/sin @ o URL completa) */
+  li: DireccionDeRedSocial('linkedin').optional(),
   /** hasta 3 enlaces libres con etiqueta */
   l: z.array(Enlace).max(3).optional(),
 
