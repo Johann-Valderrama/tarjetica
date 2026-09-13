@@ -50,6 +50,16 @@ export default async function Home() {
         </div>
         <LimitesDelProducto />
       </section>
+      <section aria-labelledby="servicios-titulo" className="mt-10 grid items-center gap-6 rounded-2xl border border-borde bg-superficie-sutil p-6 sm:p-8 lg:grid-cols-[1fr_auto]">
+        <div>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-acento">{t('home.serviciosEtiqueta')}</p>
+          <h2 id="servicios-titulo" className="max-w-2xl font-display text-2xl font-extrabold leading-tight sm:text-3xl">{t('home.serviciosTitulo')}</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-tinta-suave">{t('home.serviciosCuerpo')}</p>
+        </div>
+        <a href="https://wellnessjobs.zelandia.io/brief-general" className="inline-flex min-h-12 items-center justify-center gap-5 rounded-xl bg-acento px-6 py-3 text-sm font-bold text-fondo hover:brightness-110">
+          {t('home.serviciosCta')} <span aria-hidden="true">↗</span>
+        </a>
+      </section>
       <footer className="mt-10 flex flex-wrap justify-between gap-3 border-t border-borde pt-5 text-xs text-tinta-suave">
         <span>{t('home.pie')}</span><span>Tarjetica · MIT</span>
       </footer>

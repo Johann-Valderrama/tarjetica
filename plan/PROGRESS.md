@@ -14,6 +14,15 @@
 
 ## Estado
 
+### Invitación a servicios de Zelandia · 2026-09-13
+
+- Petición del dueño: zona promocional con enlace a `https://wellnessjobs.zelandia.io/brief-general`.
+- Añadida al final de la portada, antes del footer, con texto ES/EN y CTA «Hacer el diagnóstico».
+  Destino revisado: diagnóstico de procesos con IA. Enlace normal, sin formulario ni precarga
+  de datos del visitante; no aparece en tarjetas ni exportaciones.
+- Build/TypeScript y lint verificados; revisión móvil de legibilidad y destino del enlace.
+  Se publica mediante la integración GitHub/Vercel existente.
+
 ### Nombre del ejemplo corregido · 2026-09-13
 
 - Por petición del dueño, Luna high cambió el perfil ficticio a Alexa Rivera y el correo a
