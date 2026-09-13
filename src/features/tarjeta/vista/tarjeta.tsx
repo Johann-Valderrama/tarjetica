@@ -29,6 +29,8 @@ export function VistaTarjeta({
   fotoDataUrl,
   qr,
   dimension,
+  muestra = false,
+  avisoQr,
 }: {
   tarjeta: Tarjeta
   fotoDataUrl?: string
@@ -46,12 +48,15 @@ export function VistaTarjeta({
    * que mide y no le sobra nada.
    */
   dimension?: { ancho: number }
+  /** Muestra integrada en otra página: sin identificador de exportación ni altura de pantalla. */
+  muestra?: boolean
+  avisoQr?: string
 }) {
-  const paraImagen = dimension !== undefined
+  const paraImagen = dimension !== undefined || muestra
   return (
     <div
       className={`mx-auto flex w-full max-w-md flex-col overflow-hidden p-3 ${paraImagen ? '' : 'justify-center'}`}
-      style={dimension ? { width: dimension.ancho, maxWidth: 'none' } : { height: '100dvh' }}
+      style={dimension ? { width: dimension.ancho, maxWidth: 'none' } : muestra ? undefined : { height: '100dvh' }}
     >
       {/*
         La tarjeta mide LO QUE NECESITA, no el alto de la pantalla (2026-09-11). Antes crecia hasta
@@ -65,16 +70,16 @@ export function VistaTarjeta({
         (`inline-size`) para que el QR pueda pedir "tanto alto como ancho tengo" con `100cqw`.
       */}
       <article
-        id={ID_CAPTURABLE}
-        data-capturable
+        id={muestra ? undefined : ID_CAPTURABLE}
+        data-capturable={muestra ? undefined : true}
         className={`tarjeta-superficie flex min-h-0 flex-initial flex-col overflow-hidden rounded-tarjeta p-4 ${
           paraImagen ? '' : '[container-type:inline-size]'
         }`}
       >
         <Ubicacion ciudad={tarjeta.d} />
-        <Encabezado tarjeta={tarjeta} fotoDataUrl={fotoDataUrl} />
+        <Encabezado tarjeta={tarjeta} fotoDataUrl={fotoDataUrl} muestra={muestra} />
         <Discurso tarjeta={tarjeta} />
-        <BloqueDelQr tarjeta={tarjeta} qr={qr} paraImagen={paraImagen} />
+        <BloqueDelQr tarjeta={tarjeta} qr={qr} paraImagen={paraImagen} avisoQr={avisoQr} />
         <FirmaDeMarca />
       </article>
     </div>
@@ -119,16 +124,17 @@ function Ubicacion({ ciudad }: { ciudad?: string }) {
  * El monograma SIGUE en el editor, y ahi si tiene sentido: ese circulo es el sitio donde vas a
  * poner tu foto, asi que marcar el hueco es justo lo que se quiere.
  */
-function Encabezado({ tarjeta, fotoDataUrl }: { tarjeta: Tarjeta; fotoDataUrl?: string }) {
+function Encabezado({ tarjeta, fotoDataUrl, muestra }: { tarjeta: Tarjeta; fotoDataUrl?: string; muestra: boolean }) {
+  const Titulo = muestra ? 'h3' : 'h1'
   return (
     <header className="flex items-center gap-4">
       {fotoDataUrl && (
         <Avatar fotoDataUrl={fotoDataUrl} nombre={tarjeta.n} apellido={tarjeta.a} tamano={68} />
       )}
       <div className="min-w-0">
-        <h1 className="break-words font-display text-[26px] font-extrabold leading-[1.1] text-tinta">
+        <Titulo className="break-words font-display text-[26px] font-extrabold leading-[1.1] text-tinta">
           {[tarjeta.n, tarjeta.a].filter(Boolean).join(' ')}
-        </h1>
+        </Titulo>
         {(tarjeta.c || tarjeta.em) && (
           <p className="mt-1 text-sm text-tinta-suave">
             {tarjeta.c}
@@ -178,11 +184,13 @@ function BloqueDelQr({
   tarjeta,
   qr,
   paraImagen,
+  avisoQr,
 }: {
   tarjeta: Tarjeta
   qr?: React.ReactNode
   /** En una imagen no hay alto que respetar: el codigo se dimensiona solo por el ancho. */
   paraImagen: boolean
+  avisoQr?: string
 }) {
   // Raiz y no un espacio de nombres: este bloque toca `tarjeta.*` y `qr.*`.
   const t = useTranslations()
@@ -190,7 +198,7 @@ function BloqueDelQr({
 
   return (
     <section className={`mt-4 flex flex-col gap-1 ${paraImagen ? '' : 'min-h-0 flex-initial'}`}>
-      <p className="text-center text-xs text-tinta-suave">{t('tarjeta.escanea')}</p>
+      {!avisoQr && <p className="text-center text-xs text-tinta-suave">{t('tarjeta.escanea')}</p>}
       {/*
         **La tarjeta cabe en UNA SOLA VISUAL por construccion, no por calibracion.** Es el requisito
         que Johann marco como principal y no negociable, asi que no puede depender de que los topes
@@ -238,7 +246,15 @@ function BloqueDelQr({
           Respaldo por si alguien monta la vista sin pasarle el codigo. Antes decia "se construye
           en la Ola 4 del plan": jerga interna en una pantalla que abre un desconocido.
         */}
-        {qr ?? <span className="px-6 text-center text-xs text-neutral-600">{t('qr.noDisponible')}</span>}
+        {qr ?? (avisoQr ? (
+          <div className="flex flex-col items-center gap-5 px-6 text-center text-neutral-600">
+            <svg aria-hidden="true" width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M20 6H6v14m38-14h14v14M6 44v14h14m38-14v14H44" />
+              <path d="M32 22v20m-10-10h20" />
+            </svg>
+            <span className="max-w-40 text-xs">{avisoQr}</span>
+          </div>
+        ) : <span className="px-6 text-center text-xs text-neutral-600">{t('qr.noDisponible')}</span>)}
         </div>
       </div>
       {telefono && <p className="text-center text-base tracking-wide text-tinta">{telefono.n}</p>}

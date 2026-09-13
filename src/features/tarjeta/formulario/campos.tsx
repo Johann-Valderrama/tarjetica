@@ -54,9 +54,9 @@ export function Entrada({
 
 export function Seccion({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <fieldset className="space-y-3">
-      <legend className="text-lg font-semibold text-tinta">{titulo}</legend>
-      {children}
+    <fieldset className="min-w-0 rounded-bloque border border-borde p-4 sm:p-5">
+      <legend className="px-2 text-lg font-bold text-tinta">{titulo}</legend>
+      <div className="space-y-4">{children}</div>
     </fieldset>
   )
 }

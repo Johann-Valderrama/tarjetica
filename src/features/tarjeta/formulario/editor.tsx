@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import {
   BORRADOR_VACIO,
@@ -22,6 +23,7 @@ import {
   guardarConfirmacion,
   leerConfirmacion,
   leerFoto,
+  leerTarjetaDetallado,
 } from '@/features/tarjeta/almacenamiento/local'
 import { iniciales, prepararFoto } from '@/features/tarjeta/foto/cargar'
 import {
@@ -30,7 +32,6 @@ import {
   CamposIdentidad,
   CamposRedes,
   CampoUbicacion,
-  Etiqueta,
 } from '@/features/tarjeta/formulario/campos'
 import { descargarVCard } from '@/features/tarjeta/vcard/descargar'
 import { dataUrlABlob, nombreDeImagen, tarjetaAJpeg } from '@/features/tarjeta/exportar/a-imagen'
@@ -48,6 +49,7 @@ import {
 import { BotonDeSalida } from '@/features/tarjeta/formulario/boton-de-salida'
 import { PingDeTarjetaCreada } from '@/features/metricas/ping-de-tarjeta-creada'
 import { SelectorDeIdioma } from '@/shared/idioma/selector-idioma'
+import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
 
 /**
  * Unidad 2c del PRP-TD-001: el editor, donde las piezas se conectan.
@@ -58,9 +60,7 @@ import { SelectorDeIdioma } from '@/shared/idioma/selector-idioma'
  * escribe, recarga y comprueba que los datos siguen ahi.
  */
 
-const RETARDO_AUTOSAVE_MS = 400
-
-type EstadoGuardado = 'inicial' | 'guardando' | 'guardado' | 'fallo'
+type EstadoGuardado = 'inicial' | 'guardado' | 'fallo' | 'fallo-lectura' | 'fallo-borrado'
 
 /** Suscripcion vacia: lo unico que cambia entre servidor y cliente es DONDE corre, no un dato. */
 const sinSuscripcion = () => () => {}
@@ -109,11 +109,14 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   // Se siembra de lo guardado: la puerta de exportacion vive en dos pantallas (el `.vcf` aqui,
   // el `.jpeg` en la vista de la tarjeta), asi que la confirmacion tiene que sobrevivir al salto.
   const [confirmado, setConfirmado] = useState(() => leerConfirmacion())
-  const [guardado, setGuardado] = useState<EstadoGuardado>('inicial')
+  const [guardado, setGuardado] = useState<EstadoGuardado>(() => {
+    const { motivo } = leerTarjetaDetallado()
+    if (motivo === 'sin-datos') return 'inicial'
+    return motivo ? 'fallo-lectura' : 'guardado'
+  })
   const [avisoFoto, setAvisoFoto] = useState<string | null>(null)
   const [avisoDescarga, setAvisoDescarga] = useState<string | null>(null)
   const [exportando, setExportando] = useState(false)
-  const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null)
   const confirmacion = useRef<HTMLDivElement | null>(null)
 
   /**
@@ -149,18 +152,6 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
     ;(control as HTMLElement | null)?.focus({ preventScroll: true })
   }
 
-  // El autosave: solo ESCRIBE, no toca estado de React de forma sincrona. El "Guardando..." lo
-  // pone el manejador del cambio, que es donde de verdad ocurre.
-  useEffect(() => {
-    if (temporizador.current) clearTimeout(temporizador.current)
-    temporizador.current = setTimeout(() => {
-      setGuardado(guardarTarjeta(tarjeta) ? 'guardado' : 'fallo')
-    }, RETARDO_AUTOSAVE_MS)
-    return () => {
-      if (temporizador.current) clearTimeout(temporizador.current)
-    }
-  }, [tarjeta])
-
   /**
    * El borde rojo se apaga cuando la persona MARCA la casilla, no a los N segundos.
    *
@@ -184,8 +175,11 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   }, [exportable])
 
   const cambiar = (parche: Partial<TarjetaBorrador>) => {
-    setGuardado('guardando')
-    setTarjeta((previa) => ({ ...previa, ...parche }))
+    const siguiente = { ...tarjeta, ...parche }
+    // El borrador es pequeño y la foto vive aparte. Guardar en el gesto evita perder la última
+    // edición al recargar o navegar durante el antiguo temporizador de 400 ms.
+    setTarjeta(siguiente)
+    setGuardado(guardarTarjeta(siguiente) ? 'guardado' : 'fallo')
   }
 
   const alElegirFoto = async (archivo: File | undefined) => {
@@ -208,11 +202,13 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   }
 
   const alBorrar = () => {
-    borrarTodo()
+    if (!borrarTodo()) {
+      setGuardado('fallo-borrado')
+      return
+    }
     setTarjeta(BORRADOR_VACIO)
     setFoto(null)
     setConfirmado(false)
-    guardarConfirmacion(false)
     setGuardado('inicial')
   }
 
@@ -273,22 +269,35 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   )
 
   return (
-    <main className="mx-auto w-full max-w-xl space-y-6 p-4 pb-24">
+    <main className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-8">
       <PingDeTarjetaCreada listo={esExportable(tarjeta)} />
 
-      <div className="flex justify-end">
+      <div className="flex min-h-20 items-center justify-between gap-3 border-b border-borde">
+        <Link href="/" className="inline-flex min-h-11 items-center font-display text-lg font-extrabold">Tarjetica<span className="text-acento">.</span></Link>
         <SelectorDeIdioma />
       </div>
 
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold text-tinta">{t('editor.titulo')}</h1>
+      <header className="space-y-2 py-6">
+        <h1 className="text-3xl font-extrabold text-tinta sm:text-4xl">{t('editor.titulo')}</h1>
         <p className="text-sm text-tinta-suave">{t('editor.subtitulo')}</p>
+        <p aria-live="polite" data-testid="estado-guardado" className={`text-xs ${guardado.startsWith('fallo') ? 'text-peligro' : 'text-tinta-suave'}`}>
+          {guardado === 'guardado' && t('editor.guardado')}
+          {guardado === 'fallo' && t('editor.falloGuardado')}
+          {guardado === 'fallo-lectura' && t('editor.falloLectura')}
+          {guardado === 'fallo-borrado' && t('editor.falloBorrado')}
+        </p>
       </header>
 
-      <AvisoDeAlcance />
+      <nav aria-label={t('editor.navegacion')} className="sticky top-0 z-10 mb-6 flex items-center justify-between gap-3 border-y border-borde bg-fondo py-2">
+        <a href="#datos" className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-tinta">{t('editor.tusDatos')}</a>
+        <a href="#compartir" className="inline-flex min-h-11 items-center gap-3 rounded-lg border border-borde-fuerte px-4 text-sm font-semibold text-acento">{t('editor.irCompartir')} <span aria-hidden="true">↓</span></a>
+      </nav>
+      <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_390px] lg:gap-16">
+      <div id="datos" className="min-w-0 scroll-mt-24 space-y-7">
+      <CamposIdentidad tarjeta={tarjeta} onCambio={cambiar} />
 
       <section className="space-y-3">
-        <Etiqueta htmlFor="foto">{t('editor.foto')}</Etiqueta>
+        <p className="text-sm font-medium text-tinta">{t('editor.foto')}</p>
         <div className="flex items-center gap-4">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-superficie-sutil text-xl font-semibold text-tinta-suave">
             {foto ? (
@@ -309,8 +318,11 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
               onChange={(e) => void alElegirFoto(e.target.files?.[0])}
               // El input de archivo nativo mide 26 px de alto, por debajo del piso tactil de 44.
               // Se le da altura al BOTON interno, que es lo que el dedo toca de verdad.
-              className="block w-full text-sm file:mr-3 file:min-h-11 file:cursor-pointer file:rounded-lg file:border file:border-borde-fuerte file:bg-superficie file:text-tinta file:px-4 file:text-sm file:font-medium"
+              className="peer sr-only"
             />
+            <label htmlFor="foto" className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-borde-fuerte px-4 text-sm font-semibold text-tinta peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-acento">
+              {foto ? t('editor.cambiarFoto') : t('editor.elegirFoto')}
+            </label>
             <p className="mt-1 text-xs text-tinta-suave">{t('editor.fotoAyuda')}</p>
             {foto && (
               <button
@@ -333,15 +345,15 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
         )}
       </section>
 
-      <CamposIdentidad tarjeta={tarjeta} onCambio={cambiar} />
       <CamposDeTexto tarjeta={tarjeta} onCambio={cambiar} />
       <CamposContacto tarjeta={tarjeta} onCambio={cambiar} />
       {/* Las redes y los enlaces NO se ven en la tarjeta (D3a): viajan dentro del vCard del QR. */}
       <CamposRedes tarjeta={tarjeta} onCambio={cambiar} />
       <CampoUbicacion tarjeta={tarjeta} onCambio={cambiar} />
 
-      <section className="space-y-3">
+      <section id="compartir" className="scroll-mt-24 space-y-3 border-t border-borde pt-7">
         <h2 className="text-lg font-semibold text-tinta">{t('editor.compartir')}</h2>
+        <AvisoDeAlcance />
         <div ref={confirmacion}>
           <ConfirmacionDeExportacion
             confirmado={confirmado}
@@ -460,12 +472,20 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
 
       <section className="space-y-2">
         <BotonBorrarTodo onBorrar={alBorrar} />
-        <p aria-live="polite" data-testid="estado-guardado" className="text-center text-xs text-tinta-suave">
-          {guardado === 'guardando' && t('editor.guardando')}
-          {guardado === 'guardado' && t('editor.guardado')}
-          {guardado === 'fallo' && t('editor.falloGuardado')}
-        </p>
       </section>
+      </div>
+      <aside aria-label={t('editor.vistaPrevia')} className="sticky top-24 hidden max-h-[calc(100dvh-7rem)] min-w-0 overflow-y-auto lg:block" data-testid="vista-previa">
+        <div className="mb-3 flex items-center justify-between px-3">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-tinta-suave">{t('editor.vistaPrevia')}</h2>
+          <span className="text-xs text-acento">{t('editor.enVivo')}</span>
+        </div>
+        <VistaTarjeta muestra avisoQr={t('editor.previaQr')} tarjeta={{
+          n: tarjeta.n || t('editor.nombreEjemplo'), a: tarjeta.a, c: tarjeta.c, em: tarjeta.em,
+          ti: tarjeta.ti, de: tarjeta.de, d: tarjeta.d, t: tarjeta.t,
+        }} fotoDataUrl={foto?.dataUrl} />
+        <p className="mx-auto mt-4 max-w-xs text-center text-xs leading-relaxed text-tinta-suave">{t('editor.previaAyuda')}</p>
+      </aside>
+      </div>
     </main>
   )
 }

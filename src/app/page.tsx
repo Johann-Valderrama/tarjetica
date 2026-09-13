@@ -2,45 +2,55 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { LimitesDelProducto } from '@/features/tarjeta/formulario/avisos'
 import { JsonLdDeLaHerramienta } from '@/features/tarjeta/vista/json-ld'
+import { MuestraTarjeta } from '@/features/tarjeta/vista/muestra'
 import { PingDeVisita } from '@/features/metricas/ping-de-visita'
 import { SelectorDeIdioma } from '@/shared/idioma/selector-idioma'
 
-/**
- * Home. Es la unica ruta indexable del producto (`src/app/robots.ts`), asi que es donde viven el
- * JSON-LD y el `llms.txt` de la unidad 7b.
- *
- * Los TRES limites del producto se dicen AQUI, en el copy visible, y no solo en el README: son la
- * contrapartida de no tener servidor, y el README no lo lee quien va a usar la app. Se reusa el
- * mismo bloque que el editor, para que no existan dos redacciones que se desincronicen.
- */
 export default async function Home() {
   const t = await getTranslations()
   return (
-    <main className="mx-auto w-full max-w-xl space-y-6 p-6">
+    <main className="mx-auto w-full max-w-6xl px-5 pb-10 sm:px-8">
       <JsonLdDeLaHerramienta />
       <PingDeVisita />
-
-      <div className="flex justify-end">
+      <header className="flex min-h-24 items-center justify-between gap-4 border-b border-borde">
+        <span className="font-display text-xl font-extrabold tracking-tight">{t('app.nombre')}<span className="text-acento">.</span></span>
         <SelectorDeIdioma />
-      </div>
-
-      <header className="space-y-2">
-        <h1 className="font-display text-3xl font-extrabold text-tinta">{t('app.nombre')}</h1>
-        <p className="text-base text-tinta-suave">{t('home.tagline')}</p>
       </header>
-
-      <p className="text-sm text-tinta-suave">{t('home.comoFunciona')}</p>
-
-      <p>
-        <Link
-          href="/editor"
-          className="inline-flex min-h-11 items-center rounded-lg bg-acento px-5 font-semibold text-fondo"
-        >
-          {t('home.cta')}
-        </Link>
-      </p>
-
-      <LimitesDelProducto />
+      <section className="grid items-center gap-8 py-10 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+        <div>
+          <p className="mb-5 text-xs font-bold uppercase tracking-[0.18em] text-acento">{t('home.eyebrow')}</p>
+          <h1 className="max-w-xl font-display text-5xl font-extrabold leading-[1.06] tracking-tight sm:text-6xl">
+            {t('home.titulo')} <span className="text-acento">{t('home.tituloAcento')}</span>
+          </h1>
+          <p className="mt-6 max-w-md text-base leading-relaxed text-tinta-suave">{t('home.tagline')}</p>
+          <Link href="/editor" className="mt-8 inline-flex min-h-12 items-center gap-6 rounded-xl bg-acento px-6 font-bold text-fondo hover:brightness-110">
+            {t('home.cta')} <span aria-hidden="true">↗</span>
+          </Link>
+          <p className="mt-4 text-xs text-tinta-suave">{t('home.sinCuenta')}</p>
+          <div className="mt-10 max-w-md border-t border-borde pt-5">
+            <p className="text-sm leading-relaxed text-tinta-suave">{t('home.comoFunciona')}</p>
+          </div>
+        </div>
+        <figure className="mx-auto w-full max-w-[340px]">
+          <div className="mb-3 flex items-center justify-between px-3 text-xs text-tinta-suave">
+            <h2 className="font-semibold uppercase tracking-widest">{t('home.ejemplo')}</h2>
+            <span>{t('home.formato')}</span>
+          </div>
+          <MuestraTarjeta />
+          <figcaption className="mt-3 text-center text-xs text-tinta-suave">{t('home.ejemploNota')}</figcaption>
+        </figure>
+      </section>
+      <section className="grid gap-6 border-t border-borde pt-8 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+        <div>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-acento">{t('home.privacidadEtiqueta')}</p>
+          <h2 className="text-2xl font-bold">{t('home.privacidadTitulo')}</h2>
+          <p className="mt-3 text-sm leading-relaxed text-tinta-suave">{t('home.privacidadCuerpo')}</p>
+        </div>
+        <LimitesDelProducto />
+      </section>
+      <footer className="mt-10 flex flex-wrap justify-between gap-3 border-t border-borde pt-5 text-xs text-tinta-suave">
+        <span>{t('home.pie')}</span><span>Tarjetica · MIT</span>
+      </footer>
     </main>
   )
 }

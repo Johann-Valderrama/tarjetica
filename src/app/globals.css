@@ -115,6 +115,11 @@
     color: var(--tinta);
   }
 
+  :focus-visible {
+    outline: 2px solid var(--acento);
+    outline-offset: 4px;
+  }
+
   /*
    * La casilla marcada la pinta el SISTEMA, no la hoja de estilos: sin esto sale del azul del
    * navegador, que era el unico elemento de toda la app fuera de la paleta. Se vio en una captura.

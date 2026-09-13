@@ -125,9 +125,10 @@ test.describe('7e · las cuatro pantallas a 375 px', () => {
         return controles
           .map((el) => {
             const propia = el.getBoundingClientRect()
-            // La etiqueta que envuelve al control, si la hay: es la superficie que recibe el toque.
-            const etiqueta = el.closest('label')?.getBoundingClientRect()
-            const alcanzable = Math.max(propia.height, etiqueta?.height ?? 0)
+            // Tanto label envolvente como label[for] son superficies reales de activación.
+            const etiquetas = 'labels' in el ? Array.from((el as HTMLInputElement).labels ?? []) : []
+            const alcanzable = Math.max(propia.height, el.closest('label')?.getBoundingClientRect().height ?? 0,
+              ...etiquetas.map((label) => label.getBoundingClientRect().height))
             return {
               etiqueta: el.tagName.toLowerCase(),
               id: el.id || el.getAttribute('name') || '',
