@@ -14,6 +14,22 @@
 
 ## Estado
 
+### Portada con tres ejemplos · 2026-09-13
+
+- Petición del dueño: retrato profesional generado con IA, tarjeta con y sin foto, y tercer
+  panel que explique el contacto recibido. Frontend y generación atendidos por el director.
+- Implementado: tres paneles adaptables con el mismo perfil ficticio: con foto, sin foto y
+  contacto desde el QR (nombre completo, cargo, empresa, teléfonos, correo, web, portafolio,
+  dirección y notas). Usan un único objeto de datos; no acceden al almacenamiento del visitante.
+- Retrato generado con `image_gen`, optimizado a WebP de 15 KB y servido localmente.
+  Origen y prompt en `docs/retrato-ejemplo.md`; activo en `public/ejemplos/profesional-ia.webp`.
+- La interfaz identifica el retrato IA y aclara que la agenda es ilustrativa, que su disposición
+  depende de la app receptora y que la foto no viaja en el QR. Traducciones ES/EN completas.
+- Verificación: build con TypeScript y lint pasan; revisión visual directa a 1280x900 y 375x812.
+  33 pruebas E2E de experiencia, idiomas y superficie verificadas: 32 pasan en la primera
+  ejecución y la restante pasa al corregir su selector de foto, que también contaba el QR.
+- Vista local en `http://localhost:3210`; sin publicación.
+
 ### Mejora integral implementada localmente · 2026-09-13
 
 - Dueño e integrador: Codex director; frontend atendido directamente por petición del usuario.

@@ -22,6 +22,8 @@ export default async function Home() {
           <h1 className="max-w-xl font-display text-5xl font-extrabold leading-[1.06] tracking-tight sm:text-6xl">
             {t('home.titulo')} <span className="text-acento">{t('home.tituloAcento')}</span>
           </h1>
+        </div>
+        <div>
           <p className="mt-6 max-w-md text-base leading-relaxed text-tinta-suave">{t('home.tagline')}</p>
           <Link href="/editor" className="mt-8 inline-flex min-h-12 items-center gap-6 rounded-xl bg-acento px-6 font-bold text-fondo hover:brightness-110">
             {t('home.cta')} <span aria-hidden="true">↗</span>
@@ -31,14 +33,14 @@ export default async function Home() {
             <p className="text-sm leading-relaxed text-tinta-suave">{t('home.comoFunciona')}</p>
           </div>
         </div>
-        <figure className="mx-auto w-full max-w-[340px]">
-          <div className="mb-3 flex items-center justify-between px-3 text-xs text-tinta-suave">
-            <h2 className="font-semibold uppercase tracking-widest">{t('home.ejemplo')}</h2>
-            <span>{t('home.formato')}</span>
-          </div>
-          <MuestraTarjeta />
-          <figcaption className="mt-3 text-center text-xs text-tinta-suave">{t('home.ejemploNota')}</figcaption>
-        </figure>
+      </section>
+      <section aria-labelledby="ejemplos-titulo" className="pb-10">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-t border-borde pt-6 text-xs text-tinta-suave">
+          <h2 id="ejemplos-titulo" className="font-semibold uppercase tracking-widest">{t('home.ejemplo')}</h2>
+          <span>{t('home.formato')}</span>
+        </div>
+        <MuestraTarjeta />
+        <p className="mt-5 text-center text-xs leading-relaxed text-tinta-suave">{t('home.ejemploNota')}</p>
       </section>
       <section className="grid gap-6 border-t border-borde pt-8 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
         <div>
