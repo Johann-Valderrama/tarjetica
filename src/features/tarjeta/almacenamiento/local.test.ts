@@ -109,6 +109,14 @@ describe('almacenamiento local (unidad 1d)', () => {
     expect(guardarTarjeta({ n: 'Daniel', colada: 1 })).toBe(false)
   })
 
+  it('un borrador con tipos manipulados no lanza al guardar', () => {
+    instalar(almacenFalso())
+    // @ts-expect-error se prueba justo el dato que un llamador JavaScript podria entregar
+    expect(guardarTarjeta({ n: 'Daniel', w: 7 })).toBe(false)
+    // @ts-expect-error se prueba justo el dato que un llamador JavaScript podria entregar
+    expect(guardarTarjeta({ n: 'Daniel', l: 'no es una lista' })).toBe(false)
+  })
+
   it('la foto vive en su propia clave, aparte de la tarjeta', () => {
     const almacen = almacenFalso()
     instalar(almacen)
@@ -168,9 +176,19 @@ describe('el borrador a medio escribir se guarda igual (2026-09-11, opcion A)', 
   it('lo permisivo es el FORMATO, no la forma: la basura se sigue rechazando al leer', () => {
     // El espejo que importa. Si la regla permisiva aceptara cualquier cosa, un dato manipulado a
     // mano en el almacenamiento entraria al editor.
-    for (const basura of [{ n: 123 }, { n: 'X', clave_rara: 'y' }, { t: 'no es una lista' }]) {
+    for (const basura of [
+      { n: 123 },
+      { n: 'X', clave_rara: 'y' },
+      { t: 'no es una lista' },
+      // Estos tres casos entraban a `normalizarDirecciones` antes de validar y lanzaban TypeError.
+      { w: 7 },
+      { l: 'no es una lista' },
+      { l: [{ u: 7, e: 'Portafolio' }] },
+    ]) {
       instalar(almacenFalso({ 'tarjetica.tarjeta': JSON.stringify({ v: 1, d: basura }) }))
+      expect(() => leerTarjeta(), JSON.stringify(basura)).not.toThrow()
       expect(leerTarjeta(), JSON.stringify(basura)).toEqual({})
+      expect(leerTarjetaDetallado().motivo, JSON.stringify(basura)).toBe('datos-invalidos')
     }
   })
 })

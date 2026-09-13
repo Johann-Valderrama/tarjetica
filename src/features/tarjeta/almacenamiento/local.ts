@@ -125,13 +125,15 @@ export function leerTarjetaDetallado(): { valor: TipoBorrador; motivo: MotivoDeF
   const crudo = leerCrudo(CLAVE_TARJETA)
   if (!crudo.ok) return { valor: BORRADOR_VACIO, motivo: crudo.motivo }
 
-  // Se normaliza ANTES de validar, igual que al guardar: una tarjeta con la web sin `https://` no
-  // es "datos invalidos" que haya que tirar enteros, es una web escrita como la escribe la gente.
-  const crudoValor = crudo.valor as TipoBorrador
-  // Regla PERMISIVA, la misma que al guardar: lo que se pudo guardar se tiene que poder leer.
-  const validado = BorradorGuardable.safeParse(
-    crudoValor && typeof crudoValor === 'object' ? normalizarDirecciones(crudoValor) : crudoValor,
-  )
+  // La forma se valida ANTES de normalizar. `normalizarDirecciones` llama metodos de string y
+  // array; aplicarla directamente a un dato manipulado (`{ w: 7 }` o `{ l: "x" }`) lanzaria antes
+  // de que Zod pudiera descartarlo, rompiendo la promesa de que leer nunca tumba la app.
+  const preliminar = BorradorGuardable.safeParse(crudo.valor)
+  if (!preliminar.success) return { valor: BORRADOR_VACIO, motivo: 'datos-invalidos' }
+
+  // Se normaliza antes de la validacion final: una tarjeta con la web sin `https://` no es un dato
+  // que haya que tirar entero, es una web escrita como la escribe la gente.
+  const validado = BorradorGuardable.safeParse(normalizarDirecciones(preliminar.data))
   if (!validado.success) return { valor: BORRADOR_VACIO, motivo: 'datos-invalidos' }
 
   return { valor: validado.data, motivo: null }
@@ -145,9 +147,14 @@ export function guardarTarjeta(borrador: TipoBorrador): boolean {
     momento: todo lo escrito despues vivia solo en la pestaña, y se perdia al recargar. Lo destapo
     el reporte de Johann en produccion.
   */
+  // La forma se valida antes de normalizar por la misma razon que en la lectura: aunque TypeScript
+  // proteja al editor, un llamador de JavaScript no debe convertir un dato invalido en una excepcion.
+  const preliminar = BorradorGuardable.safeParse(borrador)
+  if (!preliminar.success) return false
+
   // Regla PERMISIVA (ver `BorradorGuardable`): un borrador a medio escribir se guarda igual. La
   // estricta se aplica al compartir, no aqui.
-  const validado = BorradorGuardable.safeParse(normalizarDirecciones(borrador))
+  const validado = BorradorGuardable.safeParse(normalizarDirecciones(preliminar.data))
   if (!validado.success) return false
   return escribirCrudo(CLAVE_TARJETA, validado.data)
 }
