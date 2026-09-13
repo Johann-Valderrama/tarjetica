@@ -9,9 +9,9 @@ import type { Tarjeta } from '../modelo/tarjeta'
 export function MuestraTarjeta() {
   const t = useTranslations('home')
   const tarjeta: Tarjeta = {
-    n: 'Alex', a: 'Rivera', c: t('ejemploCargo'), em: 'Estudio Norte',
+    n: 'Alexa', a: 'Rivera', c: t('ejemploCargo'), em: 'Estudio Norte',
     d: t('ejemploCiudad'), ti: t('ejemploTitular'),
-    co: 'alex@example.com',
+    co: 'alexa@example.com',
     t: [{ n: '+1 202 555 0148', e: 'movil' }, { n: '+1 202 555 0196', e: 'oficina' }],
     w: 'https://example.com',
     l: [{ e: t('ejemploPortafolio'), u: 'https://example.com/portfolio' }],

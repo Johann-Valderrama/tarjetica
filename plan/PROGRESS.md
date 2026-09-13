@@ -14,6 +14,13 @@
 
 ## Estado
 
+### Nombre del ejemplo corregido · 2026-09-13
+
+- Por petición del dueño, Luna high cambió el perfil ficticio a Alexa Rivera y el correo a
+  `alexa@example.com`; los tres paneles, QR y texto alternativo derivan del mismo dato.
+- Director revisó el diff: sólo muestra y aserciones del ejemplo. Build/TypeScript y prueba E2E
+  de portada pasan. Se integra en `main` para publicar por la integración existente de Vercel.
+
 ### Cierre de sesión y publicación · 2026-09-13
 
 - Dueño autorizó explícitamente cierre, push, merge y despliegue a Vercel.
