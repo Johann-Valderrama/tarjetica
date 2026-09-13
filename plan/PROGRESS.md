@@ -21,6 +21,17 @@
 - Director revisó el diff: sólo muestra y aserciones del ejemplo. Build/TypeScript y prueba E2E
   de portada pasan. Se integra en `main` para publicar por la integración existente de Vercel.
 
+### Cierre de verificación pública y sincronización · 2026-09-13
+
+- `main` ya contiene `fd67156` (`fix: usar Alexa Rivera en el perfil de ejemplo`) y coincide con
+  `origin/main`; el merge queda satisfecho sin crear uno redundante.
+- GitHub reporta el check de Vercel exitoso. `vercel inspect https://tarjetica-app.vercel.app
+  --wait --timeout 60s` confirmó producción `dpl_DLWjssXpYCiHo5wkHh3rJ72RE8sW` en estado
+  `Ready`, con alias `https://tarjetica-app.vercel.app`.
+- La comprobación HTTP directa respondió 200 y encontró `Alexa Rivera` y
+  `alexa@example.com`; `Alex Rivera` y `alex@example.com` están ausentes. Este cierre de bitácora
+  se registra en `main` y se sube a `origin/main`; no modifica el código de la aplicación.
+
 ### Cierre de sesión y publicación · 2026-09-13
 
 - Dueño autorizó explícitamente cierre, push, merge y despliegue a Vercel.
