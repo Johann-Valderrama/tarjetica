@@ -491,3 +491,16 @@
   no deben lanzar al abrir. Un borrador ilegible no se reemplaza hasta que la persona edite.
 - 2026-09-13 **Las redes admiten usuario, @usuario o URL HTTP(S) de la red correspondiente.** La
   exportación evita duplicar dominios y rechaza hosts ajenos; el guardado sigue siendo permisivo.
+
+- 2026-09-13 **El enlace recibido prioriza conectar.** `/t#…` muestra perfil, descarga VCF,
+  WhatsApp internacional explícito y enlaces HTTP(S) del titular. El QR se abre bajo demanda en
+  diálogo accesible. `/tarjeta` y el JPEG conservan la tarjeta limpia y su QR. Aprobado por Johann.
+- 2026-09-13 **Guardar contacto descarga un archivo, no confirma una importación.** El receptor
+  genera el VCF con el dato recibido sin leer ni escribir el borrador del visitante. Foto y logo
+  siguen fuera del fragmento. Los enlaces externos sólo se visitan al pulsarlos, sin precarga.
+- 2026-09-13 **Compatibilidad del enlace sin servicios externos.** Se conservan v0 plano y v1
+  deflate-raw; fflate empaquetado resuelve navegadores sin descompresión nativa. Se limita el
+  fragmento a 96 KiB y la salida a 64 KiB durante la lectura. Una lectura antigua nunca sustituye
+  la tarjeta más reciente cuando cambia el fragmento.
+- 2026-09-13 **La firma muestra el dominio público existente** `tarjetica-app.vercel.app`.
+  Aparece en tarjeta/JPEG y pie del receptor; nunca se añade a los datos de agenda.

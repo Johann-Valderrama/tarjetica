@@ -125,8 +125,8 @@
     "enlacePlaceholder": "Portfolio",
     "dosFrases": "Your card in two sentences",
     "titular": "Headline",
-    "titularPlaceholder": "Get back the hours your operation takes from you.",
-    "titularAyuda": "One sentence: what you do.",
+    "titularPlaceholder": "I automate tasks so your team can sell more.",
+    "titularAyuda": "Say what you solve and who you help, in one sentence.",
     "descripcion": "Description",
     "descripcionPlaceholder": "Your team drops the repetitive work and goes back to what matters.",
     "descripcionAyuda": "Up to two sentences: why people look for you.",
@@ -134,7 +134,8 @@
     "ubicacion": "Location",
     "ciudad": "City",
     "ciudadPlaceholder": "Bogotá · Colombia",
-    "ciudadAviso": "It shows on the top line of the card. If you prefer an exact address, think about whether you want it to be your home: you are going to hand this card out."
+    "ciudadAviso": "It shows on the top line of the card. If you prefer an exact address, think about whether you want it to be your home: you are going to hand this card out.",
+    "whatsappAyuda": "To show WhatsApp on your shared link, choose WhatsApp and include + and the country code (e.g. +1 202 555 0123)."
   },
   "avisos": {
     "alcanceTitulo": "This app is for YOUR own card.",
@@ -200,6 +201,27 @@
       "ilegible": "This card could not be read. The link looks incomplete or got broken when it was copied.",
       "version-desconocida": "This link was created by a newer version of the app and cannot be read here.",
       "datos-invalidos": "This card arrived with data that cannot be displayed."
+    }
+  },
+  "receptor": {
+    "presentacion": "Great to connect",
+    "acciones": "Get in touch",
+    "guardar": "Save contact",
+    "guardarAyuda": "Download their details to add them to your contacts.",
+    "descargado": "File ready. Open it to add this person to your contacts.",
+    "error": "The contact could not be downloaded. Try again or show the QR code.",
+    "mostrarQr": "Show QR",
+    "enlaces": "Explore more",
+    "qrTitulo": "Scan the contact",
+    "cerrar": "Close QR",
+    "qrAyuda": "Scan with another phone to add this person to your contacts.",
+    "redes": {
+      "web": "Website",
+      "linkedin": "LinkedIn",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "facebook": "Facebook",
+      "otro": "Link"
     }
   }
 }

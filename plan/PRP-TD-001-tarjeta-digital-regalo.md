@@ -1,7 +1,9 @@
 # PRP-TD-001 · Tarjeta de presentación digital (app regalable, sin servidor)
 
 > **Estado actual (2026-09-13):** producto implementado. Para continuar, leer primero el estado
-> vigente de `PROGRESS.md` y `DECISIONES.md`. Las olas originales se conservan como historial.
+> vigente de `PROGRESS.md` y `DECISIONES.md`. `/t` prioriza guardar contacto y muestra el QR
+> bajo demanda; `/tarjeta` y JPEG mantienen su QR visible sin controles. El codec v0/v1 tiene
+> respaldo local para navegadores sin Streams. Las olas originales se conservan como historial.
 > **Fecha:** 2026-09-03
 > **Origen:** pedido del operador (Johann) en sesión del 2026-09-02. Objetivo declarado: **menos papel,
 > más eficiencia al comunicar datos.** Se regala en conferencias y reuniones; el código se libera bajo MIT.

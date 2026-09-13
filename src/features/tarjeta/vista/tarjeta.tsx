@@ -89,7 +89,7 @@ export function VistaTarjeta({
 }
 
 /** La linea de arriba con el punto del acento. Sale del campo de direccion, si la persona lo lleno. */
-function Ubicacion({ ciudad, logoDataUrl }: { ciudad?: string; logoDataUrl?: string }) {
+export function Ubicacion({ ciudad, logoDataUrl }: { ciudad?: string; logoDataUrl?: string }) {
   const t = useTranslations('editor')
   if (!ciudad && !logoDataUrl) return null
   return (
@@ -133,7 +133,7 @@ function Ubicacion({ ciudad, logoDataUrl }: { ciudad?: string; logoDataUrl?: str
  * El monograma SIGUE en el editor, y ahi si tiene sentido: ese circulo es el sitio donde vas a
  * poner tu foto, asi que marcar el hueco es justo lo que se quiere.
  */
-function Encabezado({ tarjeta, fotoDataUrl, muestra }: { tarjeta: Tarjeta; fotoDataUrl?: string; muestra: boolean }) {
+export function Encabezado({ tarjeta, fotoDataUrl, muestra }: { tarjeta: Tarjeta; fotoDataUrl?: string; muestra: boolean }) {
   const Titulo = muestra ? 'h3' : 'h1'
   return (
     <header className="flex items-center gap-4">
@@ -165,16 +165,16 @@ function Encabezado({ tarjeta, fotoDataUrl, muestra }: { tarjeta: Tarjeta; fotoD
  * 91 px por debajo del pliegue). El clamp cierra esa via, y no es silencioso: recorta con puntos
  * suspensivos, que se ven.
  */
-function Discurso({ tarjeta }: { tarjeta: Tarjeta }) {
+export function Discurso({ tarjeta, completo = false }: { tarjeta: Tarjeta; completo?: boolean }) {
   if (!tarjeta.ti && !tarjeta.de) return null
   return (
     <section className="mt-4 space-y-2">
       {tarjeta.ti && (
-        <p className="line-clamp-2 break-words font-display text-[22px] font-extrabold leading-[1.15] text-tinta">
+        <p className={`${completo ? "" : "line-clamp-2"} break-words font-display text-[22px] font-extrabold leading-[1.15] text-tinta`}>
           {tarjeta.ti}
         </p>
       )}
-      {tarjeta.de && <p className="line-clamp-4 break-words text-sm leading-relaxed text-tinta-suave">{tarjeta.de}</p>}
+      {tarjeta.de && <p className={`${completo ? "" : "line-clamp-4"} break-words text-sm leading-relaxed text-tinta-suave`}>{tarjeta.de}</p>}
     </section>
   )
 }

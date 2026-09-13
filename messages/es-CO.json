@@ -125,8 +125,8 @@
     "enlacePlaceholder": "Portafolio",
     "dosFrases": "Tu tarjeta en dos frases",
     "titular": "Titular",
-    "titularPlaceholder": "Recupera las horas que tu operación te quita.",
-    "titularAyuda": "Una frase: qué haces.",
+    "titularPlaceholder": "Automatizo tareas para que tu equipo venda más.",
+    "titularAyuda": "Cuenta qué solucionas y para quién, en una frase.",
     "descripcion": "Descripción",
     "descripcionPlaceholder": "Tu equipo deja el trabajo repetitivo y vuelve a lo que importa.",
     "descripcionAyuda": "Hasta dos frases: por qué te buscan.",
@@ -134,7 +134,8 @@
     "ubicacion": "Ubicación",
     "ciudad": "Ciudad",
     "ciudadPlaceholder": "Bogotá · Colombia",
-    "ciudadAviso": "Sale en la línea de arriba de la tarjeta. Si prefieres una dirección exacta, piensa si quieres que sea la de tu casa: esta tarjeta la vas a repartir."
+    "ciudadAviso": "Sale en la línea de arriba de la tarjeta. Si prefieres una dirección exacta, piensa si quieres que sea la de tu casa: esta tarjeta la vas a repartir.",
+    "whatsappAyuda": "Para mostrar el botón de WhatsApp en tu enlace, elige WhatsApp e incluye + y el código de país (ej. +57 300 000 0000)."
   },
   "avisos": {
     "alcanceTitulo": "Esta app es para TU propia tarjeta.",
@@ -200,6 +201,27 @@
       "ilegible": "No se pudo leer esta tarjeta. El enlace parece incompleto o quedó partido al copiarlo.",
       "version-desconocida": "Este enlace lo creó una versión más nueva de la app y no se puede leer aquí.",
       "datos-invalidos": "Esta tarjeta llegó con datos que no se pueden mostrar."
+    }
+  },
+  "receptor": {
+    "presentacion": "Un gusto conectar",
+    "acciones": "Contactar",
+    "guardar": "Guardar contacto",
+    "guardarAyuda": "Descarga sus datos para añadirlos a tu agenda.",
+    "descargado": "Archivo listo. Ábrelo para añadir este contacto a tu agenda.",
+    "error": "No se pudo descargar el contacto. Puedes intentar de nuevo o mostrar el QR.",
+    "mostrarQr": "Mostrar QR",
+    "enlaces": "Conoce más",
+    "qrTitulo": "Escanea el contacto",
+    "cerrar": "Cerrar QR",
+    "qrAyuda": "Escanea desde otro celular para añadir este contacto a tu agenda.",
+    "redes": {
+      "web": "Sitio web",
+      "linkedin": "LinkedIn",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "facebook": "Facebook",
+      "otro": "Enlace"
     }
   }
 }

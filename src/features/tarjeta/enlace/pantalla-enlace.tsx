@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { decodificar, type ResultadoDecodificacion } from '@/features/tarjeta/enlace/codec'
-import { QrDeContacto } from '@/features/tarjeta/qr/qr-cliente'
-import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
+import { PerfilRecibido } from './perfil-recibido'
 
 /**
  * La tarjeta que llega por un link compartido (Ola 6).
@@ -20,8 +19,7 @@ import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
  * de la tarjeta. Es la propiedad que hace cierta la promesa de privacidad, y hay un assert que la
  * mide en vez de creersela.
  *
- * **Sin foto, siempre.** La foto no viaja en el link (G5), asi que aqui se ve el monograma de
- * iniciales. No es una degradacion: es la invariante funcionando.
+ * **Sin foto, siempre.** La foto no viaja en el link (G5), igual que el logo. El perfil compartido muestra solamente sus datos de texto.
  */
 
 /**
@@ -31,7 +29,7 @@ import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
  */
 type Motivo = Exclude<ResultadoDecodificacion, { ok: true }>['motivo']
 
-type Estado = { fase: 'leyendo' } | { fase: 'listo'; tarjeta: Tarjeta } | { fase: 'fallo'; motivo: Motivo }
+type Estado = { fase: 'leyendo' } | { fase: 'listo'; tarjeta: Tarjeta; lectura: number } | { fase: 'fallo'; motivo: Motivo }
 
 export function PantallaEnlace() {
   const t = useTranslations('enlace')
@@ -39,15 +37,18 @@ export function PantallaEnlace() {
 
   useEffect(() => {
     let vigente = true
+    let secuencia = 0
 
     const leer = async () => {
+      const lectura = ++secuencia
+      setEstado({ fase: 'leyendo' })
       // `slice(1)` quita el `#`. Se lee en un efecto y no en el render porque en el servidor no
       // existe `location`, y este dato solo aparece en el cliente por definicion.
       const resultado = await decodificar(window.location.hash.slice(1))
-      if (!vigente) return
+      if (!vigente || lectura !== secuencia) return
       setEstado(
         resultado.ok
-          ? { fase: 'listo', tarjeta: resultado.tarjeta }
+          ? { fase: 'listo', tarjeta: resultado.tarjeta, lectura }
           : { fase: 'fallo', motivo: resultado.motivo },
       )
     }
@@ -75,7 +76,7 @@ export function PantallaEnlace() {
     )
   }
 
-  return <VistaTarjeta tarjeta={estado.tarjeta} qr={<QrDeContacto tarjeta={estado.tarjeta} />} />
+  return <PerfilRecibido key={estado.lectura} tarjeta={estado.tarjeta} />
 }
 
 /**

@@ -87,7 +87,7 @@ async function abrir(page: Page, cual: '/' | '/editor' | '/tarjeta' | '/t'): Pro
   await page.getByTestId('confirmar-enlace').click()
   const enlace = (await page.getByTestId('enlace-generado').textContent())!.trim()
   await page.goto(enlace)
-  await expect(page.getByTestId('qr-contacto')).toBeVisible()
+  await expect(page.getByTestId('perfil-recibido')).toBeVisible()
 }
 
 const PANTALLAS = ['/', '/editor', '/tarjeta', '/t'] as const
@@ -284,7 +284,7 @@ test.describe('7c · la metrica no toca la ruta de la tarjeta', () => {
 
       const pings = espiarPings(page)
       await page.goto(enlace)
-      await expect(page.getByTestId('qr-contacto')).toBeVisible()
+      await expect(page.getByTestId(pantalla === '/t' ? 'perfil-recibido' : 'qr-contacto')).toBeVisible()
       await page.waitForTimeout(1200)
 
       expect(pings, `${pantalla} pingeo`).toEqual([])

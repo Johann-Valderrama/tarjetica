@@ -168,6 +168,7 @@ export function CamposContacto({
 
       <div className="space-y-2">
         <Etiqueta htmlFor="tel-0">{t('telefonos')}</Etiqueta>
+        <p className="mb-3 text-xs leading-relaxed text-tinta-suave">{t('whatsappAyuda')}</p>
         {telefonos.map((tel, i) => (
           <div key={i} className="flex gap-2">
             <Entrada

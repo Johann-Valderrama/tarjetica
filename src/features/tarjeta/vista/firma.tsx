@@ -13,15 +13,10 @@ import { useTranslations } from 'next-intl'
  * byte ahi es densidad del QR, que es el riesgo numero uno del producto.
  */
 
-/**
- * ⏳ `dominio` esta VACIO a proposito: todavia no hay uno. El despliegue es la Ola 7 y sigue
- * esperando el gate del operador, asi que escribir aqui una direccion inventada pondria en la
- * tarjeta de cada usuario un enlace que no lleva a ninguna parte. Cuando el dominio exista, se
- * llena esta constante y la firma lo muestra sola.
- */
+/** Dominio público de la aplicación; nunca se incorpora al vCard. */
 export const MARCA: { nombre: string; dominio: string | null } = {
   nombre: 'Tarjetica',
-  dominio: null,
+  dominio: 'tarjetica-app.vercel.app',
 }
 
 /**

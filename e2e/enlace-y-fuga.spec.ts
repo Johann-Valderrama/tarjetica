@@ -115,6 +115,8 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
 
     await page.goto(enlace)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Daniel Restrepo')
+    await expect(page.getByTestId('qr-contacto')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Mostrar QR' }).click()
     await expect(page.getByTestId('qr-contacto')).toBeVisible()
   })
 
@@ -147,6 +149,8 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
     })
 
     await page.goto(enlace)
+    await expect(page.getByTestId('perfil-recibido')).toBeVisible()
+    await page.getByRole('button', { name: 'Mostrar QR' }).click()
     await expect(page.getByTestId('qr-contacto')).toBeVisible()
     expect(ajenas, `recursos de fuera: ${ajenas.join(', ')}`).toEqual([])
   })
@@ -184,6 +188,9 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
     */
     await page.goto(enlace)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await expect(page.locator('img')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Mostrar QR' }).click()
+    await expect(page.getByTestId('qr-contacto')).toBeVisible()
     const imagenesConDatos = await page.evaluate(() =>
       [...document.querySelectorAll('img')]
         .map((i) => i.getAttribute('src') ?? '')

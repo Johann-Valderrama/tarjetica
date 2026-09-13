@@ -125,7 +125,7 @@ test.describe('no queda ninguna clave de traduccion cruda en pantalla', () => {
    * ausente del catalogo en tiempo de ejecucion pinta la ruta de la clave tal cual. Se ve como un
    * texto raro, no como un error, y nadie lo reporta.
    */
-  const PARECE_CLAVE = /\b(app|meta|idioma|home|editor|campos|avisos|limites|tarjeta|qr|enlace)\.[a-zA-Z]/
+  const PARECE_CLAVE = /(?<![\w.-])(app|meta|idioma|home|editor|campos|avisos|limites|tarjeta|qr|enlace|receptor)\.[a-zA-Z]/
 
   for (const [ruta, sembrar] of [
     ['/', false],

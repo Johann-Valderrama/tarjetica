@@ -14,6 +14,29 @@
 
 ## Estado
 
+### Perfil recibido y pendientes de la ronda GoFest · 2026-09-13
+
+- Dueño autorizó ejecutar el plan, con subagentes para lógica y director para interfaz.
+- Director: perfil recibido con acción principal «Guardar contacto», texto que explica la
+  descarga, WhatsApp válido, web/redes/enlaces y QR en diálogo con Escape y retorno de foco.
+  Reutiliza ubicación, identidad y discurso de la tarjeta. Titular del editor orientado a
+  explicar qué solucionas y para quién; ayuda de WhatsApp con prefijo internacional.
+- Terra: compatibilidad del codec v0/v1 mediante fflate local y límites de lectura.
+  Luna: helpers puros de destinos seguros y pruebas. Trabajo en worktrees independientes.
+- Se completa la firma con el dominio público. Tarjeta local y JPEG siguen sin controles.
+- Validación: 173 unitarios, build/TypeScript, lint y 25 comprobaciones de cabeceras pasan.
+  Suite completa: 142 E2E, 138 pasan en primera ronda; se corrigieron el retorno de foco del
+  diálogo y un detector de traducciones que confundía el dominio con una clave. Las dos suites
+  afectadas se repitieron: 18/18 pasan. QR en pantalla/JPEG y cinco perfiles con logo siguen legibles.
+- Revisión visual directa del director a 375 px y escritorio: jerarquía, botones, enlaces y
+  diálogo. Revisión independiente Terra del diff: sin P1/P2 en codec, carrera de fragmentos,
+  seguridad de destinos o separación del almacenamiento. Evidencia en e2e/receptor.spec.ts.
+- Cierre autorizado: integrar en main y push mediante la integración GitHub/Vercel existente;
+  comprobar despliegue Ready, cabeceras y comportamiento en dominio público antes de entregar.
+- Pendientes físicos del dueño: escaneo en condiciones de evento, guardar JPEG e importar
+  contacto en iOS/Android reales, también desde Instagram y LinkedIn. Las pruebas emuladas
+  no sustituyen esa comprobación.
+
 ### Logo de empresa opcional · 2026-09-13
 
 - Petición del dueño: segunda imagen opcional para el logo, independiente del retrato.
@@ -70,7 +93,7 @@
 - Corregido enlace local obsoleto de Vercel: proyecto actual `tarjetica-app` del equipo
   `johann09-4767s-projects`. El primer intento CLI falló por el enlace antiguo; la integración
   GitHub completó la publicación correctamente. No se publicaron archivos de entorno.
-- Sesión cerrada. Pendientes no bloqueantes: fallback de `DecompressionStream` y pruebas
+- Sesión cerrada en ese checkpoint. El fallback se resolvió el 2026-09-13; siguen pendientes las pruebas
   físicas con celulares ya registradas. Las notas «sin publicación» inferiores son históricas.
 
 ### Portada con tres ejemplos · 2026-09-13
@@ -116,7 +139,7 @@
   selector erróneo en la nueva prueba y salto de encabezados en la muestra.
 - Documentación: README enlaza al plan público; sección 6 actualizada; tablas de diseño inicial
   marcadas como superadas; aviso del enlace corregido (sin foto, no iniciales).
-- Límite pendiente de compatibilidad: el decoder v1 depende de `DecompressionStream`. Un receptor
+- Límite histórico de compatibilidad, resuelto 2026-09-13 con fflate: el decoder v1 dependía de `DecompressionStream`. Un receptor
   sin esa API no abre enlaces comprimidos; queda por implementar y probar un fallback portátil.
   No se atribuye el problema a una versión concreta de Safari sin prueba en ese dispositivo.
 - Siguiente acción: revisar el resultado local en `http://localhost:3210`. La publicación de esta
@@ -357,8 +380,7 @@ Modelo esperado: Sonnet.M. Si eres mas debil, avisa y espera.
   Johann). https://github.com/Johann-Valderrama/tarjetica  ·  nombre verificado libre antes de crear
   (404 en la API). GitHub detecta la licencia MIT. El `LICENSE` entró en el primer commit, que es lo
   que la Ola 7 quería asegurar
-- [ ] **La firma de marca sale hoy sin dominio** (`MARCA.dominio` esta en `null` a proposito).
-  Cuando el despliegue (unidad 7d) defina uno, se llena esa constante y la firma lo muestra sola.
+- [x] **Firma con dominio completada 2026-09-13:** `tarjetica-app.vercel.app`, fuera del vCard.
 - [x] **DECISION CERRADA 2026-09-08: la paleta del EDITOR**, por la opcion A. Repintado con los
   tokens, con el contraste medido en la suite y guards que impiden la reincidencia.
 - [ ] **Ola 4: gate físico 4e, escanear el QR de la tarjeta llena de una pantalla a otra.** Es el
