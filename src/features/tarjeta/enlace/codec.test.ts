@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { deflateSync } from 'fflate'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { codificar, construirEnlace, decodificar, RUTA_ENLACE } from '@/features/tarjeta/enlace/codec'
 
@@ -45,6 +46,34 @@ const PERFILES: [string, Tarjeta][] = [
   ['tipica', TIPICA],
   ['todos los campos llenos', LLENA],
 ]
+
+function aBase64Url(bytes: Uint8Array): string {
+  let binario = ''
+  for (const byte of bytes) binario += String.fromCharCode(byte)
+  return btoa(binario).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+function payloadPlanoAntiguo(tarjeta: unknown): string {
+  const json = new TextEncoder().encode(JSON.stringify(tarjeta))
+  const bytes = new Uint8Array(json.byteLength + 1)
+  bytes[0] = 0
+  bytes.set(json, 1)
+  return aBase64Url(bytes)
+}
+
+function payloadComprimidoAntiguo(tarjeta: unknown): string {
+  const cuerpo = deflateSync(new TextEncoder().encode(JSON.stringify(tarjeta)))
+  const bytes = new Uint8Array(cuerpo.byteLength + 1)
+  bytes[0] = 1
+  bytes.set(cuerpo, 1)
+  return aBase64Url(bytes)
+}
+
+function version(payload: string): number {
+  return atob(payload.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(payload.length / 4) * 4, '=')).charCodeAt(0)
+}
+
+afterEach(() => vi.unstubAllGlobals())
 
 describe('propiedad 1: el codec es simetrico', () => {
   for (const [nombre, tarjeta] of PERFILES) {
@@ -136,5 +165,108 @@ describe('cuanto pesa el link (informe, no assert)', () => {
       console.log(`  ${nombre.padEnd(24)} payload ${String((await codificar(tarjeta)).length).padStart(4)} car · link completo ${enlace.length} car`)
       expect(enlace.length).toBeGreaterThan(0)
     }
+  })
+})
+
+describe('compatibilidad de codecs', () => {
+  it('el camino nativo produce y lee deflate-raw', async () => {
+    const payload = await codificar(LLENA)
+    expect(version(payload)).toBe(1)
+    expect(await decodificar(payload)).toEqual({ ok: true, tarjeta: LLENA })
+  })
+
+  it('usa fflate empaquetado si faltan las Streams y conserva interoperabilidad', async () => {
+    vi.stubGlobal('CompressionStream', undefined)
+    vi.stubGlobal('DecompressionStream', undefined)
+    const payload = await codificar(TIPICA)
+    expect(version(payload)).toBe(1)
+    expect(await decodificar(payload)).toEqual({ ok: true, tarjeta: TIPICA })
+  })
+
+  it('usa fflate si las APIs existen pero no conocen deflate-raw', async () => {
+    class SinDeflateRaw {
+      constructor() {
+        throw new TypeError('formato no soportado')
+      }
+    }
+    vi.stubGlobal('CompressionStream', SinDeflateRaw)
+    vi.stubGlobal('DecompressionStream', SinDeflateRaw)
+    const payload = await codificar(TIPICA)
+    expect(version(payload)).toBe(1)
+    expect(await decodificar(payload)).toEqual({ ok: true, tarjeta: TIPICA })
+  })
+
+  it('si una compresion nativa falla, emite el enlace plano sin rechazar', async () => {
+    class CompresorQueFalla {
+      readonly readable: ReadableStream<Uint8Array>
+      readonly writable: WritableStream<Uint8Array>
+
+      constructor() {
+        const stream = new TransformStream<Uint8Array, Uint8Array>({
+          transform() {
+            throw new Error('fallo de compresion')
+          },
+        })
+        this.readable = stream.readable
+        this.writable = stream.writable
+      }
+    }
+    vi.stubGlobal('CompressionStream', CompresorQueFalla)
+    const payload = await codificar(TIPICA)
+    expect(version(payload)).toBe(0)
+    expect(await decodificar(payload)).toEqual({ ok: true, tarjeta: TIPICA })
+  })
+
+  it('lee enlaces v0 y v1 ya repartidos', async () => {
+    await expect(decodificar(payloadPlanoAntiguo(TIPICA))).resolves.toEqual({ ok: true, tarjeta: TIPICA })
+    await expect(decodificar(payloadComprimidoAntiguo(TIPICA))).resolves.toEqual({ ok: true, tarjeta: TIPICA })
+  })
+})
+
+describe('limites de lectura', () => {
+  it('rechaza un fragmento de mas de 96 KiB antes de base64', async () => {
+    await expect(decodificar('A'.repeat(96 * 1024 + 1))).resolves.toEqual({ ok: false, motivo: 'ilegible' })
+  })
+
+  it('rechaza una bomba deflate nativa por encima de 64 KiB', async () => {
+    const bomba = payloadComprimidoAntiguo({ n: 'A'.repeat(64 * 1024) })
+    await expect(decodificar(bomba)).resolves.toEqual({ ok: false, motivo: 'ilegible' })
+  })
+
+  it('rechaza la misma bomba por el respaldo fflate sin reservar su salida completa', async () => {
+    vi.stubGlobal('DecompressionStream', undefined)
+    const bomba = payloadComprimidoAntiguo({ n: 'A'.repeat(64 * 1024) })
+    await expect(decodificar(bomba)).resolves.toEqual({ ok: false, motivo: 'ilegible' })
+  })
+
+  it('mantiene los extremos validos con UTF-8', async () => {
+    const extrema: Tarjeta = {
+      n: 'Ñ'.repeat(60),
+      a: 'Á'.repeat(60),
+      c: 'é'.repeat(80),
+      em: 'í'.repeat(80),
+      co: 'ana@example.com',
+      t: [
+        { n: '1'.repeat(25), e: 'movil' },
+        { n: '2'.repeat(25), e: 'whatsapp' },
+        { n: '3'.repeat(25), e: 'oficina' },
+      ],
+      w: 'https://example.com/' + 'x'.repeat(280),
+      ig: 'usuario.extremo',
+      tk: 'usuario-extremo',
+      fb: 'usuario.extremo',
+      li: 'usuario-extremo',
+      l: [
+        { u: 'https://example.com/' + 'a'.repeat(280), e: 'L'.repeat(30) },
+        { u: 'https://example.com/' + 'b'.repeat(280), e: 'M'.repeat(30) },
+        { u: 'https://example.com/' + 'c'.repeat(280), e: 'N'.repeat(30) },
+      ],
+      d: 'Bogotá · '.repeat(22),
+      ti: 'ó'.repeat(60),
+      de: 'ú'.repeat(160),
+    }
+    const payload = await codificar(extrema)
+    expect(payload.length).toBeLessThan(96 * 1024)
+    await expect(decodificar(payload)).resolves.toEqual({ ok: true, tarjeta: extrema })
   })
 })
