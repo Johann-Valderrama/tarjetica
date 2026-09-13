@@ -2,6 +2,7 @@ import {
   BORRADOR_VACIO,
   BorradorGuardable,
   FotoLocal,
+  LogoLocal,
   normalizarDirecciones,
   type TarjetaBorrador as TipoBorrador,
 } from '@/features/tarjeta/modelo/tarjeta'
@@ -23,6 +24,7 @@ import {
 
 const CLAVE_TARJETA = 'tarjetica.tarjeta'
 const CLAVE_FOTO = 'tarjetica.foto'
+const CLAVE_LOGO = 'tarjetica.logo'
 /**
  * La confirmacion de "esta tarjeta es mia" (unidad 2d). Se PERSISTE, no vive en el estado de un
  * componente, porque es la puerta de las exportaciones y esas ocurren en DOS pantallas: el `.vcf`
@@ -35,7 +37,7 @@ const CLAVE_FOTO = 'tarjetica.foto'
 const CLAVE_CONFIRMACION = 'tarjetica.confirmacion'
 
 /** Todas las claves que este producto ha usado alguna vez. El borrado las barre TODAS. */
-const CLAVES_CONOCIDAS = [CLAVE_TARJETA, CLAVE_FOTO, CLAVE_CONFIRMACION] as const
+const CLAVES_CONOCIDAS = [CLAVE_TARJETA, CLAVE_FOTO, CLAVE_LOGO, CLAVE_CONFIRMACION] as const
 
 /** Version del formato guardado. Sube cuando el envoltorio cambie de forma incompatible. */
 export const VERSION_ALMACEN = 1
@@ -176,10 +178,30 @@ export function guardarFoto(foto: FotoLocal): boolean {
 
 /** Borra SOLO la foto. Quitar la foto no puede llevarse la tarjeta por delante. */
 export function borrarFoto(): boolean {
+  return borrarImagen(CLAVE_FOTO)
+}
+
+export function leerLogo(): LogoLocal | null {
+  const crudo = leerCrudo(CLAVE_LOGO)
+  if (!crudo.ok) return null
+  const validado = LogoLocal.safeParse(crudo.valor)
+  return validado.success ? validado.data : null
+}
+
+export function guardarLogo(logo: LogoLocal): boolean {
+  const validado = LogoLocal.safeParse(logo)
+  return validado.success && escribirCrudo(CLAVE_LOGO, validado.data)
+}
+
+export function borrarLogo(): boolean {
+  return borrarImagen(CLAVE_LOGO)
+}
+
+function borrarImagen(clave: string): boolean {
   const almacen = obtenerAlmacen()
   if (!almacen) return false
   try {
-    almacen.removeItem(CLAVE_FOTO)
+    almacen.removeItem(clave)
     instantaneaValida = false
     return true
   } catch {

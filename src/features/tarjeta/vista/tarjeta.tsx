@@ -27,6 +27,7 @@ export const ID_CAPTURABLE = 'tarjeta-capturable'
 export function VistaTarjeta({
   tarjeta,
   fotoDataUrl,
+  logoDataUrl,
   qr,
   dimension,
   muestra = false,
@@ -34,6 +35,7 @@ export function VistaTarjeta({
 }: {
   tarjeta: Tarjeta
   fotoDataUrl?: string
+  logoDataUrl?: string
   /** El codigo QR. Se pasa como hijo para que la vista siga siendo una funcion del dato. */
   qr?: React.ReactNode
   /**
@@ -76,7 +78,7 @@ export function VistaTarjeta({
           paraImagen ? '' : '[container-type:inline-size]'
         }`}
       >
-        <Ubicacion ciudad={tarjeta.d} />
+        <Ubicacion ciudad={tarjeta.d} logoDataUrl={logoDataUrl} />
         <Encabezado tarjeta={tarjeta} fotoDataUrl={fotoDataUrl} muestra={muestra} />
         <Discurso tarjeta={tarjeta} />
         <BloqueDelQr tarjeta={tarjeta} qr={qr} paraImagen={paraImagen} avisoQr={avisoQr} />
@@ -87,13 +89,20 @@ export function VistaTarjeta({
 }
 
 /** La linea de arriba con el punto del acento. Sale del campo de direccion, si la persona lo lleno. */
-function Ubicacion({ ciudad }: { ciudad?: string }) {
-  if (!ciudad) return null
+function Ubicacion({ ciudad, logoDataUrl }: { ciudad?: string; logoDataUrl?: string }) {
+  const t = useTranslations('editor')
+  if (!ciudad && !logoDataUrl) return null
   return (
-    <p className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-acento">
+    <div className="mb-4 flex items-center justify-between gap-3">
+    {ciudad && <p className="flex min-w-0 items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-acento">
       <span aria-hidden className="inline-block h-2 w-2 shrink-0 rounded-full bg-acento" />
       <span className="min-w-0 truncate">{ciudad}</span>
-    </p>
+    </p>}
+    {logoDataUrl && (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img data-testid="logo-tarjeta" src={logoDataUrl} alt={t('logoAlt')} className="ml-auto h-9 w-28 shrink-0 object-contain object-right" />
+    )}
+    </div>
   )
 }
 

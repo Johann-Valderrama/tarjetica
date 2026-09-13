@@ -3,6 +3,9 @@ import {
   borrarTodo,
   CLAVES,
   guardarFoto,
+  guardarLogo,
+  leerLogo,
+  borrarLogo,
   guardarTarjeta,
   leerFoto,
   leerTarjeta,
@@ -131,12 +134,27 @@ describe('almacenamiento local (unidad 1d)', () => {
     instalar(almacen)
     guardarTarjeta({ n: 'Daniel' })
     guardarFoto({ dataUrl: 'data:image/jpeg;base64,AAAA' })
+    guardarLogo({ dataUrl: 'data:image/png;base64,AAAA' })
     expect(borrarTodo()).toBe(true)
     expect(almacen.getItem(CLAVES.tarjeta)).toBeNull()
     expect(almacen.getItem(CLAVES.foto)).toBeNull()
     expect(almacen.length).toBe(0)
     expect(leerTarjeta()).toEqual({})
     expect(leerFoto()).toBeNull()
+    expect(leerLogo()).toBeNull()
+  })
+
+  it('el logo se valida y se borra sin tocar foto ni tarjeta', () => {
+    instalar(almacenFalso())
+    guardarTarjeta({ n: 'Daniel' })
+    guardarFoto({ dataUrl: 'data:image/jpeg;base64,AAAA' })
+    expect(guardarLogo({ dataUrl: 'https://example.com/logo.png' })).toBe(false)
+    expect(guardarLogo({ dataUrl: 'data:image/png;base64,AAAA' })).toBe(true)
+    expect(leerLogo()?.dataUrl).toBe('data:image/png;base64,AAAA')
+    expect(borrarLogo()).toBe(true)
+    expect(leerLogo()).toBeNull()
+    expect(leerFoto()).not.toBeNull()
+    expect(leerTarjeta().n).toBe('Daniel')
   })
 })
 

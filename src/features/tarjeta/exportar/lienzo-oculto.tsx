@@ -35,7 +35,7 @@ import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
  */
 export const DIMENSION_DE_EXPORTACION = { ancho: 390 } as const
 
-export function LienzoOculto({ tarjeta, fotoDataUrl }: { tarjeta: Tarjeta; fotoDataUrl?: string }) {
+export function LienzoOculto({ tarjeta, fotoDataUrl, logoDataUrl }: { tarjeta: Tarjeta; fotoDataUrl?: string; logoDataUrl?: string }) {
   return (
     <div
       aria-hidden
@@ -54,6 +54,7 @@ export function LienzoOculto({ tarjeta, fotoDataUrl }: { tarjeta: Tarjeta; fotoD
       <VistaTarjeta
         tarjeta={tarjeta}
         fotoDataUrl={fotoDataUrl}
+        logoDataUrl={logoDataUrl}
         qr={<QrDeContacto tarjeta={tarjeta} />}
         dimension={DIMENSION_DE_EXPORTACION}
       />

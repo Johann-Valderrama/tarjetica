@@ -77,7 +77,7 @@ test.describe('la advertencia va ANTES de generar, no despues', () => {
       solo se decia en la ayuda del campo de foto, arriba del formulario. Enterarse DESPUES de
       repartir el enlace es enterarse tarde.
     */
-    expect(texto, 'falta decir que la foto no viaja en el enlace').toContain('foto no viaja en el enlace')
+    expect(texto, 'falta decir que las imágenes no viajan en el enlace').toContain('foto y logo no viajan en el enlace')
   })
 
   test('"mejor no" lo deja como estaba, sin generar nada', async ({ page }) => {

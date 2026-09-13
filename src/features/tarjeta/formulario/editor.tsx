@@ -10,10 +10,14 @@ import {
   esExportable,
   normalizarDirecciones,
   type FotoLocal,
+  type LogoLocal,
   type TarjetaBorrador,
 } from '@/features/tarjeta/modelo/tarjeta'
 import {
   borrarFoto,
+  borrarLogo,
+  guardarLogo,
+  leerLogo,
   borrarTodo,
   instantaneaDelServidor,
   instantaneaTarjeta,
@@ -26,6 +30,7 @@ import {
   leerTarjetaDetallado,
 } from '@/features/tarjeta/almacenamiento/local'
 import { iniciales, prepararFoto } from '@/features/tarjeta/foto/cargar'
+import { prepararLogo } from '@/features/tarjeta/foto/logo'
 import {
   CamposContacto,
   CamposDeTexto,
@@ -106,6 +111,11 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   // ninguna pista de que es ese el que falla.
   const [tarjeta, setTarjeta] = useState<TarjetaBorrador>(() => normalizarDirecciones(inicial))
   const [foto, setFoto] = useState<FotoLocal | null>(() => leerFoto())
+  const [logo, setLogo] = useState<LogoLocal | null>(() => leerLogo())
+  const [avisoLogo, setAvisoLogo] = useState<string | null>(null)
+  const [cargandoLogo, setCargandoLogo] = useState(false)
+  const operacionLogo = useRef(0)
+  useEffect(() => () => { operacionLogo.current += 1 }, [])
   // Se siembra de lo guardado: la puerta de exportacion vive en dos pantallas (el `.vcf` aqui,
   // el `.jpeg` en la vista de la tarjeta), asi que la confirmacion tiene que sobrevivir al salto.
   const [confirmado, setConfirmado] = useState(() => leerConfirmacion())
@@ -201,13 +211,36 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
     setFoto(resultado.foto)
   }
 
+  const alElegirLogo = async (archivo: File | undefined) => {
+    if (!archivo) return
+    const operacion = ++operacionLogo.current
+    setAvisoLogo(null)
+    setCargandoLogo(true)
+    const resultado = await prepararLogo(archivo)
+    if (operacion !== operacionLogo.current) return
+    setCargandoLogo(false)
+    if (!resultado) {
+      setAvisoLogo(t('editor.logoFallo'))
+      return
+    }
+    if (!guardarLogo(resultado)) {
+      setAvisoLogo(t('editor.logoNoGuardado'))
+      return
+    }
+    setLogo(resultado)
+  }
+
   const alBorrar = () => {
+    operacionLogo.current += 1
+    setCargandoLogo(false)
     if (!borrarTodo()) {
       setGuardado('fallo-borrado')
       return
     }
     setTarjeta(BORRADOR_VACIO)
     setFoto(null)
+    setLogo(null)
+    setAvisoLogo(null)
     setConfirmado(false)
     setGuardado('inicial')
   }
@@ -345,6 +378,35 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
         )}
       </section>
 
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-tinta">{t('editor.logo')}</h2>
+        <div className="flex items-center gap-4">
+          {logo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo.dataUrl} alt={t('editor.logoAlt')} className="h-20 w-24 shrink-0 rounded-lg border border-borde bg-superficie-sutil p-2 object-contain" />
+          )}
+          <div className="min-w-0 flex-1">
+            <input id="logo" name="logo" type="file" accept="image/png,image/jpeg,image/webp" className="peer sr-only" onChange={(e) => {
+              const archivo = e.target.files?.[0]
+              e.target.value = ''
+              void alElegirLogo(archivo)
+            }} />
+            <label htmlFor="logo" className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-borde-fuerte px-4 text-sm font-semibold text-tinta peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-acento">{logo ? t('editor.cambiarLogo') : t('editor.elegirLogo')}</label>
+            <p className="mt-1 text-xs leading-relaxed text-tinta-suave">{t('editor.logoAyuda')}</p>
+            {(logo || cargandoLogo) && <button type="button" className="mt-1 min-h-11 text-sm text-tinta-suave underline" onClick={() => {
+              operacionLogo.current += 1
+              setCargandoLogo(false)
+              if (borrarLogo()) {
+                setLogo(null)
+                setAvisoLogo(null)
+              } else setAvisoLogo(t('editor.logoNoBorrado'))
+            }}>{t('editor.quitarLogo')}</button>}
+          </div>
+        </div>
+        {cargandoLogo && <p role="status" className="text-xs text-tinta-suave">{t('editor.cargandoLogo')}</p>}
+        {avisoLogo && <p role="alert" className="text-sm text-peligro">{avisoLogo}</p>}
+      </section>
+
       <CamposDeTexto tarjeta={tarjeta} onCambio={cambiar} />
       <CamposContacto tarjeta={tarjeta} onCambio={cambiar} />
       {/* Las redes y los enlaces NO se ven en la tarjeta (D3a): viajan dentro del vCard del QR. */}
@@ -468,7 +530,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
         La tarjeta montada fuera de pantalla, de donde sale el `.jpeg`. Solo existe cuando ya hay
         algo que exportar: montarla siempre pintaria un QR en cada tecleo.
       */}
-      {esExportable(tarjeta) && <LienzoOculto tarjeta={tarjeta} fotoDataUrl={foto?.dataUrl} />}
+      {esExportable(tarjeta) && <LienzoOculto tarjeta={tarjeta} fotoDataUrl={foto?.dataUrl} logoDataUrl={logo?.dataUrl} />}
 
       <section className="space-y-2">
         <BotonBorrarTodo onBorrar={alBorrar} />
@@ -482,7 +544,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
         <VistaTarjeta muestra avisoQr={t('editor.previaQr')} tarjeta={{
           n: tarjeta.n || t('editor.nombreEjemplo'), a: tarjeta.a, c: tarjeta.c, em: tarjeta.em,
           ti: tarjeta.ti, de: tarjeta.de, d: tarjeta.d, t: tarjeta.t,
-        }} fotoDataUrl={foto?.dataUrl} />
+        }} fotoDataUrl={foto?.dataUrl} logoDataUrl={logo?.dataUrl} />
         <p className="mx-auto mt-4 max-w-xs text-center text-xs leading-relaxed text-tinta-suave">{t('editor.previaAyuda')}</p>
       </aside>
       </div>

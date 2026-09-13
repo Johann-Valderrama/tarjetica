@@ -8,6 +8,7 @@ import {
   instantaneaDelServidor,
   instantaneaTarjeta,
   leerFoto,
+  leerLogo,
   suscribirAlAlmacen,
 } from '@/features/tarjeta/almacenamiento/local'
 import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
@@ -64,6 +65,7 @@ export function PantallaTarjeta() {
     <VistaTarjeta
       tarjeta={borrador}
       fotoDataUrl={leerFoto()?.dataUrl}
+      logoDataUrl={leerLogo()?.dataUrl}
       qr={<QrDeContacto tarjeta={borrador} />}
     />
   )

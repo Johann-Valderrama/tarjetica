@@ -222,6 +222,12 @@ export const FotoLocal = z.strictObject({
   dataUrl: z.string().startsWith('data:image/jpeg'),
 })
 
+/** Logo local independiente: conserva transparencia y no entra al QR ni al enlace. */
+export const LogoLocal = z.strictObject({
+  dataUrl: z.string().max(100_000).regex(/^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/),
+})
+export type LogoLocal = z.infer<typeof LogoLocal>
+
 export type Telefono = z.infer<typeof Telefono>
 export type Enlace = z.infer<typeof Enlace>
 export type Tarjeta = z.infer<typeof Tarjeta>

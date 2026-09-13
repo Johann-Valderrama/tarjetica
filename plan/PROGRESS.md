@@ -14,6 +14,23 @@
 
 ## Estado
 
+### Logo de empresa opcional · 2026-09-13
+
+- Petición del dueño: segunda imagen opcional para el logo, independiente del retrato.
+- Implementado por director: carga/cambio/borrado con avisos ES/EN, PNG/JPG/WebP hasta 10 MB;
+  reducción a PNG local de hasta 100 KB, sin recorte ni deformación y con transparencia.
+- Contrato: clave `tarjetica.logo` separada del dato serializado. Aparece arriba a la derecha
+  en tarjeta local, vista previa y JPEG; queda fuera del QR, enlace y VCF. El borrado total
+  elimina logo y foto. Una carga fallida conserva el anterior; operaciones canceladas no escriben.
+- Validación: 157 unitarios, build/TypeScript, lint y 25 cabeceras pasan. De 133 E2E,
+  131 pasaron inicialmente; dos aserciones necesitaron ajuste por el nuevo texto del aviso y
+  el anunciador de rutas de Next. Las suites afectadas se repitieron: 18/18 pasan.
+- Evidencia específica: proporciones y alfa preservados, persistencia, presencia de píxeles
+  del logo en JPEG, manejo de error y borrado independiente. Cinco perfiles con foto+logo a
+  375x667 caben sin scroll y el QR se decodifica con lector independiente. Revisión visual
+  de captura del perfil completo con logo sintético de prueba.
+- Publicación por GitHub/Vercel desde `main`; no se agregan imágenes del usuario a servidores.
+
 ### Invitación a servicios de Zelandia · 2026-09-13
 
 - Petición del dueño: zona promocional con enlace a `https://wellnessjobs.zelandia.io/brief-general`.

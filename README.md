@@ -11,6 +11,8 @@ las páginas y cuenta eventos anónimos, pero no recibe ni guarda el contenido d
 ## Qué hace
 
 - Llenas tus datos (nombre, cargo, empresa, teléfonos, correo, redes, foto) en un formulario.
+- Puedes añadir un **logo de empresa opcional**, independiente de la foto. Conserva proporciones
+  y transparencia; aparece en la tarjeta local y el JPEG, no en QR, enlace ni archivo de contacto.
 - En computador ves el diseño mientras escribes. En celular puedes ir directamente a compartir.
 - Cada cambio se guarda en el mismo gesto, incluso si sales enseguida del editor.
 - Muestras un **QR de vCard**: quien lo escanea guarda tu contacto sin descargar nada.
