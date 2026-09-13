@@ -14,6 +14,19 @@
 
 ## Estado
 
+### Cierre de sesión · 2026-09-13
+
+- Implementación integrada por fast-forward en `main` hasta `0b9b384`, subida a GitHub.
+- Producción verificada: Vercel `dpl_6AQpuB9snZheB4rf8Eccgx7xTm7E`, estado Ready y
+  check de GitHub exitoso. Dominio: https://tarjetica-app.vercel.app.
+- En el dominio público: perfil recibido, acciones, apertura del QR y retorno de foco con
+  Escape comprobados en navegador; 25/25 comprobaciones de cabeceras pasan.
+- Este cierre modifica únicamente la bitácora y se sube a `main`. No requiere repetir
+  pruebas de código; la evidencia de implementación se conserva en la sección siguiente.
+- Sesión cerrada. Próximo paso del dueño: pruebas físicas de escaneo, guardado de imagen
+  e importación de contacto en iOS/Android y navegadores integrados de Instagram/LinkedIn.
+  No queda implementación pendiente del plan aprobado.
+
 ### Perfil recibido y pendientes de la ronda GoFest · 2026-09-13
 
 - Dueño autorizó ejecutar el plan, con subagentes para lógica y director para interfaz.
@@ -31,8 +44,7 @@
 - Revisión visual directa del director a 375 px y escritorio: jerarquía, botones, enlaces y
   diálogo. Revisión independiente Terra del diff: sin P1/P2 en codec, carrera de fragmentos,
   seguridad de destinos o separación del almacenamiento. Evidencia en e2e/receptor.spec.ts.
-- Cierre autorizado: integrar en main y push mediante la integración GitHub/Vercel existente;
-  comprobar despliegue Ready, cabeceras y comportamiento en dominio público antes de entregar.
+- Cierre completado: integrado en main, push y producción verificada; ver registro de cierre superior.
 - Pendientes físicos del dueño: escaneo en condiciones de evento, guardar JPEG e importar
   contacto en iOS/Android reales, también desde Instagram y LinkedIn. Las pruebas emuladas
   no sustituyen esa comprobación.
