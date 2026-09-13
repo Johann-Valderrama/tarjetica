@@ -14,6 +14,21 @@
 
 ## Estado
 
+### Cierre de sesión y publicación · 2026-09-13
+
+- Dueño autorizó explícitamente cierre, push, merge y despliegue a Vercel.
+- Rama `codex/mejoras-experiencia` subida; integrada en `main` mediante fast-forward hasta
+  `0bf4d4b`, preservando los seis commits. `main` subido a GitHub.
+- Vercel desplegó automáticamente desde GitHub: producción `dpl_4bdvcHuMLJ3JorE75gW7tPYXd2DV`
+  en estado Ready, alias `https://tarjetica-app.vercel.app` y `https://tarjetica-ochre.vercel.app`.
+- Verificación directa en el dominio público: portada nueva, retrato IA, tarjetas con/sin foto
+  y vista de contacto presentes. Se mantienen las verificaciones locales descritas abajo.
+- Corregido enlace local obsoleto de Vercel: proyecto actual `tarjetica-app` del equipo
+  `johann09-4767s-projects`. El primer intento CLI falló por el enlace antiguo; la integración
+  GitHub completó la publicación correctamente. No se publicaron archivos de entorno.
+- Sesión cerrada. Pendientes no bloqueantes: fallback de `DecompressionStream` y pruebas
+  físicas con celulares ya registradas. Las notas «sin publicación» inferiores son históricas.
+
 ### Portada con tres ejemplos · 2026-09-13
 
 - Petición del dueño: retrato profesional generado con IA, tarjeta con y sin foto, y tercer
