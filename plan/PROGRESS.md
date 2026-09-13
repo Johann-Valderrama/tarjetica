@@ -18,7 +18,7 @@
 
 - Dueño autorizó explícitamente cierre, push, merge y despliegue a Vercel.
 - Rama `codex/mejoras-experiencia` subida; integrada en `main` mediante fast-forward hasta
-  `0bf4d4b`, preservando los seis commits. `main` subido a GitHub.
+  `0bf4d4b`, preservando los cinco commits de implementación y documentación. `main` subido a GitHub.
 - Vercel desplegó automáticamente desde GitHub: producción `dpl_4bdvcHuMLJ3JorE75gW7tPYXd2DV`
   en estado Ready, alias `https://tarjetica-app.vercel.app` y `https://tarjetica-ochre.vercel.app`.
 - Verificación directa en el dominio público: portada nueva, retrato IA, tarjetas con/sin foto
