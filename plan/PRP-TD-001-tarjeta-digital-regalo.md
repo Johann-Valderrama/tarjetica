@@ -1,7 +1,7 @@
 # PRP-TD-001 · Tarjeta de presentación digital (app regalable, sin servidor)
 
-> **Estado:** ✅ APROBADO Y EJECUTABLE. **FASE 0 cerrada** el 2026-09-03: el operador respondió los 7
-> gates (§3). Arranca en la Ola 1. Producto: **Tarjetica**.
+> **Estado actual (2026-09-13):** producto implementado. Para continuar, leer primero el estado
+> vigente de `PROGRESS.md` y `DECISIONES.md`. Las olas originales se conservan como historial.
 > **Fecha:** 2026-09-03
 > **Origen:** pedido del operador (Johann) en sesión del 2026-09-02. Objetivo declarado: **menos papel,
 > más eficiencia al comunicar datos.** Se regala en conferencias y reuniones; el código se libera bajo MIT.
@@ -17,6 +17,13 @@
 ---
 
 ## CÓMO EMPEZAR (autosuficiente, pégalo a un agente nuevo)
+
+Para mantenimiento actual: «Lee `plan/PROGRESS.md`, `plan/DECISIONES.md` y la sección 6 de este
+PRP; compara el estado vivo y continúa el siguiente checkpoint». El director usa el modelo
+elegido por el usuario; los modelos de las olas siguientes describen la ejecución histórica.
+No volver a ejecutar las olas ya completadas.
+
+### Inicio original de septiembre de 2026 (histórico)
 
 ✅ **La FASE 0 está CERRADA** (§3, 2026-09-03). Se puede arrancar por la Ola 1. Lo decidido, en una
 línea cada uno, para que no haya que subir a la §3 antes de empezar:
@@ -282,6 +289,11 @@ Qué cambia y qué no:
 
 ## 4. Modelo de datos y contrato de la URL
 
+> El esquema que sigue documenta el diseño inicial y está superado donde incluye campos eliminados.
+> Contrato ejecutable actual: `src/features/tarjeta/modelo/tarjeta.ts`. El guardado admite borradores
+> incompletos; toda salida valida estrictamente. El enlace conserva compatibilidad v0/v1, viaja en
+> el fragmento y nunca incluye la foto.
+
 ### El tipo `Tarjeta`
 
 Una sola fuente de verdad, validada con Zod en los dos bordes: al leer de `localStorage` y al decodificar
@@ -347,6 +359,10 @@ frente para que el decodificador sepa cuál de los dos leyó.
 
 ## 5. Los campos de la tarjeta
 
+> Diseño inicial superado: no hay KPIs ni notas libres. Los bloques de presentación son titular
+> (`ti`, 60 caracteres) y descripción (`de`, 160). Identidad, contacto, redes y ciudad siguen
+> disponibles. El modelo actual y la decisión de vista única prevalecen sobre la tabla histórica.
+
 | Bloque | Campos |
 |---|---|
 | **Identidad** | nombre, apellido, cargo, empresa |
@@ -372,37 +388,31 @@ tarjeta llena es el caso de prueba (§10); el de la tarjeta mínima es el caso c
 
 ---
 
-## 6. Pantallas y diseño
+## 6. Pantallas y diseño (vigente, 2026-09-13)
 
-| Pantalla | Qué es |
+| Ruta | Comportamiento |
 |---|---|
-| **P1 · Editor** | El formulario de §5, con autosave a `localStorage` y vista previa en vivo al lado (o debajo, en móvil) |
-| **P2 · Tarjeta, vista `card`** | La tarjeta para leer: datos tocables (`tel:`, `mailto:`, enlaces), capa de venta si existe |
-| **P3 · Tarjeta, vista `qr`** | **UN solo QR**, ocupando el ancho completo de la pantalla (unos 340 px en un teléfono de 375). Es la vista que existe para mostrarle el celular a alguien, así que el mejor uso de ese espacio es el QR mismo: agrandarlo ES aprovecharlo. **El toggle va FUERA del elemento capturable** (heredado, §2) |
-| **P4 · Salidas** | Tres botones, en este orden: **guardar `.jpeg`**, **mostrar QR**, y **generar link compartible** (apagado por defecto, con advertencia previa) |
+| `/` | Portada con CTA al editor, tarjeta de ejemplo ficticia y límites visibles. El ejemplo no lee ni escribe el contacto del visitante. |
+| `/editor` | Nombre primero, campos por sección, guardado local en cada cambio y acceso rápido a compartir. En escritorio, vista previa del diseño al lado; sin QR compartible antes de confirmar. |
+| `/tarjeta` | Una sola tarjeta con nombre, cargo, empresa, titular, descripción, ciudad, foto opcional, un teléfono y un QR. Sin scroll en las pantallas objetivo, sin pestañas, sin controles. |
+| `/t#…` | La misma vista, reconstruida en cliente desde el fragmento. Sin foto, controles ni persistencia del contacto recibido. |
 
-**Por qué UN solo QR y no dos.** La tarjeta de referencia lleva dos (uno de WhatsApp, uno de vCard) y por eso cada uno se queda con media pantalla. Medido el 2026-09-03: eso deja **2,39 px por cuadrito**, bajo el piso práctico de ~2,5, que es exactamente por qué hay que acomodarla para que la lean. Con un solo QR a ancho completo el mismo contenido sube a **4,66**, casi el doble. El QR de WhatsApp no desaparece: su información vive como dato tocable en la vista `card`.
-
-**La firma de marca (G4) va DENTRO del elemento capturable de la tarjeta.** Es lo contrario del toggle
-de vistas, que va fuera a propósito: la firma SÍ tiene que salir en el `.jpeg`, y como el `.jpeg` es esa
-misma vista renderizada, una sola pieza de código la pone en las dos superficies. Discreta: una línea al
-pie, con el nombre de la herramienta y su dominio, sin competir con los datos del usuario.
-
-**Mobile-first, no "responsive después".** La app se usa de pie, en una conferencia, en el teléfono del
-usuario. Viewport de verificación: 375 px de ancho. Un layout que solo se ve bien en el monitor del
-desarrollador no cumple.
-
-**Dirección estética: se compromete por escrito ANTES de pintar** (unidad 3a). Tokens explícitos,
-referencia visual real vista de verdad, y prohibición del default de IA (Inter/Geist, degradado morado,
-hero con 3 iconos). El requisito viene de `diseno-ui-anti-slop-por-defecto` y es la unidad que abre la
-ola, no un repaso al final.
-
-**Animación:** solo `transform` y `opacity`, con `prefers-reduced-motion` respetado. Nada de
-`backdrop-filter` ni blurs animados: el teléfono real de la conferencia es de gama media.
+- La tarjeta permanece centrada y mide lo necesario; el QR cede altura en teléfonos bajos.
+- Redes, correo y contactos adicionales viajan en el vCard; no ocupan la superficie visual.
+- La firma está dentro del único nodo capturable. La vista previa y la demo no son capturables.
+- JPEG, VCF, vista para compartir y enlace conservan validación y confirmación previa.
+- El enlace es opcional, apagado por defecto, con advertencia antes de generarlo.
+- Sin foto, no aparece avatar ni monograma en la tarjeta. El editor conserva su selector de foto.
+- Español e inglés sin prefijos de ruta. Ningún dato de tarjeta se envía al servidor.
+- Los tokens y criterios visuales están en `docs/direccion-estetica.md`. Las pruebas de superficie,
+  QR y exportación mantienen los criterios ya aprobados de la tarjeta.
 
 ---
 
-## 7. Plan por olas
+## 7. Plan por olas (registro de la construcción inicial)
+
+> Estas unidades ya se ejecutaron; sus descripciones previas sobre dos vistas, monogramas y
+> modelos no son el contrato vigente. Consultar la sección 6 y `DECISIONES.md` para mantenimiento.
 
 Contrato de 9 columnas de `plan-por-olas-autonomo`, Pieza 1.3. Ninguna celda vacía (un `-` explícito
 sí, vacío no). El prefijo de `Verifica` decide qué se hace con un FAIL: `SCRIPT:` es evidencia y se
@@ -619,7 +629,9 @@ medidas adecuadas al riesgo, no una arquitectura concreta.
 
 Con D1 **no hay tratamiento de datos de terceros en ningún servidor nuestro**: la superficie de
 cumplimiento colapsa porque no existe la base de datos que habría que proteger, notificar o auditar.
-Eso es lo que hace defendible la frase "tus datos no salen de tu dispositivo".
+La frase vigente es «No guardamos tus datos en ningún servidor». La afirmación anterior sobre
+que los datos nunca salen del dispositivo quedó descartada: compartir JPEG, VCF o enlaces sí
+los entrega al destinatario. Este apartado conserva un análisis histórico, no una conclusión legal vigente.
 
 > ⛔ **Límite explícito, y es la razón de que G2 sea bloqueante.** El corpus verificado cubre el
 > principio de seguridad, los datos sensibles, los deberes de Responsable y Encargado, y la

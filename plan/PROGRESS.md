@@ -14,6 +14,39 @@
 
 ## Estado
 
+### Mejora integral implementada localmente · 2026-09-13
+
+- Dueño e integrador: Codex director; frontend atendido directamente por petición del usuario.
+- Alcance: portada con ejemplo, editor adaptable con vista previa y acceso rápido a compartir,
+  correcciones reproducibles de lógica y documentación. Sin ambigüedades bloqueantes.
+- Contrato: datos locales, rutas estables, consentimiento al compartir, foto fuera de QR/enlace
+  y tarjeta completa en una sola pantalla. Sin publicación en esta ronda.
+- Agentes: Sol high auditó lógica y corrigió dos fallos en worktree aislado; Terra high revisó
+  contratos/documentación sin escribir. Director integra y atiende frontend. Base limpia con
+  151 unitarios; rama `codex/mejoras-experiencia`.
+- Aceptación: build, tipos, lint, unitarios, cabeceras, E2E y revisión visual en escritorio/celular.
+- Implementado: portada con muestra ficticia, editor con nombre primero, secciones, vista previa
+  de escritorio y salto a compartir; carga de foto traducida y foco visible. Guardado inmediato,
+  borrado sin recrear claves y avisos diferenciados de lectura/guardado/borrado.
+- Integración de agentes: `c561927` valida formas antes de normalizar; `93b6432` normaliza redes
+  sociales. Ambos revisados por el director y cherry-picked desde worktree aislado.
+- Verificación: 156/156 unitarios, 126/126 E2E, 25/25 cabeceras, tipos, lint y build en verde.
+  Dos regresiones propias se observaron fallar antes: último cambio sin guardar y claves recreadas
+  después del borrado. El JPEG conserva texto y QR decodificable por lector independiente.
+- Cierre del entorno: al retirar el worktree, Git siguió el enlace de dependencias compartidas.
+  Se restauraron con `pnpm install --frozen-lockfile`, sin cambios al lockfile ni al código,
+  y se repitieron unitarios, E2E, lint, build y cabeceras con éxito.
+- Revisión visual directa: escritorio 1280x720 y celular 375x812. La revisión independiente de
+  Terra cubrió demo/consentimiento/captura/persistencia y halló dos detalles corregidos:
+  selector erróneo en la nueva prueba y salto de encabezados en la muestra.
+- Documentación: README enlaza al plan público; sección 6 actualizada; tablas de diseño inicial
+  marcadas como superadas; aviso del enlace corregido (sin foto, no iniciales).
+- Límite pendiente de compatibilidad: el decoder v1 depende de `DecompressionStream`. Un receptor
+  sin esa API no abre enlaces comprimidos; queda por implementar y probar un fallback portátil.
+  No se atribuye el problema a una versión concreta de Safari sin prueba en ese dispositivo.
+- Siguiente acción: revisar el resultado local en `http://localhost:3210`. La publicación de esta
+  ronda no se ha ejecutado. Los gates físicos anteriores siguen siendo pruebas con equipos reales.
+
 ✅ **Primera ronda de uso real en PRODUCCION** (2026-09-11, commits `3cfc860` a `3cc4b35`, todos
 desplegados en https://tarjetica-app.vercel.app y verificados ALLI, no solo en local). Johann lleno su
 tarjeta en el celular y en el computador y reporto dos cosas; detras habia cinco defectos:

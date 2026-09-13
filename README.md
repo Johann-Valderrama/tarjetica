@@ -5,12 +5,14 @@ otra persona guarda en sus contactos, o como una imagen que le mandas por WhatsA
 
 > **No guardamos tus datos en ningún servidor.**
 
-Sin cuenta, sin registro y sin base de datos: tu tarjeta vive en tu navegador. Este proyecto no tiene
-backend, así que no hay ningún lugar donde podamos ver, guardar ni perder lo que escribes.
+Sin cuenta, sin registro y sin base de datos: tu tarjeta vive en tu navegador. La aplicación sirve
+las páginas y cuenta eventos anónimos, pero no recibe ni guarda el contenido de tu tarjeta.
 
 ## Qué hace
 
 - Llenas tus datos (nombre, cargo, empresa, teléfonos, correo, redes, foto) en un formulario.
+- En computador ves el diseño mientras escribes. En celular puedes ir directamente a compartir.
+- Cada cambio se guarda en el mismo gesto, incluso si sales enseguida del editor.
 - Muestras un **QR de vCard**: quien lo escanea guarda tu contacto sin descargar nada.
 - Guardas la tarjeta como **imagen `.jpeg`** para mandarla por WhatsApp o publicarla.
 - Descargas tu contacto como archivo **`.vcf`**.
@@ -49,7 +51,9 @@ Casi nada, y se dice completo porque es la promesa del producto:
 
 Funcional. Se armó por olas: modelo y candados de seguridad, formulario con guardado local, vista de
 la tarjeta, QR y vCard en el cliente, exportación a `.jpeg`, link compartible opcional, y por último
-idiomas, puerta agéntica y el barrido final de superficie. Falta el despliegue público.
+idiomas, puerta agéntica y el barrido final de superficie. La versión publicada está en
+[tarjetica-app.vercel.app](https://tarjetica-app.vercel.app). Los cambios locales posteriores se
+describen en [la bitácora](plan/PROGRESS.md).
 
 ## Cómo correrlo
 
@@ -69,8 +73,10 @@ dependencia que intente hablar con un dominio ajeno la bloquea el navegador.
 ## Diseño y decisiones
 
 El documento que gobierna esta construcción es el **PRP-TD-001 · Tarjeta de presentación digital**,
-que vive en el repositorio privado de trabajo de su autor. Ahí están las decisiones cerradas (por qué
-no hay servidor, por qué un solo QR y no dos, por qué la foto nunca entra al link) con sus mediciones.
+disponible en [plan/PRP-TD-001-tarjeta-digital-regalo.md](plan/PRP-TD-001-tarjeta-digital-regalo.md).
+Las [decisiones vigentes](plan/DECISIONES.md) y la [dirección estética](docs/direccion-estetica.md)
+explican por qué hay un solo QR, por qué la foto nunca entra al enlace y qué restricciones conserva
+la interfaz. El plan identifica las secciones históricas superadas.
 
 ## Licencia
 

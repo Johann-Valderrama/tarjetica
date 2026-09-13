@@ -130,7 +130,7 @@ No es una lista genérica: cada línea tiene su razón, y varias vienen de una m
 De arriba hacia abajo, y en este orden:
 
 1. **Ubicación**, en versalitas con el punto del acento. Sale del campo de ciudad; si está vacío, no aparece.
-2. **Foto con aro de acento** (o monograma de iniciales), **nombre** en peso 800, y **cargo · empresa** debajo.
+2. **Foto con aro de acento** solo si existe; sin foto no se reserva espacio. **Nombre** en peso 800 y **cargo · empresa** debajo. El monograma permanece únicamente en el selector de foto del editor.
 3. **Titular**: una frase, lo que hace la persona. Peso 800.
 4. **Descripción**: hasta dos frases, por qué la buscan.
 5. **UN código QR**, sobre teja blanca, ocupando todo el espacio que sobre.
@@ -152,3 +152,14 @@ El **modo claro** no entra en la v1. La marca de Johann tiene las dos caras (la 
 sitio de Zelandia es oscuro), y sostener las dos duplica el trabajo de esta ola sin que nadie lo haya
 pedido. Si aparece la necesidad, los tokens de arriba ya están en variables CSS: es cambiar sus
 valores en un bloque, no reescribir componentes.
+
+## Portada y editor (2026-09-13)
+
+La portada usa el propio producto como referencia visual: titular de gran peso a la izquierda y
+una tarjeta ficticia a la derecha, sin imágenes remotas. Mantiene Plus Jakarta Sans, negro y
+naranja; la zona de privacidad queda visible debajo. Sin animación nueva.
+
+El editor prioriza el nombre y agrupa campos con marcos discretos. En escritorio la vista previa
+acompaña la edición; en celular se conserva una columna y un acceso fijo a compartir. El aviso de
+alcance está junto a la confirmación, antes de cualquier salida. Los controles y las muestras no
+forman parte del lienzo exportable. El estado del guardado aparece junto al título.

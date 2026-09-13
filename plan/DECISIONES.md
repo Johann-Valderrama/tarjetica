@@ -480,3 +480,14 @@
   reporto, Opus midio.
 
 (Registrado en Engram: observacion 1243, proyecto `ops`.)
+
+- 2026-09-13 **La portada muestra una tarjeta ficticia y el editor una vista previa del diseño en
+  escritorio.** Las muestras reutilizan la vista real sin identificador de captura. El QR para
+  compartir conserva su confirmación y las pantallas de tarjeta siguen sin controles.
+- 2026-09-13 **Cada edición guarda de inmediato.** El borrador es pequeño y la foto vive aparte.
+  Se elimina el temporizador de 400 ms: podía perder el último cambio al navegar y recrear claves
+  tras borrar. Los errores de lectura, guardado y borrado se anuncian junto al título.
+- 2026-09-13 **La forma se valida antes de normalizar.** Datos locales dañados como una web numérica
+  no deben lanzar al abrir. Un borrador ilegible no se reemplaza hasta que la persona edite.
+- 2026-09-13 **Las redes admiten usuario, @usuario o URL HTTP(S) de la red correspondiente.** La
+  exportación evita duplicar dominios y rechaza hosts ajenos; el guardado sigue siendo permisivo.
