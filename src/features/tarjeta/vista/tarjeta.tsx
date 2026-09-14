@@ -99,8 +99,13 @@ export function Ubicacion({ ciudad, logoDataUrl }: { ciudad?: string; logoDataUr
       <span className="min-w-0 truncate">{ciudad}</span>
     </p>}
     {logoDataUrl && (
+      // 48 px de alto y ancho AUTOMATICO con tope de 112 (2026-09-13). Antes era una caja fija de
+      // 36x112: un logo cuadrado salia de 36x36, chico frente a la foto de 68. Ensanchar la caja
+      // junto con la altura truncaba la ciudad a 375 px aunque el logo no usara ese ancho; con el
+      // ancho segun proporcion la ciudad queda intacta. Costo medido: el QR pierde 12 px en
+      // pantalla a 375x667 solo cuando hay logo; en el JPEG no hay alto que respetar.
       // eslint-disable-next-line @next/next/no-img-element
-      <img data-testid="logo-tarjeta" src={logoDataUrl} alt={t('logoAlt')} className="ml-auto h-9 w-28 shrink-0 object-contain object-right" />
+      <img data-testid="logo-tarjeta" src={logoDataUrl} alt={t('logoAlt')} className="ml-auto h-12 w-auto max-w-28 shrink-0 object-contain object-right" />
     )}
     </div>
   )

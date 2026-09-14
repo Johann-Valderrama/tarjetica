@@ -14,6 +14,19 @@
 
 ## Estado
 
+### Logo más grande en la tarjeta · 2026-09-13
+
+- Petición del dueño: evaluar subir un poco el tamaño del logo en la tarjeta imagen. Evaluado con
+  tres alturas (36, 48, 56) sobre el build de producción, con foto y dos logos reales (cuadrado y 4:3).
+- Aprobada opción A: 48 px de alto, ancho automático con tope de 112 (`h-12 w-auto max-w-28`), en
+  pantalla y JPEG. Un logo cuadrado pasa de 108 a 144 px en el JPEG (+33%).
+- Hallazgo: ensanchar la caja junto con la altura truncaba la ciudad a 375 px aunque el logo no usara
+  ese ancho; con ancho según proporción la ciudad queda intacta. Un logotipo muy ancho (4:1) sigue
+  limitado por los 112 de ancho y no crece: eso sería otro diseño (mover el logo de fila).
+- Costo medido: el QR en pantalla a 375x667 pasa de 270 a 258 px solo cuando hay logo; sin scroll.
+- Validación: lint del archivo, build de producción, `e2e/logo.spec.ts` 7/7 (cinco perfiles con foto y
+  logo caben y el QR se decodifica). Comparativas en `capturas/logo-tamano/` (carpeta ignorada por git).
+
 ### Cierre de sesión · 2026-09-13
 
 - Implementación integrada por fast-forward en `main` hasta `0b9b384`, subida a GitHub.

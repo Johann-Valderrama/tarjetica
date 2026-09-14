@@ -504,3 +504,6 @@
   la tarjeta más reciente cuando cambia el fragmento.
 - 2026-09-13 **La firma muestra el dominio público existente** `tarjetica-app.vercel.app`.
   Aparece en tarjeta/JPEG y pie del receptor; nunca se añade a los datos de agenda.
+- 2026-09-13 **El logo mide 48 px de alto con ancho según su proporción (tope 112).** Opción A elegida
+  por Johann sobre 48 solo en JPEG o 56 px: un tercio más grande, la ciudad no se trunca y el QR pierde
+  12 px en celular solo con logo. Evidencia: `e2e/logo.spec.ts`, comentario en `vista/tarjeta.tsx`.
