@@ -14,6 +14,38 @@
 
 ## Estado
 
+### Ola 1 · CERRADA, integrada y en producción · 2026-09-15 08:40
+
+- H2: ayudas genéricas (variante 1). H3: tras revisar capturas, el dueño quitó la regla "nunca blanco
+  puro" y eligió tema claro blanco, oro y negro (botón con degradado dorado); botones Agendar y
+  Cuéntame ENCENDIDOS con aviso de que quedan fijos en el enlace. H4: PR #1 mergeado a `main` por
+  fast-forward (`11896d2`), producción en https://tarjetica-app.vercel.app verificada (editor con los
+  campos nuevos, 25/25 cabeceras en el dominio).
+- `main` había avanzado (`05b8d1c`, aviso de privacidad y gate de titularidad); se fusionó en la rama
+  y se adaptaron los e2e al radio "propia". Dos defectos que venían de ese commit se corrigieron de
+  paso porque bloqueaban el merge: el enlace del pie a `/privacidad` medía 15 px (piso táctil 44) y
+  `receptor.spec` comparaba el almacén incluyendo la bandera del ping anónimo (carrera).
+- Suite final sobre `main`: typecheck 0, lint 0, 246 unitarios, 25/25 cabeceras, 162/162 e2e.
+- Worktrees `tarjetica-ola-1-u2` y `-u3` borrados con sus ramas (ya fusionadas). El worktree
+  `tarjetica-ola-1` (rama `feat/mejora-ola-1`, igual a `main`) sigue existiendo; se puede borrar.
+- Capturas de la sesión (no versionadas): `capturas/ola-1-evaluacion/`, `ola-1-antes-despues/`
+  (las `-v3` son el estado final), `ola-1-h2/`, `ola-1-h3-paletas/` (opciones descartadas).
+
+## PARA JOHANN (gates abiertos)
+
+- **Pruebas físicas** (siguen pendientes de antes): escanear el QR de pantalla a pantalla, guardar el
+  JPEG y el .vcf en iPhone y Android, y abrir un enlace desde Instagram y LinkedIn. Ahora también:
+  tocar "Guardar contacto" en el receptor desde un iPhone (hoja nativa) y ver que el tema claro no
+  encandile en la mano.
+- **Ola 2** (`plan/PRP-TD-002-cuentas-y-foto-borrador.md`): antes de construir, decidir "capa opcional
+  o reemplazo" y hacer la asesoría legal de la sección 3. Se planea en plan mode con Opus.H.
+
+## Next action
+
+🤖 Nada pendiente de agente en la ola 1. Siguiente trabajo sustantivo: planear la ola 2 (Opus.H, plan
+mode, debate adversarial sobre D1) cuando el dueño cierre los gates de arriba.
+
+
 ### Aviso de Privacidad y titularidad de terceros · 2026-09-15
 
 - Pedido de Johann: revisar si faltaba disclaimer legal sobre el enlace compartible, con la ley
