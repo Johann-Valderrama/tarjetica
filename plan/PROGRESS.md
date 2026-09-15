@@ -14,6 +14,45 @@
 
 ## Estado
 
+### Ola 1 de mejoras · línea base, U1, U2, U4, U5, U7 y U8 · 2026-09-14 y 15
+
+- Director Fable en el worktree `tarjetica-ola-1`, rama `feat/mejora-ola-1` desde `f8a23ca`. Plan
+  aprobado por el dueño; modo autónomo nocturno: se ejecuta todo lo que no dependa de un gate humano,
+  H2/H3/H4 quedan documentados para la mañana, sin push ni deploy.
+- Línea base en `main` antes de tocar nada: typecheck 0, lint 0, 173/173 unitarios (12 archivos),
+  build ok, 25/25 cabeceras, 142/142 E2E (2,5 min). Nada falla en `main`.
+- U1 hecha: siete páginas a 375 px y 1280 px, resumen del DOM y tabla por criterio en
+  `capturas/ola-1-evaluacion/` (ignorada por git). Las cifras de la tarjeta de referencia no se quedan
+  en 0 en ninguna de cinco configuraciones (headless con y sin movimiento reducido, y el navegador de
+  la máquina del dueño): arrancan en 0 y llegan al valor final en menos de un segundo. No entran a
+  Tarjetica (decisión previa reafirmada por el dueño).
+- H1 cerrado (DECISIONES 2026-09-14): entran tres mejoras adicionales dentro del receptor; Claude
+  dirige y Sol revisa en lectura.
+- U2 (Opus high, worktree propio, commit `692984e`, merge `1531062`): claves `ag`, `cn`, `tm`, `cm`
+  en `Tarjeta` y `BorradorGuardable`; `UrlSoloHttps`; helpers `urlAgenda`/`urlCuentame`. Verificado
+  por verificador-qa Sonnet (PASS, con casos propios ejecutados) y Haiku (PASS: 19 y 19 claves,
+  ninguna en el vCard, traducciones en ambos idiomas).
+- U4 (director, `c8bcdb5` + `d13e39f`): `[data-tema='claro']` en globals.css (marfil `#f7f1e4`,
+  luminancia 0,883; umbral medido < 0,93), token `--color-marca` (declarado en los DOS bloques:
+  `var()` se resuelve donde se declara), JPEG lee `--fondo` computado, `contraste.test.ts` mide ambos
+  temas, `perfiles.spec` y `logo.spec` corren en ambos temas. Capturas: `capturas/ola-1-u4-verificacion/`.
+- U7 (`db26172`): "Abrir en pestaña nueva" como `<a target=_blank rel=noopener noreferrer>`; e2e con
+  evento `page` y copiar al portapapeles.
+- U5 (`bfcf9aa`): receptor con Agendar y Cuéntame opcionales, canales solo llenos (WhatsApp con
+  mensaje prellenado, Llamar, Correo, web y redes) con SVG en el código, guardar por hoja nativa
+  reutilizando `exportar/guardar.ts`, fila flexible sin huecos. Capturas: `capturas/ola-1-u5-verificacion/`.
+- U8 (`03e3bf3`): `plan/PRP-TD-002-cuentas-y-foto-borrador.md` (BORRADOR).
+- Pruebas tras U5: typecheck 0, lint 0, 218/218 unitarios, e2e receptor + enlace 26/26; suite
+  completa e2e tras U7: 153/153 y cabeceras 25/25.
+- **Sol (Codex) no pudo revisar U2 por el runtime OPS (E-ENTORNO, dos intentos):** primero
+  `OPS_SCOPE_VIOLATION` (el worktree está fuera de `C:\OPS`; se apuntó al repo dentro de OPS), luego
+  `spawn ENAMETOOLONG` (las fuentes viajan en la línea de comando y Windows la corta) y, con solo el
+  diff, `OPS_TIMEOUT` ("Reading additional input from stdin": el CLI de Codex esperó stdin). Es un
+  defecto del runtime para proyectos fuera de OPS y fuentes largas, no de esta ola. Se sigue con
+  Sonnet y Haiku, como preveía el plan.
+- Siguiente acción: U3 (Sonnet high, worktree propio) en curso; luego U6 (editor), H2 con dos
+  variantes, H3 capturas antes/después, reporte final.
+
 ### Logo más grande en la tarjeta · 2026-09-13
 
 - Petición del dueño: evaluar subir un poco el tamaño del logo en la tarjeta imagen. Evaluado con
