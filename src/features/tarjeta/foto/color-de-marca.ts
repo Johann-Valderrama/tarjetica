@@ -184,7 +184,7 @@ export function sugerirColorDeMarca(pixeles: Uint8ClampedArray, tema: 'claro' | 
  * flujo de exportar.
  */
 /** `data:image/png;base64,...` a `Blob`, sin pasar por la red. Devuelve null si no tiene esa forma. */
-function blobDeDataUrl(dataUrl: string): Blob | null {
+export function blobDeDataUrl(dataUrl: string): Blob | null {
   const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,([A-Za-z0-9+\/=]+)$/i)
   if (!m) return null
   const binario = atob(m[2])

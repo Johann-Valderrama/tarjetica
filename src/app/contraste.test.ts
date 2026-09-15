@@ -333,6 +333,7 @@ describe('ninguna pantalla se sale de la paleta', () => {
     'features/tarjeta/formulario/editor.tsx',
     'features/tarjeta/formulario/campos.tsx',
     'features/tarjeta/formulario/avisos.tsx',
+    'features/tarjeta/formulario/apariencia.tsx',
     'features/tarjeta/enlace/generar-enlace.tsx',
     'features/tarjeta/enlace/pantalla-enlace.tsx',
     'features/tarjeta/enlace/perfil-recibido.tsx',

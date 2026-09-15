@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { contrasteEntre, hexARgb } from '@/shared/color/wcag'
-import { FONDO_POR_TEMA, ajustarContraste, colorDominante, sugerirColorDeMarca } from './color-de-marca'
+import { FONDO_POR_TEMA, ajustarContraste, blobDeDataUrl, colorDominante, sugerirColorDeMarca } from './color-de-marca'
 
 /** Arma un `Uint8ClampedArray` de pixeles RGBA a mano, sin canvas: `n` copias de cada `[r,g,b,a]`. */
 function pixeles(...grupos: Array<{ color: [number, number, number, number]; n: number }>): Uint8ClampedArray {
@@ -107,5 +107,21 @@ describe('sugerirColorDeMarca', () => {
   it('sin ningun pixel valido, no hay nada que sugerir', () => {
     const p = pixeles({ color: [255, 255, 255, 255], n: 10 })
     expect(sugerirColorDeMarca(p, 'oscuro')).toBeNull()
+  })
+})
+
+describe('blobDeDataUrl (lectura del logo sin fetch)', () => {
+  it('convierte un data: de imagen en un Blob con su tipo', () => {
+    const blob = blobDeDataUrl('data:image/png;base64,iVBORw0KGgo=')
+    expect(blob).not.toBeNull()
+    expect(blob!.type).toBe('image/png')
+    expect(blob!.size).toBe(8)
+  })
+
+  it('devuelve null sin lanzar ante un data: que no es imagen base64', () => {
+    for (const entrada of ['', 'hola', 'data:text/plain;base64,aG9sYQ==', 'data:image/png,no-es-base64', 'data:image/png;base64,', 'data:image/png;base64,***', 'https://ejemplo.com/logo.png']) {
+      expect(() => blobDeDataUrl(entrada), entrada).not.toThrow()
+      expect(blobDeDataUrl(entrada), entrada).toBeNull()
+    }
   })
 })
