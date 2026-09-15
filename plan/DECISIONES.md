@@ -527,3 +527,6 @@
 - 2026-09-14 **Todo bloque de la tarjeta es opcional.** Íconos de contacto solo para los canales que
   la persona llena; si falta un dato, el bloque se omite y el diseño se reacomoda, como ya pasa con la
   foto : Johann (P5-5B).
+- 2026-09-14 **La foto visible al abrir el enlace llega en la ola 2, no se mete en el fragmento.**
+  Meterla alargaría el enlace y dejaría la foto en una URL irrevocable (contra D5). En la ola 2 va
+  alojada, con enlace corto y borrable al eliminar la cuenta : Johann (D-FOTO F2).
