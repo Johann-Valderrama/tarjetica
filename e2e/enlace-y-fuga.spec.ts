@@ -120,6 +120,30 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
     await expect(page.getByTestId('qr-contacto')).toBeVisible()
   })
 
+  /**
+   * U7 (ola 1): junto a "Copiar enlace" hay "Abrir en pestaña nueva". Se mide que de verdad se
+   * abre OTRA pestaña con la misma URL (evento `page` del contexto, no una clase ni un atributo)
+   * y que copiar sigue escribiendo al portapapeles en la misma corrida.
+   */
+  test('"abrir en pestaña nueva" abre otra pestaña y copiar sigue funcionando', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    const enlace = await generarEnlace(page, PERFIL.datos)
+
+    const abrir = page.getByTestId('abrir-enlace-pestana')
+    await expect(abrir).toHaveAttribute('target', '_blank')
+    await expect(abrir).toHaveAttribute('rel', /noopener/)
+    const [nueva] = await Promise.all([context.waitForEvent('page'), abrir.click()])
+    await nueva.waitForLoadState()
+    expect(nueva.url()).toBe(enlace)
+    expect(nueva).not.toBe(page)
+    await expect(nueva.getByRole('heading', { level: 1 })).toHaveText('Daniel Restrepo')
+    await nueva.close()
+
+    await page.getByTestId('copiar-enlace').click()
+    await expect(page.getByTestId('copiar-enlace')).toHaveText('Copiado')
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(enlace)
+  })
+
   test('el HTML del servidor no contiene ningun dato de la tarjeta', async ({ page, request }) => {
     const enlace = await generarEnlace(page, PERFIL.datos)
     const fragmento = enlace.split('#')[1]

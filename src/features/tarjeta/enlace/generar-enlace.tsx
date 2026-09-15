@@ -141,6 +141,20 @@ export function GenerarEnlace({
             >
               {copiado ? t('copiado') : t('copiar')}
             </button>
+            {/*
+              "Abrir en pestaña nueva" (ola 1, U7): un `<a target="_blank">` real y no un
+              `window.open` en un manejador. Un `await` cercano (como el del portapapeles) puede
+              desligar la llamada del gesto y el navegador la bloquea sin decir nada.
+            */}
+            <a
+              href={estado.enlace}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="abrir-enlace-pestana"
+              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-borde-fuerte px-4 text-center text-sm font-medium text-tinta"
+            >
+              {t('abrirPestana')}
+            </a>
             <button
               type="button"
               onClick={() => {
