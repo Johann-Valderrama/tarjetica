@@ -515,3 +515,15 @@
   (`git diff af312ec..codex/receptor-codec` salió vacío; `af312ec..codex/receptor-acciones` mostraba
   -650/+139, es decir, fusionarla habría BORRADO trabajo ya hecho, no sumado nada). No hay nada
   pendiente de completar ni que pedirle a Codex : Johann + Opus, tras verificar.
+
+- 2026-09-14 **Mejora por olas: la ola 1 respeta D1; lo que exige servidor va a una ola 2 con plan
+  borrador propio.** Cuentas, foto alojada, eliminar cuenta y miniatura con foto al compartir necesitan
+  base de datos y almacenamiento (Supabase). No se construye en la ola 1 : Johann (P1-1C).
+- 2026-09-14 **Botones de acción opcionales, con destino que elige la persona.** "Agendar" recibe la
+  URL de su propia agenda (Calendly, Cal.com u otra HTTPS); un segundo botón lleva a su encuesta o
+  brief. No se construye agenda ni encuestas. Nombre del segundo botón: pendiente : Johann.
+- 2026-09-14 **El tema claro u oscuro lo elige quien crea la tarjeta.** El claro es cálido y premium,
+  nunca blanco puro, para no encandilar en pantalla : Johann (P4-4A).
+- 2026-09-14 **Todo bloque de la tarjeta es opcional.** Íconos de contacto solo para los canales que
+  la persona llena; si falta un dato, el bloque se omite y el diseño se reacomoda, como ya pasa con la
+  foto : Johann (P5-5B).
