@@ -20,7 +20,7 @@ import { PERFILES } from './perfiles.datos'
  */
 const TEMAS = [
   { tema: 'oscuro', extra: {}, fondo: 'rgb(10, 10, 11)' },
-  { tema: 'claro', extra: { tm: 'claro' }, fondo: 'rgb(247, 241, 228)' },
+  { tema: 'claro', extra: { tm: 'claro' }, fondo: 'rgb(243, 242, 238)' },
 ] as const
 
 for (const { tema, extra, fondo } of TEMAS) for (const { nombre, datos } of PERFILES) {

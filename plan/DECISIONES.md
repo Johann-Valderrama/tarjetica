@@ -573,3 +573,11 @@
   por si el uso real muestra que la gente se traba en ese campo : Johann.
 - 2026-09-15 **H4: push de `feat/mejora-ola-1` y PR a `main`, sin desplegar todavía** (opción I).
   H3 (revisión de capturas antes/después) sigue abierto y se cierra sobre el PR : Johann.
+
+- 2026-09-15 **SUPERADA la regla "el tema claro nunca es blanco puro" (2026-09-14, P4-4A).** El dueño vio
+  la versión marfil y champaña, la encontró oscura y el botón café, mostró una referencia blanco, oro y
+  negro y pidió libertad de color. Nueva paleta clara: tarjeta blanco puro sobre fondo gris cálido
+  `#f3f2ee`, texto casi negro, oro viejo `#664b0e` como acento de texto (7,3:1) y oro `#d4a53a` como
+  relleno del botón con texto negro. El relleno del botón pasa a token propio (`--acento-relleno`,
+  `--tinta-sobre-relleno`) en los dos temas. Alternativas renderizadas y descartadas en
+  `capturas/ola-1-h3-paletas/` : Johann.

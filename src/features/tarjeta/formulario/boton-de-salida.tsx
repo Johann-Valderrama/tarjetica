@@ -51,7 +51,7 @@ export function BotonDeSalida({
   const base =
     'min-h-11 rounded-lg px-4 font-medium transition-opacity aria-disabled:cursor-help aria-disabled:text-tinta-tenue'
   const porVariante = {
-    primario: 'bg-acento text-fondo aria-disabled:bg-superficie-sutil',
+    primario: 'bg-acento-relleno text-tinta-sobre-relleno aria-disabled:bg-superficie-sutil',
     acento: 'border border-acento text-tinta aria-disabled:border-borde',
     neutro: 'border border-borde-fuerte text-tinta aria-disabled:border-borde',
   }[variante]

@@ -29,11 +29,11 @@ const TEXTO_AAA = 7
 const NO_TEXTUAL = 3
 
 /**
- * El fondo del tema claro NUNCA es blanco puro (decision del dueño: "calido y premium, que no
- * encandile"). Se mide por luminancia relativa, que es la escala de WCAG: blanco puro da 1,0
- * exacto. El marfil elegido da 0,883; el umbral deja margen para recalibrar sin cruzar a blanco.
+ * El FONDO DE PAGINA del tema claro no es blanco puro, aunque la tarjeta si lo sea (decision del
+ * dueño, 2026-09-15). Se mide por luminancia relativa, la escala de WCAG: blanco puro da 1,0. El
+ * gris calido elegido da 0,88; el umbral deja margen para recalibrar sin cruzar a blanco.
  */
-const LUMINANCIA_MAXIMA_FONDO_CLARO = 0.93
+const LUMINANCIA_MAXIMA_FONDO_CLARO = 0.95
 
 const CSS = readFileSync(new URL('./globals.css', import.meta.url), 'utf8')
 
@@ -180,11 +180,14 @@ for (const tema of TEMAS) {
     })
 
     /**
-     * El boton primario invierte los papeles: tinta OSCURA sobre el acento. Es el par que se olvida,
-     * porque en la lista de arriba el acento siempre es el texto.
+     * El boton primario invierte los papeles: la tinta de encima sobre el RELLENO. Es el par que se
+     * olvida, porque en la lista de arriba el acento siempre es el texto. Desde el 2026-09-15 el
+     * relleno es un token aparte (`--acento-relleno`): en claro el acento de texto es oro viejo y
+     * el boton es oro brillante, y los dos no pueden ser el mismo color.
      */
-    it('la tinta del boton primario sobre el acento', () => {
-      expect(contraste(componer(token(tema, 'fondo'), P.ACENTO), P.ACENTO)).toBeGreaterThanOrEqual(TEXTO_AAA)
+    it('la tinta del boton primario sobre su relleno', () => {
+      const relleno = componer(token(tema, 'acento-relleno'), P.FONDO)
+      expect(contraste(componer(token(tema, 'tinta-sobre-relleno'), relleno), relleno)).toBeGreaterThanOrEqual(TEXTO_AAA)
     })
   })
 
@@ -256,23 +259,21 @@ for (const tema of TEMAS) {
 }
 
 /**
- * El tema claro es CALIDO, no blanco (U4). Dos comprobaciones distintas para lo mismo:
- * la luminancia, que es lo que el ojo siente como "encandila", y que ningun canal este en 255, que
- * es lo que un `#ffffff` puesto por descuido delataria aunque la luminancia pasara.
+ * El tema claro (U4). El 2026-09-15 el dueño QUITO la restriccion de "nunca blanco puro" (vio la
+ * version marfil y la encontro oscura): la tarjeta es blanco puro y el fondo de pagina un gris
+ * calido apenas distinto. Lo que se sigue midiendo es que los dos se DISTINGAN, para que la tarjeta
+ * flote, y que el fondo de pagina no sea tambien blanco puro (ahi si encandilaria de borde a borde).
  */
-describe('el tema claro no es blanco puro', () => {
+describe('el tema claro: tarjeta blanca sobre un fondo que se distingue', () => {
   const P = paleta('claro')
 
-  it('el fondo queda por debajo del umbral de luminancia', () => {
+  it('el fondo de pagina queda por debajo del umbral de luminancia', () => {
     expect(luminancia(P.FONDO)).toBeLessThan(LUMINANCIA_MAXIMA_FONDO_CLARO)
   })
 
-  it('ni el fondo ni la superficie tienen un canal saturado', () => {
-    for (const rgb of [P.FONDO, P.SUPERFICIE]) expect(Math.max(...rgb)).toBeLessThan(255)
-  })
-
-  it('la superficie de la tarjeta es un paso mas oscura que el fondo, para que flote', () => {
-    expect(luminancia(P.SUPERFICIE)).toBeLessThan(luminancia(P.FONDO))
+  it('la superficie de la tarjeta es mas clara que el fondo y se distingue de el', () => {
+    expect(luminancia(P.SUPERFICIE)).toBeGreaterThan(luminancia(P.FONDO))
+    expect(contraste(P.SUPERFICIE, P.FONDO)).toBeGreaterThan(1.04)
   })
 
   it('el tema claro declara los mismos tokens que el oscuro', () => {

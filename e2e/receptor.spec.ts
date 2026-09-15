@@ -138,11 +138,11 @@ test('el receptor pinta el tema de la tarjeta, y el dialogo del QR lo hereda', a
 
   await page.goto(enlace({ ...perfil, tm: 'claro' }))
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  expect(await fondo()).toBe('rgb(247, 241, 228)')
+  expect(await fondo()).toBe('rgb(243, 242, 238)')
   await page.getByRole('button', { name: 'Mostrar QR' }).click()
   const dialogo = page.getByRole('dialog')
   await expect(dialogo).toBeVisible()
-  expect(await dialogo.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(238, 228, 207)')
+  expect(await dialogo.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)')
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
 

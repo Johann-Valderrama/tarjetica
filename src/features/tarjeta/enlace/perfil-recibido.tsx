@@ -71,7 +71,7 @@ export function PerfilRecibido({ tarjeta }: { tarjeta: Tarjeta }) {
         <Discurso tarjeta={tarjeta} completo />
 
         <section aria-label={t('acciones')} className="mt-7 space-y-3 border-t border-borde pt-6">
-          <button type="button" aria-describedby="guardar-contacto-ayuda" onClick={() => void guardar()} className="flex min-h-14 w-full items-center justify-center gap-3 rounded-xl bg-acento px-5 py-4 font-bold text-fondo transition-transform active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-acento">
+          <button type="button" aria-describedby="guardar-contacto-ayuda" onClick={() => void guardar()} className="flex min-h-14 w-full items-center justify-center gap-3 rounded-xl bg-acento-relleno px-5 py-4 font-bold text-tinta-sobre-relleno transition-transform active:scale-[0.99] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-acento">
             <IconoGuardar />
             {t('guardar')}
           </button>

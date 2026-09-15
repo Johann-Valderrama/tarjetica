@@ -40,6 +40,14 @@
   --tinta-tenue: #6b6f76;
   --acento: #ff9101;
   --acento-tenue: rgba(255, 145, 1, 0.28);
+  /*
+   * El RELLENO del boton primario y la tinta que va encima (ola 1, U4). En oscuro coinciden con el
+   * acento y el fondo; en claro se separan, porque un acento legible como texto sobre blanco es
+   * oscuro y el boton tiene que verse dorado. Van como literales, no como `var()`: una variable
+   * que vale `var(--x)` se resuelve donde se declara.
+   */
+  --acento-relleno: #ff9101;
+  --tinta-sobre-relleno: #0a0a0b;
 
   /*
    * Aviso y peligro, agregados al repintar el editor (2026-09-08, opcion A).
@@ -105,27 +113,30 @@
  * tema elegido. `:root` conserva el oscuro tal cual, asi que un enlace creado antes de esta ola
  * pinta identico.
  *
- * Calido y premium, NUNCA blanco puro: marfil de fondo, champana para la superficie de la tarjeta
- * y una tinta de piedra oscura. El fondo queda en luminancia relativa 0,883 (blanco puro = 1,0) y
- * `src/app/contraste.test.ts` lo vigila con un umbral, ademas de medir los mismos pares de texto y
- * borde que en oscuro. El acento es el naranja de la marca QUEMADO: sobre marfil, el naranja
- * brillante del tema oscuro daba 2,6:1 y no se leia como texto.
+ * Blanco, oro y negro (decision del dueño, 2026-09-15, que SUPERA el "nunca blanco puro" del dia
+ * anterior: vio la version marfil y la encontro oscura). La tarjeta es blanco puro y flota sobre un
+ * fondo de pagina apenas gris calido; el texto es casi negro; el oro viejo es el acento de TEXTO
+ * (7,3:1 sobre el fondo) y el oro brillante es el RELLENO del boton, con texto negro encima. Por eso
+ * acento y relleno son dos tokens: el mismo oro no puede ser texto legible sobre blanco y a la vez
+ * un boton que se vea dorado. `src/app/contraste.test.ts` mide todos los pares en los dos temas.
  */
 [data-tema='claro'] {
   color-scheme: light;
-  --fondo: #f7f1e4;
-  --superficie: #eee4cf;
-  --superficie-sutil: rgba(42, 33, 22, 0.05);
-  --borde: rgba(42, 33, 22, 0.14);
-  --borde-fuerte: rgba(42, 33, 22, 0.55);
-  --tinta: #2a2116;
-  --tinta-suave: #4f4633;
-  --tinta-tenue: #8a8067;
-  --acento: #703e00;
-  --acento-tenue: rgba(112, 62, 0, 0.18);
+  --fondo: #f3f2ee;
+  --superficie: #ffffff;
+  --superficie-sutil: rgba(18, 18, 18, 0.04);
+  --borde: rgba(18, 18, 18, 0.12);
+  --borde-fuerte: rgba(18, 18, 18, 0.5);
+  --tinta: #121212;
+  --tinta-suave: #4a4640;
+  --tinta-tenue: #8c877d;
+  --acento: #664b0e;
+  --acento-tenue: rgba(102, 75, 14, 0.18);
+  --acento-relleno: #d4a53a;
+  --tinta-sobre-relleno: #121212;
   --aviso: #633b00;
-  --aviso-superficie: rgba(112, 62, 0, 0.1);
-  --aviso-borde: rgba(112, 62, 0, 0.65);
+  --aviso-superficie: rgba(102, 75, 14, 0.1);
+  --aviso-borde: rgba(102, 75, 14, 0.75);
   --peligro: #7c2313;
   --peligro-fuerte: #a6341f;
   --peligro-superficie: rgba(124, 35, 19, 0.08);

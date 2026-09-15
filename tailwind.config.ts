@@ -21,6 +21,8 @@ const config: Config = {
         acento: 'var(--acento)',
         'acento-tenue': 'var(--acento-tenue)',
         'color-marca': 'var(--color-marca)',
+        'acento-relleno': 'var(--acento-relleno)',
+        'tinta-sobre-relleno': 'var(--tinta-sobre-relleno)',
         aviso: 'var(--aviso)',
         'aviso-superficie': 'var(--aviso-superficie)',
         'aviso-borde': 'var(--aviso-borde)',

@@ -116,7 +116,7 @@ export function GenerarEnlace({
               data-testid="confirmar-enlace"
               disabled={estado.fase === 'generando'}
               onClick={() => void generar()}
-              className="min-h-11 flex-1 rounded-lg bg-acento px-4 text-sm font-semibold text-fondo disabled:bg-superficie-sutil disabled:text-tinta-tenue"
+              className="min-h-11 flex-1 rounded-lg bg-acento-relleno px-4 text-sm font-semibold text-tinta-sobre-relleno disabled:bg-superficie-sutil disabled:text-tinta-tenue"
             >
               {estado.fase === 'generando' ? t('creando') : t('entiendo')}
             </button>
@@ -137,7 +137,7 @@ export function GenerarEnlace({
               type="button"
               data-testid="copiar-enlace"
               onClick={() => void copiar(estado.enlace)}
-              className="min-h-11 flex-1 rounded-lg bg-acento px-4 text-sm font-medium text-fondo"
+              className="min-h-11 flex-1 rounded-lg bg-acento-relleno px-4 text-sm font-medium text-tinta-sobre-relleno"
             >
               {copiado ? t('copiado') : t('copiar')}
             </button>
