@@ -581,3 +581,9 @@
   relleno del botón con texto negro. El relleno del botón pasa a token propio (`--acento-relleno`,
   `--tinta-sobre-relleno`) en los dos temas. Alternativas renderizadas y descartadas en
   `capturas/ola-1-h3-paletas/` : Johann.
+
+- 2026-09-15 **H3 cerrado: los botones Agendar y Cuéntame quedan ENCENDIDOS en el receptor, con aviso de
+  que quedan fijos en el enlace.** El riesgo del enlace no actualizable ya existe para web y teléfono;
+  apagarlos no lo reduce y le quita al regalo lo que lo diferencia. Lo básico se queda gratis y completo;
+  la ola 2 agrega lo que exige servidor (enlace editable, foto, miniatura). Botón claro con degradado
+  dorado. Merge del PR #1 a `main` autorizado : Johann.
