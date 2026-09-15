@@ -38,6 +38,7 @@ import {
   CamposRedes,
   CampoUbicacion,
 } from '@/features/tarjeta/formulario/campos'
+import { Apariencia } from '@/features/tarjeta/formulario/apariencia'
 import { descargarVCard } from '@/features/tarjeta/vcard/descargar'
 import { dataUrlABlob, nombreDeImagen, tarjetaAJpeg } from '@/features/tarjeta/exportar/a-imagen'
 import { guardarImagen } from '@/features/tarjeta/exportar/guardar'
@@ -55,6 +56,7 @@ import { BotonDeSalida } from '@/features/tarjeta/formulario/boton-de-salida'
 import { PingDeTarjetaCreada } from '@/features/metricas/ping-de-tarjeta-creada'
 import { SelectorDeIdioma } from '@/shared/idioma/selector-idioma'
 import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
+import { apariencia } from '@/features/tarjeta/vista/apariencia'
 
 /**
  * Unidad 2c del PRP-TD-001: el editor, donde las piezas se conectan.
@@ -407,6 +409,8 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
         {avisoLogo && <p role="alert" className="text-sm text-peligro">{avisoLogo}</p>}
       </section>
 
+      <Apariencia tarjeta={tarjeta} onCambio={cambiar} logo={logo} />
+
       <CamposDeTexto tarjeta={tarjeta} onCambio={cambiar} />
       <CamposContacto tarjeta={tarjeta} onCambio={cambiar} />
       {/* Las redes y los enlaces NO se ven en la tarjeta (D3a): viajan dentro del vCard del QR. */}
@@ -544,7 +548,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
         <VistaTarjeta muestra avisoQr={t('editor.previaQr')} tarjeta={{
           n: tarjeta.n || t('editor.nombreEjemplo'), a: tarjeta.a, c: tarjeta.c, em: tarjeta.em,
           ti: tarjeta.ti, de: tarjeta.de, d: tarjeta.d, t: tarjeta.t,
-        }} fotoDataUrl={foto?.dataUrl} logoDataUrl={logo?.dataUrl} />
+        }} fotoDataUrl={foto?.dataUrl} logoDataUrl={logo?.dataUrl} {...apariencia(tarjeta)} />
         <p className="mx-auto mt-4 max-w-xs text-center text-xs leading-relaxed text-tinta-suave">{t('editor.previaAyuda')}</p>
       </aside>
       </div>
