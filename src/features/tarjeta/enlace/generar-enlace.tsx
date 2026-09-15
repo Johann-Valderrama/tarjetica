@@ -101,6 +101,8 @@ export function GenerarEnlace({
               enterarse tarde. Donde se toma la decision es donde tiene que estar el dato.
             */}
             <li>{t.rich('sinFoto', { fuerte: (c) => <strong>{c}</strong> })}</li>
+            {/* Los dos botones del enlace (ola 1): quedan fijos como todo lo demas, pero apuntan a paginas de terceros que la persona puede cambiar o borrar. Se dice aqui, donde se decide. */}
+            <li>{t('botonesFijos')}</li>
           </ul>
           <div className="flex gap-2 pt-1">
             <button

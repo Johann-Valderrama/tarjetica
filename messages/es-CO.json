@@ -206,6 +206,7 @@
     "quiero": "Quiero un enlace",
     "antesDeCrearlo": "Antes de crearlo, lee esto:",
     "publico": "Tus datos van dentro del enlace. Cualquiera que lo tenga los ve, sin contraseña.",
+    "botonesFijos": "Los botones «Agendar» y «Cuéntame qué necesitas» quedan fijos en este enlace. Si cambias esas páginas, crea un enlace nuevo.",
     "irrevocable": "<fuerte>No se puede desactivar después.</fuerte> No hay servidor donde borrarlo: lo que repartas queda vivo para siempre. Si editas tu tarjeta, se crea un enlace nuevo y el anterior sigue mostrando la versión vieja.",
     "historial": "El enlace queda en el <fuerte>historial del navegador</fuerte> de quien lo abra, y si esa persona tiene la sincronización activada, se copia a sus otros dispositivos. Eso no lo podemos evitar desde aquí.",
     "mejorNo": "Mejor no",

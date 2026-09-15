@@ -206,6 +206,7 @@
     "quiero": "I want a link",
     "antesDeCrearlo": "Before creating it, read this:",
     "publico": "Your data travels inside the link. Anyone who has it can see it, with no password.",
+    "botonesFijos": "The “Book a time” and “Tell me what you need” buttons stay fixed in this link. If you change those pages, create a new link.",
     "irrevocable": "<fuerte>It cannot be switched off afterwards.</fuerte> There is no server where it could be deleted: whatever you hand out stays alive forever. If you edit your card, a new link is created and the old one keeps showing the old version.",
     "historial": "The link stays in the <fuerte>browser history</fuerte> of whoever opens it, and if that person has sync turned on, it is copied to their other devices. We cannot prevent that from here.",
     "mejorNo": "Better not",

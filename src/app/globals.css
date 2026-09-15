@@ -340,6 +340,17 @@
       0 24px 60px -20px rgba(0, 0, 0, 0.8);
   }
 
+  /*
+   * El oro plano no parece oro: lo que da la ilusion es la luz. En claro, el relleno del boton
+   * primario lleva un degradado de oro claro a oro profundo y un filo de luz arriba. Los tres
+   * tonos del degradado siguen dando >= 4,5:1 con el texto negro (lo mide contraste.test.ts). Solo
+   * es CSS de pantalla: la tarjeta y el JPEG no llevan botones.
+   */
+  [data-tema='claro'] .bg-acento-relleno {
+    background-image: linear-gradient(135deg, #e6bd55 0%, #d4a53a 55%, #b8882a 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+
   /* En claro es al reves: la sombra si se ve, y el anillo pasa a ser un filo suave. */
   [data-tema='claro'] .tarjeta-superficie {
     box-shadow:

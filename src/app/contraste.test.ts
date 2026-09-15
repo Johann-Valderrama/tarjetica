@@ -271,6 +271,16 @@ describe('el tema claro: tarjeta blanca sobre un fondo que se distingue', () => 
     expect(luminancia(P.FONDO)).toBeLessThan(LUMINANCIA_MAXIMA_FONDO_CLARO)
   })
 
+  /** El degradado del boton dorado: cada parada tiene que seguir siendo legible con el texto negro. */
+  it('las tres paradas del degradado dorado pasan AA con la tinta de encima', () => {
+    const regla = CSS.match(/\[data-tema='claro'\] \.bg-acento-relleno \{[^}]*linear-gradient\(([^)]*)\)/)
+    if (!regla) throw new Error('no existe el degradado del boton dorado en globals.css')
+    const paradas = regla[1].match(/#[0-9a-f]{6}/gi) ?? []
+    expect(paradas.length).toBeGreaterThanOrEqual(2)
+    const tinta = componer(token('claro', 'tinta-sobre-relleno'), P.FONDO)
+    for (const parada of paradas) expect(contraste(tinta, componer(parada, P.FONDO)), parada).toBeGreaterThanOrEqual(4.5)
+  })
+
   it('la superficie de la tarjeta es mas clara que el fondo y se distingue de el', () => {
     expect(luminancia(P.SUPERFICIE)).toBeGreaterThan(luminancia(P.FONDO))
     expect(contraste(P.SUPERFICIE, P.FONDO)).toBeGreaterThan(1.04)

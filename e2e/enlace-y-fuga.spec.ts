@@ -78,6 +78,8 @@ test.describe('la advertencia va ANTES de generar, no despues', () => {
       repartir el enlace es enterarse tarde.
     */
     expect(texto, 'falta decir que las imágenes no viajan en el enlace').toContain('foto y logo no viajan en el enlace')
+    // Ola 1: los botones Agendar y Cuentame apuntan a paginas ajenas que pueden cambiar.
+    expect(texto, 'falta decir que los botones quedan fijos').toContain('quedan fijos en este enlace')
   })
 
   test('"mejor no" lo deja como estaba, sin generar nada', async ({ page }) => {
