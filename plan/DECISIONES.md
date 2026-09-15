@@ -537,3 +537,16 @@
   página enlazar** (una agenda para "Agendar", una encuesta o formulario para "Cuéntame qué
   necesitas"). Si la ayuda nombra servicios concretos queda pendiente, se decide viendo variantes :
   Johann.
+
+- 2026-09-14 **H1 de la ola 1: entran tres mejoras adicionales sin servidor, dentro del receptor.**
+  (1) Guardar contacto por la hoja nativa del teléfono con respaldo a la descarga, (2) WhatsApp con
+  mensaje prellenado, (3) acciones Llamar y Correo en la fila de íconos. Quedan aplazadas la vista
+  previa genérica del enlace (Open Graph estático sin datos) y "Compartir esta tarjeta" desde el
+  receptor. Reafirmado: sin bloque de cifras y un solo QR. Evaluación en `capturas/ola-1-evaluacion/`
+  (no versionada) : Johann.
+- 2026-09-14 **Ruteo de la ola 1: Claude dirige; Codex apoya solo en lectura.** Fable ejecuta la
+  interfaz, Opus el contrato de datos, Sonnet el color de marca; Sol (Codex) entra secuencial y de
+  solo lectura como segundo lente sobre el contrato y el receptor. Hoy el runtime OPS no tiene perfil
+  escritor Codex desde Claude; Codex escribe solo cuando dirige desde su propia interfaz. Regla:
+  dirige quien ejecuta la mayoría de las unidades; el otro proveedor entra donde su familia distinta
+  aporte independencia de revisión : Johann.
