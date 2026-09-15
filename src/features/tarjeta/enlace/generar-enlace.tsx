@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { construirEnlace } from '@/features/tarjeta/enlace/codec'
 import { BotonDeSalida } from '@/features/tarjeta/formulario/boton-de-salida'
+import { esPantallaTactil } from '@/features/tarjeta/exportar/guardar'
 
 /**
  * Unidad 6b del PRP-TD-001: generar el link compartible.
@@ -28,7 +29,14 @@ import { BotonDeSalida } from '@/features/tarjeta/formulario/boton-de-salida'
  *    dice en vez de mitigarse.
  */
 
-type Estado = { fase: 'apagado' } | { fase: 'advertido' } | { fase: 'generando' } | { fase: 'listo'; enlace: string }
+type Estado =
+  | { fase: 'apagado' }
+  | { fase: 'advertido' }
+  | { fase: 'generando' }
+  | { fase: 'listo'; enlace: string; titulo: string; puedeCompartir: boolean; tactil: boolean }
+
+const BOTON_PRINCIPAL = 'min-h-11 flex-1 rounded-lg bg-acento-relleno px-4 text-sm font-medium text-tinta-sobre-relleno'
+const BOTON_SECUNDARIO = 'min-h-11 flex-1 rounded-lg border border-borde-fuerte px-4 text-sm font-medium text-tinta'
 
 export function GenerarEnlace({
   tarjeta,
@@ -49,8 +57,28 @@ export function GenerarEnlace({
     setEstado({ fase: 'generando' })
     // `location.origin` y no un dominio hardcodeado: hoy no hay dominio (la Ola 7 sigue pendiente),
     // y hornear uno aqui pondria en la tarjeta de cada usuario un enlace que no lleva a ninguna parte.
-    setEstado({ fase: 'listo', enlace: await construirEnlace(tarjeta, window.location.origin) })
+    const enlace = await construirEnlace(tarjeta, window.location.origin)
+    setEstado({
+      fase: 'listo',
+      enlace,
+      titulo: [tarjeta.n, tarjeta.a].filter(Boolean).join(' '),
+      // Solo se ofrece la hoja del sistema donde existe: en casi todo computador no existe, y un
+      // boton que no hace nada es peor que no tenerlo. Copiar y abrir siguen estando.
+      puedeCompartir: typeof navigator.share === 'function',
+      tactil: esPantallaTactil(),
+    })
   }
+
+  const compartir = async (enlace: string, titulo: string) => {
+    try {
+      await navigator.share({ title: titulo, url: enlace })
+    } catch {
+      // Cerrar la hoja sin elegir app (AbortError) no es un error para la persona: el enlace sigue a la vista.
+    }
+  }
+
+  // Mismo criterio que la imagen (`elegirVia`): con el dedo la hoja del telefono va primero; con mouse, copiar.
+  const compartirPrimero = estado.fase === 'listo' && estado.puedeCompartir && estado.tactil
 
   const copiar = async (enlace: string) => {
     try {
@@ -136,15 +164,35 @@ export function GenerarEnlace({
           >
             {estado.enlace}
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {compartirPrimero && (
+              <button
+                type="button"
+                data-testid="compartir-enlace"
+                onClick={() => void compartir(estado.enlace, estado.titulo)}
+                className={BOTON_PRINCIPAL}
+              >
+                {t('compartir')}
+              </button>
+            )}
             <button
               type="button"
               data-testid="copiar-enlace"
               onClick={() => void copiar(estado.enlace)}
-              className="min-h-11 flex-1 rounded-lg bg-acento-relleno px-4 text-sm font-medium text-tinta-sobre-relleno"
+              className={compartirPrimero ? BOTON_SECUNDARIO : BOTON_PRINCIPAL}
             >
               {copiado ? t('copiado') : t('copiar')}
             </button>
+            {estado.puedeCompartir && !compartirPrimero && (
+              <button
+                type="button"
+                data-testid="compartir-enlace"
+                onClick={() => void compartir(estado.enlace, estado.titulo)}
+                className={BOTON_SECUNDARIO}
+              >
+                {t('compartir')}
+              </button>
+            )}
             {/*
               "Abrir en pestaña nueva" (ola 1, U7): un `<a target="_blank">` real y no un
               `window.open` en un manejador. Un `await` cercano (como el del portapapeles) puede

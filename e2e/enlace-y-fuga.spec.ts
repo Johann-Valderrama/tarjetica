@@ -146,6 +146,39 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(enlace)
   })
 
+  /**
+   * "Compartir" abre la hoja del telefono. La hoja real no se puede abrir en un navegador headless,
+   * asi que se reemplaza `navigator.share` ANTES de que cargue la pagina y se mide lo que recibe:
+   * tiene que ser exactamente el enlace que la persona ve, no otro.
+   */
+  test('"compartir" entrega a la hoja del telefono el mismo enlace que se muestra', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __compartido: { url?: string }[] }
+      w.__compartido = []
+      Object.defineProperty(Navigator.prototype, 'share', {
+        configurable: true,
+        value: async (datos: { url?: string }) => {
+          w.__compartido.push(datos)
+        },
+      })
+    })
+    const enlace = await generarEnlace(page, PERFIL.datos)
+
+    await page.getByTestId('compartir-enlace').click()
+    const compartido = await page.evaluate(() => (window as unknown as { __compartido: { url?: string }[] }).__compartido)
+    expect(compartido).toHaveLength(1)
+    expect(compartido[0].url).toBe(enlace)
+  })
+
+  test('sin hoja de compartir en el navegador, el boton no aparece y copiar sigue', async ({ page }) => {
+    await page.addInitScript(() => {
+      delete (Navigator.prototype as { share?: unknown }).share
+    })
+    await generarEnlace(page, PERFIL.datos)
+    await expect(page.getByTestId('compartir-enlace')).toHaveCount(0)
+    await expect(page.getByTestId('copiar-enlace')).toBeVisible()
+  })
+
   test('el HTML del servidor no contiene ningun dato de la tarjeta', async ({ page, request }) => {
     const enlace = await generarEnlace(page, PERFIL.datos)
     const fragmento = enlace.split('#')[1]
