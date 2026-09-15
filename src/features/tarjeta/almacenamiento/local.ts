@@ -225,15 +225,24 @@ export function borrarTodo(): boolean {
   }
 }
 
-/** ¿La persona confirmo que la tarjeta es suya? Puerta de TODAS las exportaciones. */
-export function leerConfirmacion(): boolean {
+/**
+ * De quien es la tarjeta que se va a exportar. Puerta de TODAS las exportaciones.
+ *
+ * Antes esto era un booleano ("confirmo que es mia o que tengo permiso"): una sola marca que no
+ * dejaba dicho cual de los dos casos aplicaba. Un dato viejo (`true`) no matchea ninguno de los dos
+ * literales validos, asi que un usuario que venia con la confirmacion vieja simplemente vuelve a
+ * ver el gate una vez: es el comportamiento correcto, no una regresion, porque la version vieja
+ * nunca supo distinguir "propia" de "tercero" y no hay forma honesta de migrarla.
+ */
+export function leerTitularidad(): 'propia' | 'tercero' | null {
   const crudo = leerCrudo(CLAVE_CONFIRMACION)
-  return crudo.ok && crudo.valor === true
+  if (!crudo.ok) return null
+  return crudo.valor === 'propia' || crudo.valor === 'tercero' ? crudo.valor : null
 }
 
-/** Guarda (o retira) esa confirmacion. */
-export function guardarConfirmacion(confirmado: boolean): boolean {
-  return escribirCrudo(CLAVE_CONFIRMACION, confirmado === true)
+/** Guarda (o retira, con `null`) esa declaracion. */
+export function guardarTitularidad(titularidad: 'propia' | 'tercero' | null): boolean {
+  return escribirCrudo(CLAVE_CONFIRMACION, titularidad)
 }
 
 /**

@@ -27,7 +27,7 @@ async function generarEnlace(page: import('@playwright/test').Page, datos: unkno
   await page.evaluate((t) => {
     localStorage.clear()
     localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-    localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+    localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
   }, datos)
   await page.reload()
 
@@ -44,7 +44,7 @@ test.describe('la advertencia va ANTES de generar, no despues', () => {
     await page.evaluate((t) => {
       localStorage.clear()
       localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
     }, PERFIL.datos)
     await page.reload()
     await expect(page.getByTestId('enlace-generado')).toHaveCount(0)
@@ -57,7 +57,7 @@ test.describe('la advertencia va ANTES de generar, no despues', () => {
     await page.evaluate((t) => {
       localStorage.clear()
       localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
     }, PERFIL.datos)
     await page.reload()
     await page.getByTestId('abrir-enlace').click()
@@ -85,7 +85,7 @@ test.describe('la advertencia va ANTES de generar, no despues', () => {
     await page.evaluate((t) => {
       localStorage.clear()
       localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
     }, PERFIL.datos)
     await page.reload()
     await page.getByTestId('abrir-enlace').click()
@@ -162,7 +162,7 @@ test.describe('el enlace lleva la tarjeta y NO la fuga', () => {
     await page.evaluate((t) => {
       localStorage.clear()
       localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
       // Una foto de verdad guardada, del tamaño que deja la unidad 2e.
       localStorage.setItem(
         'tarjetica.foto',

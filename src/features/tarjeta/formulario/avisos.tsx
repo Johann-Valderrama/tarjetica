@@ -34,25 +34,49 @@ export function AvisoDeCampo({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 text-xs text-aviso">{children}</p>
 }
 
+/**
+ * Antes era una sola casilla que mezclaba dos declaraciones distintas en un "o": "es mia, O tengo
+ * permiso del dueno". Eso dejaba a la tarjeta de un tercero (el caso conocido de stand de evento,
+ * ver AvisoDeAlcance) con la MISMA marca que una tarjeta propia, sin que quedara dicho cual de las
+ * dos aplicaba. Ahora son dos declaraciones mutuamente excluyentes: la persona tiene que elegir
+ * cual es su caso, no marcar una casilla generica que sirve para ambos.
+ */
+export type Titularidad = 'propia' | 'tercero'
+
 export function ConfirmacionDeExportacion({
-  confirmado,
+  titularidad,
   onCambio,
 }: {
-  confirmado: boolean
-  onCambio: (v: boolean) => void
+  titularidad: Titularidad | null
+  onCambio: (v: Titularidad) => void
 }) {
   const t = useTranslations('avisos')
   return (
-    <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border border-borde-fuerte p-3 text-sm">
-      <input
-        type="checkbox"
-        name="confirmacion-propia"
-        checked={confirmado}
-        onChange={(e) => onCambio(e.target.checked)}
-        className="mt-0.5 h-5 w-5 shrink-0"
-      />
-      <span>{t('confirmacion')}</span>
-    </label>
+    <fieldset className="space-y-2 rounded-lg border border-borde-fuerte p-3 text-sm">
+      <legend className="px-1 font-medium text-tinta">{t('confirmacionTitulo')}</legend>
+      <label className="flex min-h-11 cursor-pointer items-start gap-3">
+        <input
+          type="radio"
+          name="titularidad"
+          value="propia"
+          checked={titularidad === 'propia'}
+          onChange={() => onCambio('propia')}
+          className="mt-0.5 h-5 w-5 shrink-0"
+        />
+        <span>{t('confirmacionPropia')}</span>
+      </label>
+      <label className="flex min-h-11 cursor-pointer items-start gap-3">
+        <input
+          type="radio"
+          name="titularidad"
+          value="tercero"
+          checked={titularidad === 'tercero'}
+          onChange={() => onCambio('tercero')}
+          className="mt-0.5 h-5 w-5 shrink-0"
+        />
+        <span>{t('confirmacionTercero')}</span>
+      </label>
+    </fieldset>
   )
 }
 
@@ -60,8 +84,8 @@ export function ConfirmacionDeExportacion({
  * Puerta de las exportaciones. Se usa asi para que la regla viva en UN solo lugar y no dependa de
  * que cada boton se acuerde de comprobarla.
  */
-export function puedeExportar(confirmado: boolean): boolean {
-  return confirmado === true
+export function puedeExportar(titularidad: Titularidad | null): boolean {
+  return titularidad === 'propia' || titularidad === 'tercero'
 }
 
 export function BotonBorrarTodo({ onBorrar }: { onBorrar: () => void }) {

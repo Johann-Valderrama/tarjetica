@@ -74,7 +74,7 @@ test.describe('2d · la confirmacion es un GATE, no un aviso', () => {
     await expect(page.getByTestId('exportar-jpeg')).toHaveAttribute('aria-disabled', 'true')
     await expect(page.getByTestId('mostrar-qr')).toBeDisabled()
 
-    await page.getByRole('checkbox').check()
+    await page.getByRole('radio', { name: /propia/ }).check()
     await expect(page.getByTestId('exportar-jpeg')).toBeEnabled()
     await expect(page.getByTestId('mostrar-qr')).toBeEnabled()
   })

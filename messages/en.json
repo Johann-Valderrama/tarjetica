@@ -12,6 +12,12 @@
   "idioma": {
     "etiqueta": "Language"
   },
+  "legal": {
+    "tituloPagina": "Privacy notice · Tarjetica",
+    "volver": "← Tarjetica",
+    "soloEspanol": "This document only exists in Spanish: the governing law is Colombian (section 10), and an unofficial translation of a legal text can say something different without anyone noticing. If you don't read Spanish, write to johann09+tarjetica@gmail.com and we'll summarize what you need.",
+    "enlaceFooter": "Privacy notice"
+  },
   "home": {
     "tagline": "Your digital business card, with no account and your details stored only in your browser.",
     "cta": "Create my card",
@@ -140,7 +146,9 @@
   "avisos": {
     "alcanceTitulo": "This app is for YOUR own card.",
     "alcanceCuerpo": "If you make someone else's, their data stays on this phone and in this phone's backups. The image you save goes to your Photos, and the contact to your address book.",
-    "confirmacion": "I confirm this card is mine, or that I have the person's permission to share their data.",
+    "confirmacionTitulo": "Whose card is this?",
+    "confirmacionPropia": "It's my own card.",
+    "confirmacionTercero": "It's someone else's and I have their express authorization to handle their data (for example, an event booth).",
     "borrarTodo": "Delete my data from this device"
   },
   "limites": {
@@ -196,6 +204,7 @@
     "abriendo": "Opening the card…",
     "hazLaTuya": "Make your own",
     "sinFoto": "Your <fuerte>photo and logo do not travel in the link</fuerte>: whoever opens it sees your card without those images. This keeps the link short and easy to send. Both appear in your saved image; the contact file includes only the profile photo.",
+    "avisoCompleto": "Full privacy notice (Spanish) →",
     "errores": {
       "vacio": "This link does not carry any card. It may have been cut off when it was copied.",
       "ilegible": "This card could not be read. The link looks incomplete or got broken when it was copied.",

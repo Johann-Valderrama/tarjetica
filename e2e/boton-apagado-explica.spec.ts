@@ -39,7 +39,7 @@ async function editorSinConfirmar(page: Page) {
     localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
   }, PERFIL.datos)
   await page.reload()
-  await expect(page.getByRole('checkbox')).not.toBeChecked()
+  await expect(page.getByRole('radio', { name: /propia/ })).not.toBeChecked()
 }
 
 test.describe('la puerta sigue cerrada, ahora que la sostiene el codigo', () => {
@@ -68,7 +68,7 @@ test.describe('la puerta sigue cerrada, ahora que la sostiene el codigo', () => 
     // El espejo del anterior: sin esto, un boton roto que no hace NADA nunca pasaria las dos
     // pruebas, y la de arriba sola no distingue "bien cerrado" de "no funciona".
     await editorSinConfirmar(page)
-    await page.getByRole('checkbox').check()
+    await page.getByRole('radio', { name: /propia/ }).check()
 
     for (const id of ['exportar-jpeg', 'mostrar-qr', 'descargar-vcf', 'abrir-enlace']) {
       await expect(page.getByTestId(id)).toHaveAttribute('aria-disabled', 'false')
@@ -106,7 +106,7 @@ test.describe('el boton apagado dice que falta, y lleva hasta alli', () => {
     await page.getByTestId('abrir-enlace').click({ force: true })
 
     // El foco es la parte que sirve con teclado y con lector de pantalla, no solo la animacion.
-    await expect(page.getByRole('checkbox')).toBeFocused()
+    await expect(page.getByRole('radio', { name: /propia/ })).toBeFocused()
 
     /*
       El resalte se comprueba por estado COMPUTADO, no por la clase: una clase presente con la
@@ -114,7 +114,7 @@ test.describe('el boton apagado dice que falta, y lleva hasta alli', () => {
       que el borde sea ROJO, que parpadee 3 veces, y que al acabar SIGA encendido.
     */
     const resalte = await page.evaluate(() => {
-      const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')!
+      const caja = document.querySelector('input[name="titularidad"]')!.closest('div')!
       const cs = getComputedStyle(caja)
       return { animacion: cs.animationName, vueltas: cs.animationIterationCount, sombra: cs.boxShadow }
     })
@@ -136,14 +136,14 @@ test.describe('el boton apagado dice que falta, y lleva hasta alli', () => {
     // Y lo que de verdad pidio: que al TERMINAR el parpadeo el borde siga encendido.
     await page.waitForTimeout(1800)
     const alFinal = await page.evaluate(() => {
-      const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')!
+      const caja = document.querySelector('input[name="titularidad"]')!.closest('div')!
       return { sombra: getComputedStyle(caja).boxShadow, sigueLaClase: caja.classList.contains('reclamando') }
     })
     expect(alFinal.sigueLaClase, 'el resalte se quito solo antes de que la persona actuara').toBe(true)
     expect(alFinal.sombra, 'el borde no se quedo encendido al acabar el parpadeo').toContain(rojo)
 
     // Y quedo a la vista, que era el punto del gesto.
-    await expect(page.getByRole('checkbox')).toBeInViewport()
+    await expect(page.getByRole('radio', { name: /propia/ })).toBeInViewport()
   })
 
   test('el borde se apaga cuando la persona marca la casilla, no por tiempo', async ({ page }) => {
@@ -153,7 +153,7 @@ test.describe('el boton apagado dice que falta, y lleva hasta alli', () => {
     await page.getByTestId('exportar-jpeg').click({ force: true })
     await expect(page.locator('.reclamando')).toHaveCount(1)
 
-    await page.getByRole('checkbox').check()
+    await page.getByRole('radio', { name: /propia/ }).check()
     await expect(page.locator('.reclamando')).toHaveCount(0)
   })
 })
@@ -191,7 +191,7 @@ async function medirElResalte(page: Page, umbrales = { bajo: 0.15, alto: 0.5 }) 
   await page.getByTestId('abrir-enlace').click({ force: true })
 
   return page.evaluate(async (u) => {
-    const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')!
+    const caja = document.querySelector('input[name="titularidad"]')!.closest('div')!
     /** Alfa de un color computado. Un `rgb(...)` sin cuarto canal es opaco: alfa 1. */
     const alfa = (valor: string) => {
       const m = valor.match(/rgba?\(\s*[\d.]+[,\s]+[\d.]+[,\s]+[\d.]+(?:[,/\s]+([\d.]+))?\s*\)/)
@@ -257,7 +257,7 @@ test.describe('el resalte parpadea de verdad, medido por fotograma', () => {
     await editorSinConfirmar(page)
     await page.getByTestId('abrir-enlace').click({ force: true })
     const rellenos = await page.evaluate(async () => {
-      const caja = document.querySelector('input[name="confirmacion-propia"]')!.closest('div')!
+      const caja = document.querySelector('input[name="titularidad"]')!.closest('div')!
       const vistos = new Set<string>()
       for (let i = 0; i < 40; i++) {
         vistos.add(getComputedStyle(caja).backgroundColor)
@@ -358,7 +358,7 @@ test.describe('el boton apagado lleva al campo que falla', () => {
     await page.reload()
     await page.locator('#n').fill('Johann')
     await page.locator('#w').fill('johannvalderrama.com')
-    await page.getByRole('checkbox').check()
+    await page.getByRole('radio', { name: /propia/ }).check()
 
     await expect(page.getByTestId('mostrar-qr')).toHaveAttribute('aria-disabled', 'false')
     await expect(page.locator('#w')).toHaveValue('https://johannvalderrama.com')
@@ -373,7 +373,7 @@ test.describe('el boton apagado lleva al campo que falla', () => {
       localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: { n: 'Johann', w: 'johannvalderrama.com' } }))
     })
     await page.reload()
-    await page.getByRole('checkbox').check()
+    await page.getByRole('radio', { name: /propia/ }).check()
     await expect(page.getByTestId('mostrar-qr')).toHaveAttribute('aria-disabled', 'false')
   })
 
@@ -386,7 +386,7 @@ test.describe('el boton apagado lleva al campo que falla', () => {
     await page.reload()
     await page.locator('#n').fill('Johann')
     await page.locator('#co').fill('johann@')
-    await page.getByRole('checkbox').check()
+    await page.getByRole('radio', { name: /propia/ }).check()
 
     const aviso = page.locator('#que-falta-para-compartir')
     await expect(aviso, 'el aviso sigue diciendo "escribe tu nombre" con el nombre escrito').not.toContainText('nombre')
@@ -396,7 +396,7 @@ test.describe('el boton apagado lleva al campo que falla', () => {
     await expect(page.locator('#co'), 'el boton no llevo al campo que falla').toBeFocused()
     await expect(page.locator('#co')).toHaveClass(/reclamando/)
     // Y lo que Johann vio: la casilla YA marcada no se vuelve a resaltar como si faltara.
-    const casilla = page.locator('input[name="confirmacion-propia"]').locator('xpath=ancestor::div[1]')
+    const casilla = page.locator('input[name="titularidad"]').locator('xpath=ancestor::div[1]')
     await expect(casilla).not.toHaveClass(/reclamando/)
   })
 })
@@ -430,7 +430,7 @@ test.describe('guardar es permisivo, compartir sigue siendo estricto', () => {
     await expect(page.locator('#a'), 'se perdio lo escrito despues del campo incompleto').toHaveValue('Valderrama')
 
     // Y la otra mitad: con el correo incompleto, compartir SIGUE bloqueado.
-    await page.getByRole('checkbox').check()
+    await page.getByRole('radio', { name: /propia/ }).check()
     await expect(page.getByTestId('mostrar-qr')).toHaveAttribute('aria-disabled', 'true')
   })
 })

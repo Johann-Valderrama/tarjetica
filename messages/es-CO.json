@@ -12,6 +12,12 @@
   "idioma": {
     "etiqueta": "Idioma"
   },
+  "legal": {
+    "tituloPagina": "Aviso de privacidad · Tarjetica",
+    "volver": "← Tarjetica",
+    "soloEspanol": "Este documento solo existe en español: la ley aplicable es la colombiana (sección 10) y una traducción no oficial de un texto legal puede decir algo distinto sin que nadie lo note. Si no lees español, escríbenos a johann09+tarjetica@gmail.com y te resumimos lo que necesites.",
+    "enlaceFooter": "Aviso de privacidad"
+  },
   "home": {
     "tagline": "Tu tarjeta de presentación digital, sin cuenta y con tus datos guardados solo en tu navegador.",
     "cta": "Crear mi tarjeta",
@@ -140,7 +146,9 @@
   "avisos": {
     "alcanceTitulo": "Esta app es para TU propia tarjeta.",
     "alcanceCuerpo": "Si haces la de otra persona, sus datos quedan en este teléfono y en las copias de seguridad de este teléfono. La imagen que guardes va a tus Fotos, y el contacto a tu agenda.",
-    "confirmacion": "Confirmo que esta tarjeta es mía, o que tengo permiso de la persona para compartir sus datos.",
+    "confirmacionTitulo": "¿De quién es esta tarjeta?",
+    "confirmacionPropia": "Es mi propia tarjeta.",
+    "confirmacionTercero": "Es de otra persona y tengo su autorización expresa para tratar sus datos (por ejemplo, un stand de evento).",
     "borrarTodo": "Borrar mis datos de este dispositivo"
   },
   "limites": {
@@ -196,6 +204,7 @@
     "abriendo": "Abriendo la tarjeta…",
     "hazLaTuya": "Haz la tuya",
     "sinFoto": "Tu <fuerte>foto y logo no viajan en el enlace</fuerte>: quien lo abra verá tu tarjeta sin esas imágenes. Así el enlace se mantiene corto y fácil de enviar. Ambos salen en la imagen que guardas; el archivo de contacto incluye solo la foto de perfil.",
+    "avisoCompleto": "Aviso de privacidad completo →",
     "errores": {
       "vacio": "Este enlace no trae ninguna tarjeta. Puede que se haya cortado al copiarlo.",
       "ilegible": "No se pudo leer esta tarjeta. El enlace parece incompleto o quedó partido al copiarlo.",

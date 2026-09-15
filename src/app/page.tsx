@@ -61,7 +61,11 @@ export default async function Home() {
         </a>
       </section>
       <footer className="mt-10 flex flex-wrap justify-between gap-3 border-t border-borde pt-5 text-xs text-tinta-suave">
-        <span>{t('home.pie')}</span><span>Tarjetica · MIT</span>
+        <span>{t('home.pie')}</span>
+        <span>
+          <Link href="/privacidad" className="underline hover:text-tinta">{t('legal.enlaceFooter')}</Link>
+          {' · '}Tarjetica · MIT
+        </span>
       </footer>
     </main>
   )

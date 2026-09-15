@@ -537,3 +537,17 @@
   página enlazar** (una agenda para "Agendar", una encuesta o formulario para "Cuéntame qué
   necesitas"). Si la ayuda nombra servicios concretos queda pendiente, se decide viendo variantes :
   Johann.
+- 2026-09-15 **Aviso de Privacidad / Política de Tratamiento publicado en `/privacidad`, revisado por
+  tres lentes ortogonales (protección de datos Colombia, privacidad internacional, consumidor).**
+  Fuente única `src/features/legal/contenido.ts` (constante TS, no `fs.readFileSync` de un `.md`
+  fuera de `src/`, por riesgo de tracing en Vercel), renderizada con un parser Markdown propio
+  (`markdown-simple.tsx`) para no sumar una dependencia por un solo documento. Solo en español a
+  propósito: la ley aplicable es la colombiana (Ley 1581/2012) y una traducción no oficial de un
+  texto legal es más riesgo que no traducirlo. Enlazado desde el pie de la home y desde la
+  advertencia de "generar enlace" : Johann.
+- 2026-09-15 **La casilla única "es mía o tengo permiso" se separó en dos radios mutuamente
+  excluyentes** ("es mi propia tarjeta" / "es de otra persona y tengo su autorización expresa").
+  Hallazgo de los tres revisores legales: la casilla vieja quedaba literalmente falsa en el caso de
+  stand de evento (tarjeta de un tercero). Almacenamiento en `localStorage` pasó de booleano a
+  `'propia' | 'tercero' | null`; un valor viejo (`true`) no matchea ninguno y fuerza a re-declarar
+  una vez : Johann.

@@ -14,6 +14,41 @@
 
 ## Estado
 
+### Aviso de Privacidad y titularidad de terceros · 2026-09-15
+
+- Pedido de Johann: revisar si faltaba disclaimer legal sobre el enlace compartible, con la ley
+  más dura posible como referencia. Hallazgo: el disclaimer de UX ya existía y era más preciso de
+  lo asumido (el link nunca "sube" nada, viaja en el fragmento de la URL); lo que faltaba era un
+  documento formal (Política de Tratamiento, exigida por Ley 1581/2012 de Colombia, la jurisdicción
+  real del operador, no solo por analogía con RGPD).
+- Debate con tres agentes Sonnet en lentes ortogonales (protección de datos Colombia, privacidad
+  internacional/RGPD-LGPD-CCPA, consumidor/responsabilidad civil), cada uno leyendo el documento y
+  el código sin ver el análisis de los otros dos. Hallazgos aplicados: plazos de respuesta
+  corregidos (10 días hábiles consultas, no 15), transferencia internacional (Vercel) declarada,
+  cláusula "tal cual" separada entre código MIT y garantías mínimas de consumidor, traslado de
+  responsabilidad del caso "stand de evento" matizado, RGPD sustentado con los factores reales del
+  Art. 3(2) en vez de una afirmación sin base.
+- Hallazgo más importante de los tres revisores: la casilla única "es mía o tengo permiso" quedaba
+  literalmente falsa en el caso de tarjeta de un tercero. Se separó en dos radios mutuamente
+  excluyentes (`Titularidad = 'propia' | 'tercero'`), con el mismo gate en exportar imagen, `.vcf` y
+  generar enlace. `localStorage` pasó de guardar un booleano a `'propia' | 'tercero' | null`.
+- Publicado en `/privacidad`: fuente única en `src/features/legal/contenido.ts` (constante TS, no
+  archivo `.md` leído con `fs` fuera de `src/`, para evitar el riesgo de que el tracing de archivos
+  de Vercel lo excluya del bundle serverless sin avisar en build). Render con un parser Markdown
+  propio y minimal (`src/features/legal/markdown-simple.tsx`), sin sumar una dependencia para un
+  solo documento estático. Solo en español, a propósito: la ley aplicable es la colombiana y una
+  traducción no oficial de un texto legal es más riesgo que no traducirlo; el aviso en inglés manda
+  al correo de contacto. Enlazado desde el pie de la home y desde la advertencia de "generar
+  enlace" en el editor.
+- Validación: `tsc --noEmit` limpio, 173/173 unitarios, build de producción real (no solo dev),
+  142/142 E2E (se actualizaron 9 specs que dependían de la casilla vieja: selectores de
+  `input[name="confirmacion-propia"]` → `input[name="titularidad"]`, `getByRole('checkbox')` →
+  `getByRole('radio', { name: /propia/ })`, y el `localStorage` de prueba de `d: true` → `d: 'propia'`).
+  Verificación visual en navegador real: la página `/privacidad` renderiza correcto (headers, listas,
+  código inline), el link desde el editor y desde la home funcionan.
+- Se eliminó `legal/aviso-privacidad.md` (borrador suelto en la raíz del repo): el contenido vive
+  ahora solo en `src/features/legal/contenido.ts`, para no tener dos copias que se desincronicen.
+
 ### Logo más grande en la tarjeta · 2026-09-13
 
 - Petición del dueño: evaluar subir un poco el tamaño del logo en la tarjeta imagen. Evaluado con

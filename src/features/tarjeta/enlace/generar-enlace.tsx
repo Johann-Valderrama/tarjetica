@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { construirEnlace } from '@/features/tarjeta/enlace/codec'
@@ -102,6 +103,7 @@ export function GenerarEnlace({
             */}
             <li>{t.rich('sinFoto', { fuerte: (c) => <strong>{c}</strong> })}</li>
           </ul>
+          <Link href="/privacidad" className="inline-block text-xs underline">{t('avisoCompleto')}</Link>
           <div className="flex gap-2 pt-1">
             <button
               type="button"
