@@ -55,7 +55,7 @@ test.describe('en ingles, ninguna pantalla se queda en español', () => {
     await page.evaluate((t) => {
       localStorage.clear()
       localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
     }, PERFIL.datos)
     await page.reload()
     await expect(page.getByRole('heading', { name: 'Your card' })).toBeVisible()
@@ -71,7 +71,7 @@ test.describe('en ingles, ninguna pantalla se queda en español', () => {
     await page.evaluate((t) => {
       localStorage.clear()
       localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+      localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
     }, PERFIL.datos)
     await page.reload()
     await page.getByTestId('abrir-enlace').click()
@@ -138,7 +138,7 @@ test.describe('no queda ninguna clave de traduccion cruda en pantalla', () => {
         await page.evaluate((t) => {
           localStorage.clear()
           localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-          localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+          localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
         }, PERFIL.datos)
       }
       await page.goto(ruta)

@@ -30,7 +30,7 @@ async function abrirEditorListo(page: import('@playwright/test').Page, datos: un
   await page.evaluate((t) => {
     localStorage.clear()
     localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-    localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+    localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
   }, datos)
   await page.reload()
   // El QR del lienzo oculto tiene que estar pintado antes de capturar.
@@ -193,7 +193,7 @@ test('la pantalla de la tarjeta NO tiene ningun control, ni dentro ni fuera del 
   await page.evaluate((t) => {
     localStorage.clear()
     localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-    localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+    localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
   }, PERFIL.datos)
   await page.reload()
   await expect(page.getByTestId('qr-contacto')).toBeVisible()

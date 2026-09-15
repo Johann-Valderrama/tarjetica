@@ -13,7 +13,10 @@ function enlace(datos: unknown, comprimido = false) {
 test('acciones del receptor descargan sus datos sin tocar los del visitante ni pedir recursos externos', async ({ page }) => {
   await page.goto('/editor')
   await page.evaluate(() => localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: { n: 'Visitante' } })))
-  const antes = await page.evaluate(() => JSON.stringify(localStorage))
+  // Se compara el almacen SIN la bandera del ping anonimo: es del visitante (marca que ya conto su
+  // tarjeta creada), no un dato de la tarjeta recibida, y puede escribirse un instante despues.
+  const sinPing = () => JSON.stringify(Object.fromEntries(Object.entries(localStorage).filter(([k]) => !k.startsWith("tarjetica:ping"))))
+  const antes = await page.evaluate(sinPing)
   const ajenas: string[] = []
   page.on('request', request => { if (!request.url().startsWith('http://localhost:3210') && !/^(data|blob):/.test(request.url())) ajenas.push(request.url()) })
   await page.goto(enlace(perfil))
@@ -44,7 +47,7 @@ test('acciones del receptor descargan sus datos sin tocar los del visitante ni p
   expect(contenido).not.toContain('Visitante')
   expect(contenido).not.toContain('tarjetica-app')
   await expect(page.getByRole('status')).toContainText('Archivo listo')
-  expect(await page.evaluate(() => JSON.stringify(localStorage))).toBe(antes)
+  expect(await page.evaluate(sinPing)).toBe(antes)
   expect(ajenas).toEqual([])
 })
 

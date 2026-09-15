@@ -74,7 +74,7 @@ test.describe('2d · la confirmacion es un GATE, no un aviso', () => {
     await expect(page.getByTestId('exportar-jpeg')).toHaveAttribute('aria-disabled', 'true')
     await expect(page.getByTestId('mostrar-qr')).toBeDisabled()
 
-    await page.getByRole('checkbox').check()
+    await page.getByRole('radio', { name: /propia/ }).check()
     await expect(page.getByTestId('exportar-jpeg')).toBeEnabled()
     await expect(page.getByTestId('mostrar-qr')).toBeEnabled()
   })
@@ -200,7 +200,7 @@ test.describe('U6 · botones opcionales del enlace', () => {
     await page.fill('#cn', 'https://forms.example/daniel')
     await page.locator('#cn').blur()
 
-    await page.getByRole('checkbox', { name: /Confirmo/ }).check()
+    await page.getByRole('radio', { name: /propia/ }).check()
     await page.getByTestId('abrir-enlace').click()
     await page.getByTestId('confirmar-enlace').click()
     const enlace = (await page.getByTestId('enlace-generado').textContent())!.trim()
@@ -214,7 +214,7 @@ test.describe('U6 · botones opcionales del enlace', () => {
     await page.fill('#n', 'Daniel')
     await page.fill('#ag', 'http://agenda.example/daniel')
     await page.locator('#ag').blur()
-    await page.getByRole('checkbox', { name: /Confirmo/ }).check()
+    await page.getByRole('radio', { name: /propia/ }).check()
     await expect(page.getByTestId('abrir-enlace')).toHaveAttribute('aria-disabled', 'true')
     await expect(page.locator('#que-falta-para-compartir')).toContainText('Agenda')
   })

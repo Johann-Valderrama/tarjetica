@@ -40,7 +40,7 @@ async function abrirEditorListo(page: import('@playwright/test').Page) {
   await page.evaluate((t) => {
     localStorage.clear()
     localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-    localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: true }))
+    localStorage.setItem('tarjetica.confirmacion', JSON.stringify({ v: 1, d: 'propia' }))
   }, PERFIL.datos)
   await page.reload()
   await expect(page.getByTestId('qr-contacto')).toBeAttached()

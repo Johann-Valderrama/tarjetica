@@ -24,8 +24,8 @@ import {
   suscribirAlAlmacen,
   guardarFoto,
   guardarTarjeta,
-  guardarConfirmacion,
-  leerConfirmacion,
+  guardarTitularidad,
+  leerTitularidad,
   leerFoto,
   leerTarjetaDetallado,
 } from '@/features/tarjeta/almacenamiento/local'
@@ -120,8 +120,8 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
   const operacionLogo = useRef(0)
   useEffect(() => () => { operacionLogo.current += 1 }, [])
   // Se siembra de lo guardado: la puerta de exportacion vive en dos pantallas (el `.vcf` aqui,
-  // el `.jpeg` en la vista de la tarjeta), asi que la confirmacion tiene que sobrevivir al salto.
-  const [confirmado, setConfirmado] = useState(() => leerConfirmacion())
+  // el `.jpeg` en la vista de la tarjeta), asi que la declaracion tiene que sobrevivir al salto.
+  const [titularidad, setTitularidad] = useState(() => leerTitularidad())
   const [guardado, setGuardado] = useState<EstadoGuardado>(() => {
     const { motivo } = leerTarjetaDetallado()
     if (motivo === 'sin-datos') return 'inicial'
@@ -174,8 +174,8 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
    * via (el boton de borrar todo la desmarca).
    */
   useEffect(() => {
-    if (confirmado) confirmacion.current?.classList.remove('reclamando')
-  }, [confirmado])
+    if (titularidad) confirmacion.current?.classList.remove('reclamando')
+  }, [titularidad])
 
   // Lo mismo para un CAMPO resaltado: su borde rojo se apaga cuando la tarjeta ya pasa, o sea
   // cuando la persona arreglo lo que faltaba, no por tiempo.
@@ -244,7 +244,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
     setFoto(null)
     setLogo(null)
     setAvisoLogo(null)
-    setConfirmado(false)
+    setTitularidad(null)
     setGuardado('inicial')
   }
 
@@ -256,7 +256,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
     // Igual que en el `.vcf`: la puerta la sostiene este codigo desde que el boton usa
     // `aria-disabled`. Es la contramedida de la unidad 2d y no se debilita, solo cambia quien la
     // impone; hay un E2E que pulsa el boton bloqueado y comprueba que no sale ninguna imagen.
-    if (!esExportable(tarjeta) || !puedeExportar(confirmado)) return
+    if (!esExportable(tarjeta) || !puedeExportar(titularidad)) return
     setAvisoDescarga(null)
     setExportando(true)
     try {
@@ -278,7 +278,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
     }
   }
 
-  const listaParaExportar = esExportable(tarjeta) && puedeExportar(confirmado)
+  const listaParaExportar = esExportable(tarjeta) && puedeExportar(titularidad)
 
   // Que dice el aviso cuando la TARJETA no pasa: sin nombre, el mensaje de siempre (es el caso mas
   // comun y el unico campo obligatorio); con otro campo roto, el nombre de ESE campo.
@@ -425,10 +425,10 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
         <AvisoDeAlcance />
         <div ref={confirmacion}>
           <ConfirmacionDeExportacion
-            confirmado={confirmado}
+            titularidad={titularidad}
             onCambio={(v) => {
-              setConfirmado(v)
-              guardarConfirmacion(v)
+              setTitularidad(v)
+              guardarTitularidad(v)
             }}
           />
         </div>
@@ -478,7 +478,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
             onAccion={() => {
               // La puerta se comprueba TAMBIEN aqui, no solo en el estado del boton: desde que el
               // apagado es `aria-disabled`, el navegador ya no la sostiene por nosotros.
-              if (!esExportable(tarjeta) || !puedeExportar(confirmado)) return
+              if (!esExportable(tarjeta) || !puedeExportar(titularidad)) return
               const r = descargarVCard(tarjeta, foto?.dataUrl)
               if (!r.ok) setAvisoDescarga(t('editor.vcfFallo'))
             }}
@@ -509,7 +509,7 @@ function EditorHidratado({ inicial }: { inicial: TarjetaBorrador }) {
             {avisoQueFalta}
           </p>
         )}
-        {esExportable(tarjeta) && !confirmado && (
+        {esExportable(tarjeta) && !titularidad && (
           // El `id` no es decoracion: es lo que `aria-describedby` de cada boton apagado enlaza,
           // asi que un lector de pantalla anuncia QUE FALTA al llegar al boton, no solo que esta
           // deshabilitado.

@@ -24,7 +24,7 @@ test('logo independiente: conserva formato, persiste y aparece en el JPEG', asyn
   const reducida = PNG.sync.read(Buffer.from(imagen.split(',')[1], 'base64'))
   expect(reducida.width / reducida.height).toBe(4)
   expect(reducida.data[3]).toBe(0)
-  await page.getByRole('checkbox', { name: /Confirmo/ }).check()
+  await page.getByRole('radio', { name: /propia/ }).check()
   const [descarga] = await Promise.all([
     page.waitForEvent('download'), page.getByTestId('exportar-jpeg').click(),
   ])

@@ -29,7 +29,7 @@ test('la última edición se guarda antes de navegar, sin esperar un temporizado
   // Lectura inmediata: esperar «Guardado» escondería la ventana de pérdida del autosave anterior.
   const dato = await page.evaluate(() => JSON.parse(localStorage.getItem('tarjetica.tarjeta') ?? 'null'))
   expect(dato?.d.n).toBe('Lucía')
-  await page.getByRole('checkbox', { name: /Confirmo/ }).check()
+  await page.getByRole('radio', { name: /propia/ }).check()
   await page.getByLabel('Nombre *', { exact: true }).fill('Lucía Actualizada')
   await page.getByTestId('mostrar-qr').dispatchEvent('click')
   await expect(page.getByRole('heading', { name: 'Lucía Actualizada', exact: true })).toBeVisible()
@@ -38,7 +38,7 @@ test('la última edición se guarda antes de navegar, sin esperar un temporizado
 test('borrar no recrea claves después del antiguo plazo del autosave', async ({ page }) => {
   await page.goto('/editor')
   await page.getByLabel('Nombre *', { exact: true }).fill('Lucía')
-  await page.getByRole('checkbox', { name: /Confirmo/ }).check()
+  await page.getByRole('radio', { name: /propia/ }).check()
   await page.getByRole('button', { name: 'Borrar mis datos de este dispositivo' }).click()
   await expect(page.getByLabel('Nombre *', { exact: true })).toHaveValue('')
   await page.waitForTimeout(600)
