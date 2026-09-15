@@ -601,3 +601,12 @@
   apagarlos no lo reduce y le quita al regalo lo que lo diferencia. Lo básico se queda gratis y completo;
   la ola 2 agrega lo que exige servidor (enlace editable, foto, miniatura). Botón claro con degradado
   dorado. Merge del PR #1 a `main` autorizado : Johann.
+
+- 2026-09-15 **El enlace largo se atiende sin acortador de terceros: botón Compartir + formato v2 con
+  diccionario.** Un enlace corto de verdad exige guardar datos en un servidor. is.gd o TinyURL dejarían
+  la tarjeta en un tercero, sin poder borrarla, con códigos cortos adivinables, y contradicen
+  `/privacidad` §2.1 y §3.1. El diccionario queda CONGELADO (cambiarlo rompe enlaces v2 repartidos).
+  Medido: 17% a 27% menos con tarjetas de ejemplo : Johann (opción C).
+- 2026-09-15 **El enlace corto va a la ola 2, cifrado: `/c/<id>#<clave>`.** El servidor guarda solo la
+  tarjeta cifrada y la clave nunca le llega. Llega junto con las cuentas por persona; en esa ola se
+  evalúa Neon frente a Supabase. Detalle: `PRP-TD-002` §1 : Johann.

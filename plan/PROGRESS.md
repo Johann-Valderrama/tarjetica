@@ -14,6 +14,18 @@
 
 ## Estado
 
+### Enlace más corto + botón Compartir · rama `feat/compartir-enlace` · 2026-09-15
+
+- Pedido: el enlace compartible salía muy largo. Un enlace corto de verdad exige servidor; se decidió
+  (opción C) no usar acortadores de terceros y dejar el corto cifrado para la ola 2 (DECISIONES).
+- U0 medido: con diccionario el enlace baja 17% a 27% (típica 294 → 240 caracteres, llena 556 → 459).
+  En los fixtures de `codec.test.ts`: v1 532 → v2 448 (16%), con assert de al menos 15%.
+- U2: formato v2 con diccionario CONGELADO en `codec.ts`; v0 y v1 se siguen leyendo.
+- U1: botón Compartir (`navigator.share`) en `generar-enlace.tsx`, solo donde existe la hoja.
+- Verificado: typecheck 0, lint 0, 250 unitarios, 164/164 e2e contra build nuevo. Ojo: el e2e corre
+  sobre `.next`; sin `pnpm build` previo mide código viejo (dio 6 falsos rojos esta sesión).
+- Pendiente: push y PR con OK del dueño.
+
 ### Ola 1 · CERRADA, integrada y en producción · 2026-09-15 08:40
 
 - H2: ayudas genéricas (variante 1). H3: tras revisar capturas, el dueño quitó la regla "nunca blanco

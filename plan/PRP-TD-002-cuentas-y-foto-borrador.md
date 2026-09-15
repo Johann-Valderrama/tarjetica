@@ -13,9 +13,9 @@
 | Foto y logo alojados | Las imágenes viven en almacenamiento remoto, no en `localStorage`. |
 | Foto visible al abrir el enlace | Quien recibe el enlace ve la foto (hoy no: G5, la foto nunca viaja en el fragmento). |
 | Miniatura con foto al compartir la URL | WhatsApp y LinkedIn muestran una vista previa con nombre y foto. |
-| Enlace corto y revocable | `tarjetica.app/u/<id>` en vez de `/t#<payload>`; se puede apagar y editar sin repartir uno nuevo. |
+| Enlace corto, cifrado y revocable | `tarjetica.app/c/<id>#<clave>` (~60 caracteres) en vez de `/t#<payload>`. El servidor guarda solo la tarjeta cifrada; la clave va en el fragmento y nunca le llega. Se puede apagar y editar sin repartir uno nuevo. Decidido por Johann el 2026-09-15. |
 | Eliminar cuenta | Borra tarjeta, imágenes y enlaces; los enlaces repartidos dejan de resolver. |
-| Backend | Supabase (Postgres, Auth, Storage) como base gestionada. |
+| Backend | Base gestionada: **Supabase o Neon, se evalúa al abrir la ola 2** (pedido de Johann, 2026-09-15). |
 
 ## 2. Decisiones que esta ola REABRE (no se pueden esquivar)
 
