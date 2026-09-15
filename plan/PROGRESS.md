@@ -14,6 +14,18 @@
 
 ## Estado
 
+### PR #2 mergeado y pruebas físicas cerradas · 2026-09-15 13:30
+
+- El dueño probó en su teléfono la hoja de Compartir y el formato v2 (PR #2): funciona. Merge a `main`
+  por fast-forward (`671d963`), con build nuevo y suite completa antes de desplegar: typecheck 0,
+  lint 0, 250 unitarios, 25/25 cabeceras, 164/164 e2e. Despliegue automático por Vercel.
+- **Pruebas físicas de la ola 1: PASARON** según el dueño (QR de pantalla a pantalla, JPEG y .vcf en
+  teléfono, enlace desde apps, Guardar contacto con hoja nativa, tema claro). Quedan cerradas.
+- Siguiente trabajo sustantivo: planear la ola 2 en chat nuevo (Opus.H, plan mode); la frase de
+  arranque se entregó en el chat de cierre de la ola 1 y su contenido está en DECISIONES y en
+  `PRP-TD-002` (enlace corto cifrado, Neon frente a Supabase, aviso de privacidad ya publicado).
+
+
 ### Enlace más corto + botón Compartir · rama `feat/compartir-enlace` · 2026-09-15
 
 - Pedido: el enlace compartible salía muy largo. Un enlace corto de verdad exige servidor; se decidió
@@ -47,15 +59,7 @@
 
 ## PARA JOHANN (gates abiertos)
 
-- **PR #2 (enlace más corto + botón Compartir), bloquea el merge:** abrir la vista previa del PR en tu
-  celular, generar un enlace y tocar Compartir; la hoja nativa solo se probó simulada.
-  A. Funciona: merge a `main` y despliegue (recomendada si la hoja abre bien).
-  B. Falla o no aparece: me pasas qué viste y se corrige en la misma rama.
-
-- **Pruebas físicas** (siguen pendientes de antes): escanear el QR de pantalla a pantalla, guardar el
-  JPEG y el .vcf en iPhone y Android, y abrir un enlace desde Instagram y LinkedIn. Ahora también:
-  tocar "Guardar contacto" en el receptor desde un iPhone (hoja nativa) y ver que el tema claro no
-  encandile en la mano.
+- Pruebas físicas de la ola 1: cerradas el 2026-09-15 (pasaron).
 - **Ola 2** (`plan/PRP-TD-002-cuentas-y-foto-borrador.md`): antes de construir, decidir "capa opcional
   o reemplazo" y hacer la asesoría legal de la sección 3. Se planea en plan mode con Opus.H.
 
