@@ -14,6 +14,60 @@
 
 ## Estado
 
+### Ola 1 · REPORTE FINAL (modo autónomo nocturno) · 2026-09-15 01:xx
+
+Rama `feat/mejora-ola-1`, 14 commits locales sobre `f8a23ca`, **sin push** (H4). Director Fable; Opus
+ejecutó U2, Sonnet U3; verificación por verificador-qa Sonnet (3 pasadas) y Haiku (1).
+
+**Estado por unidad**
+
+| Unidad | Estado | Commit |
+|---|---|---|
+| U1 evaluación de referencias | hecha, `capturas/ola-1-evaluacion/` | `1beea82` (docs) |
+| U2 contrato de datos (`ag`, `cn`, `tm`, `cm`) | hecha, PASS Sonnet + Haiku | `692984e`, merge `1531062` |
+| U3 color de marca desde el logo + selector de tema | hecha, PASS Sonnet (tras corregir `fetch` de `data:` bloqueado por CSP) | `8bf8948`, merge `a63ab91`, fix en `bb59de7` |
+| U4 tema claro premium con tokens | hecha, PASS Sonnet (tras agregar el par borde/superficie) | `c8bcdb5`, `d13e39f` |
+| U5 receptor (Agendar, Cuéntame, canales, guardar nativo) | hecha, PASS Sonnet tras corregir `noopener` en canales `http://` | `bfcf9aa`, fix en `bb59de7` |
+| U6 editor con ayudas | hecha (variante genérica) | `bb59de7` |
+| U7 abrir en pestaña nueva | hecha | `db26172` |
+| U8 borrador PRP-TD-002 | hecho | `03e3bf3` |
+| Cobertura extra pedida por el re-verificador | hecha | último commit |
+
+**Pruebas, antes y después**
+
+| Comprobación | `main` (antes) | rama (después) |
+|---|---|---|
+| typecheck / lint | 0 / 0 | 0 / 0 |
+| unitarios | 173 (12 archivos) | 246 (14 archivos) |
+| verify:headers | 25/25 | 25/25 |
+| e2e | 142/142 | 162/162 (suite completa tras U6; los tests de cobertura del último commit no tocan runtime) |
+
+**Criterios de aceptación**: campo opcional vacío se omite sin huecos (e2e canales exactos + receptor
+mínimo, capturas); enlaces v0/v1 abren idéntico (codec.test + receptor sin `tm`); fragmento sin foto ni
+logo y sin fuga (`enlace-y-fuga` 8/8); color sugerido ≥ 4,5:1 y editable (`color-de-marca.spec`);
+fondo claro luminancia 0,883 < 0,93 y sin canal en 255 (`contraste.test`); abrir en pestaña nueva y
+copiar (`enlace-y-fuga`); QR del JPEG decodifica en los cinco perfiles con logo en ambos temas
+(`logo.spec` 10/10); 25/25 cabeceras; textos nuevos en es-CO y en (`mensajes.test`).
+
+**Capturas (todas ignoradas por git)**
+- `capturas/ola-1-evaluacion/` (U1, 28 PNG + tabla + `resumen-dom.json`)
+- `capturas/ola-1-antes-despues/` (H3): tarjeta, receptor, receptor mínimo y QR en oscuro ANTES
+  (producción) y DESPUÉS (oscuro y claro); JPEG DESPUÉS en los dos temas. El JPEG ANTES no se pudo
+  exportar en headless contra producción (el botón no llegó a estar listo en 60 s); el JPEG oscuro
+  DESPUÉS es visualmente el mismo diseño con el punto de ubicación en el color de marca.
+- `capturas/ola-1-h2/` (H2): `variante-1-generica.png` (lo commiteado), `variante-2-con-ejemplos.png`
+  y `README.md` con la verificación de servicios y el tradeoff.
+- `capturas/ola-1-u4-verificacion/`, `capturas/ola-1-u5-verificacion/`: verificación visual del director.
+
+**Lo que no se hizo y por qué**
+- Sol (Codex) no revisó: runtime OPS (ver entrada anterior). Mitigado con dos lentes Claude por unidad.
+- Google Forms no entra en la variante 2 de H2: su página oficial no afirma "gratis" para cuentas
+  personales; Typeform lo afirma solo en preguntas frecuentes.
+- Mejoras 4 (Open Graph estático) y 5 (compartir desde el receptor): aplazadas por decisión H1.
+
+**Pendiente del dueño (H2, H3, H4)**: ver el bloque de decisiones del reporte en el chat y en
+`DECISIONES.md` 2026-09-15.
+
 ### Ola 1 de mejoras · línea base, U1, U2, U4, U5, U7 y U8 · 2026-09-14 y 15
 
 - Director Fable en el worktree `tarjetica-ola-1`, rama `feat/mejora-ola-1` desde `f8a23ca`. Plan
