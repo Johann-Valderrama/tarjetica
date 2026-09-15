@@ -7,6 +7,7 @@ import { Ubicacion, Encabezado, Discurso } from '@/features/tarjeta/vista/tarjet
 import { FirmaDeMarca } from '@/features/tarjeta/vista/firma'
 import { QrDeContacto } from '@/features/tarjeta/qr/qr-cliente'
 import { descargarVCard } from '@/features/tarjeta/vcard/descargar'
+import { apariencia } from '@/features/tarjeta/vista/apariencia'
 import { enlacesDelPerfil, urlWhatsapp } from './acciones'
 
 const secundario = 'flex min-h-12 items-center justify-center gap-3 rounded-xl border border-borde-fuerte px-4 py-3 text-sm font-semibold text-tinta transition-colors hover:bg-superficie-sutil focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-acento'
@@ -33,7 +34,13 @@ export function PerfilRecibido({ tarjeta }: { tarjeta: Tarjeta }) {
     disparador.current?.focus()
   }
 
+  // El tema envuelve `<main>` Y el dialogo del QR: el dialogo es hermano de `<main>`, y si el
+  // atributo fuera solo del `<main>` la tarjeta clara abriria un dialogo oscuro.
+  const { tema, colorMarca } = apariencia(tarjeta)
+  const estiloMarca = colorMarca ? ({ '--color-marca': colorMarca } as React.CSSProperties) : undefined
+
   return (
+    <div data-tema={tema} style={estiloMarca} className="min-h-dvh bg-fondo text-tinta">
     <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center px-4 py-8 sm:py-12">
       <article data-testid="perfil-recibido" className="tarjeta-superficie overflow-hidden rounded-tarjeta p-6 sm:p-8">
         <p className="mb-7 text-[10px] font-bold uppercase tracking-[0.22em] text-tinta-suave">{t('presentacion')}</p>
@@ -62,8 +69,9 @@ export function PerfilRecibido({ tarjeta }: { tarjeta: Tarjeta }) {
         </nav>}
       </article>
       <footer className="mt-5"><FirmaDeMarca /></footer>
-      {qrAbierto && <DialogoQr tarjeta={tarjeta} cerrar={cerrarQr} />}
     </main>
+    {qrAbierto && <DialogoQr tarjeta={tarjeta} cerrar={cerrarQr} />}
+    </div>
   )
 }
 

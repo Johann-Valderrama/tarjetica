@@ -27,9 +27,17 @@ const DENSIDAD = 3
 /**
  * `image/jpeg` no tiene transparencia: sin fondo explicito, lo transparente se rellena de NEGRO.
  * La tarjeta tiene esquinas redondeadas, asi que esos cuatro triangulitos son justo lo que se
- * veria mal. Se pinta con el mismo `--fondo` de la app.
+ * veria mal. Se pinta con el `--fondo` que el nodo capturable tiene COMPUTADO (ola 1, U4): desde
+ * que hay tema claro, el fondo depende del `data-tema` del contenedor y no es un valor fijo. Se
+ * lee del propio nodo, no se pasa por parametro: las variables CSS heredan por el DOM y asi el
+ * JPEG sale con el mismo fondo que la persona ve. Este valor queda solo de respaldo.
  */
-const FONDO = '#0a0a0b'
+const FONDO_DE_RESPALDO = '#0a0a0b'
+
+function fondoDe(nodo: HTMLElement): string {
+  const valor = getComputedStyle(nodo).getPropertyValue('--fondo').trim()
+  return valor || FONDO_DE_RESPALDO
+}
 
 /** Calidad del JPEG. 0,92 es el punto donde el texto todavia no muestra artefactos de bloque. */
 const CALIDAD = 0.92
@@ -66,7 +74,7 @@ export async function tarjetaAJpeg(): Promise<ResultadoImagen> {
     const dataUrl = await domToJpeg(nodo, {
       scale: DENSIDAD,
       quality: CALIDAD,
-      backgroundColor: FONDO,
+      backgroundColor: fondoDe(nodo),
       // Las fuentes se embeben en la imagen. Es el gotcha numero uno de esta ola: sin ellas el
       // texto sale en blanco y no se lanza nada.
       font: {},

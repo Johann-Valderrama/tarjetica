@@ -32,7 +32,7 @@ export function Avatar({
   return (
     <div
       className="shrink-0 rounded-full p-[2px]"
-      style={{ ...estilo, background: 'linear-gradient(160deg, var(--acento), transparent 65%)' }}
+      style={{ ...estilo, background: 'linear-gradient(160deg, var(--color-marca), transparent 65%)' }}
     >
       <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-superficie-sutil">
         {fotoDataUrl ? (

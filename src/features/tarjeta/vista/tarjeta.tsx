@@ -24,6 +24,9 @@ import { FirmaDeMarca } from '@/features/tarjeta/vista/firma'
 
 export const ID_CAPTURABLE = 'tarjeta-capturable'
 
+/** Los dos temas que puede elegir quien crea la tarjeta (ola 1, U4). Sin eleccion: oscuro. */
+export type Tema = 'claro' | 'oscuro'
+
 export function VistaTarjeta({
   tarjeta,
   fotoDataUrl,
@@ -32,10 +35,19 @@ export function VistaTarjeta({
   dimension,
   muestra = false,
   avisoQr,
+  tema = 'oscuro',
+  colorMarca,
 }: {
   tarjeta: Tarjeta
   fotoDataUrl?: string
   logoDataUrl?: string
+  /**
+   * El tema va en el CONTENEDOR de la tarjeta (`data-tema`), no en `<html>`: asi la vista previa
+   * del editor y el lienzo del JPEG muestran el tema elegido mientras el editor sigue oscuro.
+   */
+  tema?: Tema
+  /** Color de marca (`#rrggbb`) elegido o sugerido desde el logo. Sobreescribe `--color-marca`. */
+  colorMarca?: string
   /** El codigo QR. Se pasa como hijo para que la vista siga siendo una funcion del dato. */
   qr?: React.ReactNode
   /**
@@ -55,10 +67,17 @@ export function VistaTarjeta({
   avisoQr?: string
 }) {
   const paraImagen = dimension !== undefined || muestra
+  // `bg-fondo` aqui y no solo en la pagina: el lienzo oculto del JPEG y la vista previa del editor
+  // viven dentro de otra pantalla, y sin fondo propio una tarjeta clara flotaria sobre negro.
+  const estiloMarca = colorMarca ? ({ '--color-marca': colorMarca } as React.CSSProperties) : undefined
   return (
     <div
-      className={`mx-auto flex w-full max-w-md flex-col overflow-hidden p-3 ${paraImagen ? '' : 'justify-center'}`}
-      style={dimension ? { width: dimension.ancho, maxWidth: 'none' } : muestra ? undefined : { height: '100dvh' }}
+      data-tema={tema}
+      className={`mx-auto flex w-full max-w-md flex-col overflow-hidden bg-fondo p-3 ${paraImagen ? '' : 'justify-center'}`}
+      style={{
+        ...estiloMarca,
+        ...(dimension ? { width: dimension.ancho, maxWidth: 'none' } : muestra ? undefined : { height: '100dvh' }),
+      }}
     >
       {/*
         La tarjeta mide LO QUE NECESITA, no el alto de la pantalla (2026-09-11). Antes crecia hasta
@@ -94,8 +113,8 @@ export function Ubicacion({ ciudad, logoDataUrl }: { ciudad?: string; logoDataUr
   if (!ciudad && !logoDataUrl) return null
   return (
     <div className="mb-4 flex items-center justify-between gap-3">
-    {ciudad && <p className="flex min-w-0 items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-acento">
-      <span aria-hidden className="inline-block h-2 w-2 shrink-0 rounded-full bg-acento" />
+    {ciudad && <p className="flex min-w-0 items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-color-marca">
+      <span aria-hidden className="inline-block h-2 w-2 shrink-0 rounded-full bg-color-marca" />
       <span className="min-w-0 truncate">{ciudad}</span>
     </p>}
     {logoDataUrl && (

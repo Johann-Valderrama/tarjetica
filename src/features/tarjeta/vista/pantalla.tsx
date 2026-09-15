@@ -12,6 +12,7 @@ import {
   suscribirAlAlmacen,
 } from '@/features/tarjeta/almacenamiento/local'
 import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
+import { apariencia } from '@/features/tarjeta/vista/apariencia'
 import { QrDeContacto } from '@/features/tarjeta/qr/qr-cliente'
 
 /**
@@ -61,13 +62,21 @@ export function PantallaTarjeta() {
    * cuadrito, sobre el piso de 2,5 pero sin holgura). Esta pantalla existe para extenderle el
    * telefono a otra persona: se queda limpia, y las salidas viven en el editor.
    */
+  // El tema envuelve la PAGINA entera, no solo la columna de la tarjeta: en un monitor, una
+  // tarjeta clara centrada sobre el fondo oscuro del `body` se veria como una franja con margenes
+  // negros a los lados. El `body` sigue oscuro porque `:root` no cambia.
+  const { tema, colorMarca } = apariencia(borrador)
   return (
-    <VistaTarjeta
-      tarjeta={borrador}
-      fotoDataUrl={leerFoto()?.dataUrl}
-      logoDataUrl={leerLogo()?.dataUrl}
-      qr={<QrDeContacto tarjeta={borrador} />}
-    />
+    <div data-tema={tema} className="min-h-dvh bg-fondo">
+      <VistaTarjeta
+        tarjeta={borrador}
+        fotoDataUrl={leerFoto()?.dataUrl}
+        logoDataUrl={leerLogo()?.dataUrl}
+        qr={<QrDeContacto tarjeta={borrador} />}
+        tema={tema}
+        colorMarca={colorMarca}
+      />
+    </div>
   )
 }
 
