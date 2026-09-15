@@ -530,3 +530,10 @@
 - 2026-09-14 **La foto visible al abrir el enlace llega en la ola 2, no se mete en el fragmento.**
   Meterla alargaría el enlace y dejaría la foto en una URL irrevocable (contra D5). En la ola 2 va
   alojada, con enlace corto y borrable al eliminar la cuenta : Johann (D-FOTO F2).
+- 2026-09-14 **El segundo botón se llama "Cuéntame qué necesitas" ("Tell me what you need").** Sirve
+  a cualquier negocio, no promete gratis, tiempo ni precio, y no compite con "Agendar" : Johann
+  (D-NOMBRE opción 1).
+- 2026-09-14 **Cada función opcional del editor lleva una explicación corta: qué hace y qué tipo de
+  página enlazar** (una agenda para "Agendar", una encuesta o formulario para "Cuéntame qué
+  necesitas"). Si la ayuda nombra servicios concretos queda pendiente, se decide viendo variantes :
+  Johann.
