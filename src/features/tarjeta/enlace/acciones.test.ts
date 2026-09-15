@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
-import { enlacesDelPerfil, urlAgenda, urlCuentame, urlWhatsapp } from '@/features/tarjeta/enlace/acciones'
+import { canalesDelPerfil, enlacesDelPerfil, urlAgenda, urlCorreo, urlCuentame, urlLlamar, urlWhatsapp } from '@/features/tarjeta/enlace/acciones'
 
 describe('urlWhatsapp', () => {
   it('construye wa.me con el primer WhatsApp internacional y sus separadores', () => {
@@ -136,5 +136,46 @@ describe('enlacesDelPerfil', () => {
       { tipo: 'tiktok', url: 'https://tiktok.com/@ana' },
       { tipo: 'otro', url: 'https://ana.example/seguro', etiqueta: 'Seguro' },
     ])
+  })
+})
+
+describe('canales del receptor (U5)', () => {
+  const completa: Tarjeta = {
+    n: 'Ana', a: 'Ríos', co: 'ana@example.com',
+    t: [{ n: '+57 310 555 1234', e: 'whatsapp' }],
+    w: 'https://ana.example', li: 'anarios', ig: 'anarios',
+    l: [{ u: 'https://portafolio.example', e: 'Portafolio' }],
+  }
+
+  it('WhatsApp acepta un mensaje prellenado y lo codifica', () => {
+    expect(urlWhatsapp(completa, 'Hola Ana, vi tu tarjeta')).toBe('https://wa.me/573105551234?text=Hola%20Ana%2C%20vi%20tu%20tarjeta')
+    expect(urlWhatsapp(completa)).toBe('https://wa.me/573105551234')
+  })
+
+  it('llamar usa el primer telefono con + y digitos, y exige un numero real', () => {
+    expect(urlLlamar(completa)).toBe('tel:+573105551234')
+    expect(urlLlamar({ n: 'Ana', t: [{ n: '310 555 1234', e: 'movil' }] })).toBe('tel:3105551234')
+    expect(urlLlamar({ n: 'Ana', t: [{ n: '12345', e: 'movil' }] })).toBeNull()
+    expect(urlLlamar({ n: 'Ana' })).toBeNull()
+    expect(urlLlamar({ n: 'Ana', t: 'x' } as unknown as Tarjeta)).toBeNull()
+  })
+
+  it('correo solo si tiene forma de correo', () => {
+    expect(urlCorreo(completa)).toBe('mailto:ana@example.com')
+    expect(urlCorreo({ n: 'Ana', co: 'no es correo' })).toBeNull()
+    expect(urlCorreo({ n: 'Ana', co: 'a@b.c?subject=x' })).toBeNull()
+    expect(urlCorreo({ n: 'Ana', co: 7 } as unknown as Tarjeta)).toBeNull()
+  })
+
+  it('lista SOLO los canales llenos, en orden fijo, sin los enlaces libres', () => {
+    expect(canalesDelPerfil(completa).map((c) => c.tipo)).toEqual(['whatsapp', 'llamar', 'correo', 'web', 'linkedin', 'instagram'])
+    expect(canalesDelPerfil({ n: 'Ana' })).toEqual([])
+    expect(canalesDelPerfil({ n: 'Ana', t: [{ n: '310 555 1234', e: 'whatsapp' }] }).map((c) => c.tipo)).toEqual(['llamar'])
+    expect(canalesDelPerfil(completa, 'hola')[0].url).toContain('?text=hola')
+  })
+
+  it('las dos acciones opcionales no entran a la fila de canales', () => {
+    const conAcciones: Tarjeta = { ...completa, ag: 'https://agenda.example/ana', cn: 'https://forms.example/ana' }
+    expect(canalesDelPerfil(conAcciones).some((c) => c.url.includes('agenda.example') || c.url.includes('forms.example'))).toBe(false)
   })
 })

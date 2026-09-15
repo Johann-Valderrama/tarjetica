@@ -133,6 +133,12 @@
   --peligro-relleno: rgba(124, 35, 19, 0.12);
   --peligro-relleno-fuerte: rgba(124, 35, 19, 0.2);
   --peligro-latido: rgba(124, 35, 19, 0.4);
+  /*
+   * Se REPITE aqui a proposito. Una variable que vale `var(--acento)` se resuelve donde se
+   * declara, no donde se usa: declarada solo en `:root` heredaria el naranja brillante del oscuro
+   * y el punto de la ubicacion saldria a 2,6:1 sobre marfil (visto en captura).
+   */
+  --color-marca: var(--acento);
 }
 
 @layer base {

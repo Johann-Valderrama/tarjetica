@@ -19,8 +19,15 @@ test('acciones del receptor descargan sus datos sin tocar los del visitante ni p
   await page.goto(enlace(perfil))
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Alexa Rivera')
   await expect(page.getByTestId('qr-contacto')).toHaveCount(0)
-  await expect(page.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', 'https://wa.me/573001234567')
+  // WhatsApp lleva el mensaje prellenado con el nombre (ola 1, mejora 2); Llamar y Correo usan
+  // `tel:` y `mailto:` (mejora 3).
+  await expect(page.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', /^https:\/\/wa\.me\/573001234567\?text=Hola%20Alexa/)
+  await expect(page.getByRole('link', { name: 'Llamar' })).toHaveAttribute('href', 'tel:+573001234567')
+  await expect(page.getByRole('link', { name: 'Correo' })).toHaveAttribute('href', 'mailto:alexa@example.com')
   await expect(page.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', 'https://linkedin.com/in/alexa-rivera')
+  for (const link of await page.getByRole('list', { name: 'Canales de contacto' }).getByRole('link').all()) {
+    if ((await link.getAttribute('href'))!.startsWith('https://')) await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+  }
   for (const link of await page.getByRole('navigation').getByRole('link').all()) {
     await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
     await expect(link).toHaveAttribute('referrerpolicy', 'no-referrer')
@@ -63,6 +70,68 @@ test('sin WhatsApp internacional ni enlaces no aparecen acciones vacías', async
   await expect(page.getByRole('button', { name: 'Guardar contacto' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'WhatsApp' })).toHaveCount(0)
   await expect(page.getByRole('navigation')).toHaveCount(0)
+  // Solo el canal que si existe: llamar. Ni acciones opcionales ni huecos.
+  await expect(page.getByTestId(/^icono-canal-/)).toHaveCount(1)
+  await expect(page.getByTestId('acciones-opcionales')).toHaveCount(0)
+})
+
+/**
+ * U5 (ola 1): la fila de canales muestra EXACTAMENTE los canales llenos, contados perfil por
+ * perfil. Un icono atenuado en vez de omitido pasaria una captura a simple vista y revelaria que
+ * canales no tiene la persona; por eso se cuenta, no se mira.
+ */
+const PERFILES_CANALES = [
+  { nombre: 'minima', datos: { n: 'Ana', a: 'Ríos', t: [{ n: '310 555 1234', e: 'whatsapp' }] }, canales: ['llamar'] },
+  { nombre: 'completa', datos: { ...perfil, ig: 'alexa', tk: 'alexa', fb: 'alexa.rivera', ag: 'https://agenda.example/alexa', cn: 'https://forms.example/alexa' }, canales: ['whatsapp', 'llamar', 'correo', 'web', 'linkedin', 'instagram', 'tiktok', 'facebook'] },
+  { nombre: 'solo-correo', datos: { n: 'Leo', co: 'leo@example.com' }, canales: ['correo'] },
+]
+for (const { nombre, datos, canales } of PERFILES_CANALES) test(`canales exactos para el perfil ${nombre}`, async ({ page }) => {
+  await page.goto(enlace(datos))
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  const ids = await page.getByTestId(/^icono-canal-/).evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.replace('icono-canal-', '')))
+  expect(ids).toEqual(canales)
+  if (canales.length === 0) await expect(page.getByRole('list', { name: 'Canales de contacto' })).toHaveCount(0)
+})
+
+test('las acciones opcionales aparecen solo si el creador las lleno, con destino seguro', async ({ page }) => {
+  await page.goto(enlace({ ...perfil, ag: 'https://agenda.example/alexa', cn: 'https://forms.example/alexa' }))
+  const agendar = page.getByTestId('accion-agendar')
+  const cuentame = page.getByTestId('accion-cuentame')
+  await expect(agendar).toHaveText(/Agendar/)
+  await expect(cuentame).toHaveText(/Cuéntame qué necesitas/)
+  for (const accion of [agendar, cuentame]) {
+    await expect(accion).toHaveAttribute('target', '_blank')
+    await expect(accion).toHaveAttribute('rel', 'noopener noreferrer')
+  }
+  // Solo una de las dos: el bloque existe con una sola accion y sin hueco.
+  await page.goto(enlace({ ...perfil, ag: 'https://agenda.example/alexa' }))
+  await expect(page.getByTestId('accion-agendar')).toBeVisible()
+  await expect(page.getByTestId('accion-cuentame')).toHaveCount(0)
+  // Un `http:` colado en el payload no llega ni a pintarse: el contrato estricto rechaza la
+  // tarjeta entera y el receptor muestra el aviso de datos invalidos, no una accion insegura.
+  await page.goto(enlace({ ...perfil, ag: 'http://agenda.example/alexa' }))
+  await expect(page.locator('[data-testid="aviso-enlace"][data-fase="fallo"]')).toBeVisible()
+  await expect(page.getByTestId('acciones-opcionales')).toHaveCount(0)
+})
+
+/**
+ * U4 (ola 1): el tema lo trae la tarjeta. Sin `tm` (un enlace de antes) sigue oscuro; con
+ * `tm: 'claro'` el fondo es marfil, nunca blanco puro, y el dialogo del QR hereda el tema.
+ */
+test('el receptor pinta el tema de la tarjeta, y el dialogo del QR lo hereda', async ({ page }) => {
+  const fondo = () => page.evaluate(() => getComputedStyle(document.querySelector('[data-tema]')!).backgroundColor)
+  await page.goto(enlace(perfil))
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  expect(await fondo()).toBe('rgb(10, 10, 11)')
+
+  await page.goto(enlace({ ...perfil, tm: 'claro' }))
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  expect(await fondo()).toBe('rgb(247, 241, 228)')
+  await page.getByRole('button', { name: 'Mostrar QR' }).click()
+  const dialogo = page.getByRole('dialog')
+  await expect(dialogo).toBeVisible()
+  expect(await dialogo.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(238, 228, 207)')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 })
 
 test('cambiar de fragmento actualiza perfil y acciones, cerrando el QR anterior', async ({ page }) => {

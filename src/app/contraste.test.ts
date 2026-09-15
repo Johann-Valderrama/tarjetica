@@ -272,9 +272,10 @@ describe('el tema claro no es blanco puro', () => {
   })
 
   it('el tema claro declara los mismos tokens que el oscuro', () => {
+    // Incluido `--color-marca`: como vale `var(--acento)` se resuelve donde se declara, asi que
+    // tiene que declararse en los DOS bloques o el claro hereda el naranja del oscuro.
     const nombres = (tema: Tema) => [...bloque(tema).matchAll(/--([a-z-]+):/g)].map((m) => m[1]).sort()
-    // `--color-marca` es un alias del acento y vive solo en `:root`: se hereda igual en los dos temas.
-    expect(nombres('claro')).toEqual(nombres('oscuro').filter((n) => n !== 'color-marca'))
+    expect(nombres('claro')).toEqual(nombres('oscuro'))
   })
 })
 
