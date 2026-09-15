@@ -567,6 +567,7 @@ const ETIQUETA_DEL_CAMPO = {
   n: 'nombre', a: 'apellido', c: 'cargo', em: 'empresa', co: 'correo', t: 'telefonos',
   w: 'sitioWeb', li: 'linkedin', ig: 'instagram', tk: 'tiktok', fb: 'facebook',
   l: 'otrosEnlaces', d: 'ciudad', ti: 'titular', de: 'descripcion',
+  ag: 'agenda', cn: 'cuentame',
 } as const
 
 function etiquetaDelCampo(campo: string) {

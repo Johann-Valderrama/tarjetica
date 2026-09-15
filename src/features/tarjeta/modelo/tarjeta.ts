@@ -16,28 +16,50 @@ import { z } from 'zod'
  */
 
 /**
- * URL de verdad navegable: **solo `http:` y `https:`**.
+ * Base de las dos reglas de URL: el esquema se valida contra una LISTA BLANCA.
  *
  * `z.string().url()` de Zod 4 acepta `javascript:alert(1)` (medido, no supuesto: el test
  * "valida correo y URL" lo cazo al escribir esta unidad). Estos campos se pintan como `href` en la
  * vista de tarjeta, y con el link de la Ola 6 la tarjeta la abre un TERCERO en su telefono: una URL
  * con esquema `javascript:` seria ejecucion de codigo en el navegador de esa persona.
  */
-const UrlNavegable = (max: number) =>
+const urlConEsquemas = (max: number, esquemas: readonly string[]) =>
   z
     .string()
     .max(max)
     .refine(
       (valor) => {
         try {
-          const u = new URL(valor)
-          return u.protocol === 'http:' || u.protocol === 'https:'
+          return esquemas.includes(new URL(valor).protocol)
         } catch {
           return false
         }
       },
-      { message: 'Tiene que ser una direccion que empiece por http:// o https://' },
+      { message: `Tiene que ser una direccion que empiece por ${esquemas.map((e) => `${e}//`).join(' o ')}` },
     )
+
+/** URL de verdad navegable: **solo `http:` y `https:`**. */
+const UrlNavegable = (max: number) => urlConEsquemas(max, ['http:', 'https:'])
+
+/**
+ * URL de una ACCION de la tarjeta (agendar, contar que necesitas): `https:` y nada mas.
+ *
+ * Mas estricta que `UrlNavegable` a proposito. Una accion es un boton grande que un desconocido
+ * toca en su telefono sin mirar el destino: en `http:` ese salto viaja en claro, y unas credenciales
+ * incrustadas (`https://usuario:clave@...`) son la forma clasica de disfrazar el host real.
+ */
+const UrlSoloHttps = (max: number) =>
+  urlConEsquemas(max, ['https:']).refine(
+    (valor) => {
+      try {
+        const u = new URL(valor)
+        return !u.username && !u.password
+      } catch {
+        return false
+      }
+    },
+    { message: 'No puede llevar usuario ni contraseña' },
+  )
 
 const REDES = {
   linkedin: { dominio: 'linkedin.com', prefijo: 'https://linkedin.com/in/', maxHandle: 60 },
@@ -161,6 +183,14 @@ export const Enlace = z.strictObject({
 export const TOPE_TITULAR = 60
 export const TOPE_DESCRIPCION = 160
 
+/**
+ * Los dos temas de la tarjeta. **La AUSENCIA de `tm` significa oscuro**, y por eso el esquema no
+ * lleva `.default()`: un enlace repartido antes de esta unidad tiene que decodificar al MISMO objeto
+ * de antes, sin ganar claves que su emisor nunca escribio.
+ */
+export const TEMAS = ['claro', 'oscuro'] as const
+export type Tema = (typeof TEMAS)[number]
+
 export const Tarjeta = z.strictObject({
   // identidad
   /** nombre (unico campo obligatorio) */
@@ -208,6 +238,18 @@ export const Tarjeta = z.strictObject({
    * 1581 (salud, afiliacion, convicciones). Lleva advertencia pegada en el editor (unidad 2d).
    */
   de: z.string().max(TOPE_DESCRIPCION).optional(),
+
+  // acciones opcionales y apariencia (U2)
+
+  /** url de agenda: destino del boton "Agendar" */
+  ag: UrlSoloHttps(300).optional(),
+  /** url de "Cuentame que necesitas" */
+  cn: UrlSoloHttps(300).optional(),
+  /** tema. Ausente = oscuro (ver `TEMAS`) */
+  tm: z.enum(TEMAS).optional(),
+  /** color de marca en hexadecimal de 6 digitos. Seis y no tres: una sola forma de escribir el
+   * mismo color, asi que comparar dos tarjetas no depende de como lo tecleo cada quien */
+  cm: z.string().regex(/^#[0-9a-f]{6}$/i).optional(),
 })
 
 /**
@@ -284,6 +326,12 @@ export const BorradorGuardable = z.strictObject({
   d: TextoGuardable.optional(),
   ti: TextoGuardable.optional(),
   de: TextoGuardable.optional(),
+  ag: TextoGuardable.optional(),
+  cn: TextoGuardable.optional(),
+  // El tema no se teclea, se elige en un control cerrado: aqui no hay formato a medio escribir que
+  // conservar, y un valor inventado si seria basura.
+  tm: z.enum(TEMAS).optional(),
+  cm: TextoGuardable.optional(),
 })
 
 /** ¿Este borrador ya cumple el contrato de salida? Puerta de las exportaciones (Olas 4, 5 y 6). */
