@@ -8,6 +8,7 @@ import {
   FotoLocal,
   Tarjeta,
   TarjetaBorrador,
+  TEMAS,
   TOPE_DESCRIPCION,
   TOPE_TITULAR,
 } from '@/features/tarjeta/modelo/tarjeta'
@@ -132,6 +133,65 @@ describe('Tarjeta (unidad 1c)', () => {
       // El borrador sigue siendo permisivo: el dato a medio escribir se conserva para corregirlo.
       expect(BorradorGuardable.safeParse({ [campo]: valor }).success).toBe(true)
     }
+  })
+})
+
+describe('acciones opcionales y apariencia (U2)', () => {
+  it('la tarjeta minima, sin ninguno de los cuatro campos, sigue pasando', () => {
+    // Compatibilidad hacia atras: lo que ya circula no conoce estas claves.
+    expect(Tarjeta.safeParse({ n: 'Daniel' }).success).toBe(true)
+  })
+
+  it('acepta los cuatro campos llenos', () => {
+    expect(
+      Tarjeta.safeParse({
+        n: 'Daniel',
+        ag: 'https://cal.example.com/daniel/30min',
+        cn: 'https://ejemplo.com/cuentame',
+        tm: 'claro',
+        cm: '#1D4ED8',
+      }).success,
+    ).toBe(true)
+  })
+
+  it('las dos acciones exigen https, sin usuario ni contraseña: es un boton que toca un desconocido', () => {
+    for (const campo of ['ag', 'cn'] as const) {
+      expect(Tarjeta.safeParse({ n: 'J', [campo]: 'https://ejemplo.com/x' }).success).toBe(true)
+      for (const veneno of [
+        'http://ejemplo.com/x',
+        'javascript:alert(1)',
+        'https://usuario:clave@ejemplo.com/x',
+        'https://usuario@ejemplo.com/x',
+        'ejemplo.com/x',
+      ]) {
+        expect(Tarjeta.safeParse({ n: 'J', [campo]: veneno }).success, `${campo}: ${veneno}`).toBe(false)
+      }
+    }
+  })
+
+  it('el color de marca es hexadecimal de SEIS digitos, con su numeral', () => {
+    expect(Tarjeta.safeParse({ n: 'J', cm: '#1d4ed8' }).success).toBe(true)
+    expect(Tarjeta.safeParse({ n: 'J', cm: '#1D4ED8' }).success).toBe(true)
+    for (const invalido of ['#3', '#abc', '1D4ED8', '#1D4ED', '#1D4ED8F', 'azul']) {
+      expect(Tarjeta.safeParse({ n: 'J', cm: invalido }).success, invalido).toBe(false)
+    }
+  })
+
+  it('el tema solo admite los dos valores del control; ausente significa oscuro', () => {
+    expect([...TEMAS]).toEqual(['claro', 'oscuro'])
+    expect(Tarjeta.safeParse({ n: 'J', tm: 'oscuro' }).success).toBe(true)
+    for (const invalido of ['Claro', 'sistema', 'dark', '']) {
+      expect(Tarjeta.safeParse({ n: 'J', tm: invalido }).success, invalido).toBe(false)
+    }
+    // Sin `.default()`: un enlace viejo decodifica al MISMO objeto, sin ganar la clave.
+    expect(Tarjeta.parse({ n: 'J' })).not.toHaveProperty('tm')
+  })
+
+  it('el borrador conserva el dato a medio escribir de las acciones y del color', () => {
+    expect(BorradorGuardable.safeParse({ ag: 'http://', cm: '#3' }).success).toBe(true)
+    expect(BorradorGuardable.safeParse({ cn: 'ejemplo.com' }).success).toBe(true)
+    // El tema es la excepcion: se elige en un control cerrado, no se teclea.
+    expect(BorradorGuardable.safeParse({ tm: 'a medias' }).success).toBe(false)
   })
 })
 

@@ -197,6 +197,27 @@ describe('las dos invariantes que no puede romper nadie', () => {
       if (MARCA.dominio) expect(vcf).not.toContain(MARCA.dominio)
     }
   })
+
+  /**
+   * U2: `lineasDeContenido` es una lista BLANCA, y este test es lo que la mantiene asi. Un campo
+   * nuevo del modelo no entra al vCard por el solo hecho de existir: la agenda de un tercero no es
+   * el lugar de una preferencia de color, y cada octeto de mas es densidad del QR.
+   */
+  it('las acciones, el tema y el color de marca NUNCA entran al vCard', () => {
+    const conAcciones: Tarjeta = {
+      ...LLENA,
+      ag: 'https://cal.example.com/maria/30min',
+      cn: 'https://example.com/maria/cuentame',
+      tm: 'claro',
+      cm: '#1D4ED8',
+    }
+    for (const vcf of [vcardParaQr(conAcciones), vcardParaArchivo(conAcciones, 'data:image/jpeg;base64,AAAA')]) {
+      expect(vcf).not.toContain('cal.example.com')
+      expect(vcf).not.toContain('/cuentame')
+      expect(vcf).not.toContain('#1D4ED8')
+      expect(vcf.toLowerCase()).not.toContain('claro')
+    }
+  })
 })
 
 describe('nombre del archivo descargado', () => {

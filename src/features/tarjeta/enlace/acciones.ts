@@ -39,18 +39,37 @@ export function urlWhatsapp(tarjeta: Tarjeta): string | null {
   return null
 }
 
-function urlHttpSegura(valor: unknown): string | null {
+const ESQUEMAS_NAVEGABLES = ['http:', 'https:'] as const
+/** Las dos acciones no aceptan `http:`. Misma razon que `UrlSoloHttps` en el modelo. */
+const ESQUEMAS_DE_ACCION = ['https:'] as const
+
+function urlHttpSegura(valor: unknown, esquemas: readonly string[] = ESQUEMAS_NAVEGABLES): string | null {
   if (typeof valor !== 'string') return null
   const limpio = valor.trim()
   if (!limpio) return null
 
   try {
     const url = new URL(limpio)
-    if ((url.protocol !== 'http:' && url.protocol !== 'https:') || url.username || url.password) return null
+    if (!esquemas.includes(url.protocol) || url.username || url.password) return null
     return url.href
   } catch {
     return null
   }
+}
+
+/**
+ * Los destinos de las dos acciones opcionales (U2): agendar y "cuentame que necesitas".
+ *
+ * Se revalidan en tiempo de ejecucion, igual que `urlWhatsapp`, porque tambien pueden recibir un
+ * payload manipulado a mano en JavaScript, fuera de la garantia estatica de `Tarjeta`. Devuelven
+ * `null` en vez de lanzar: una accion que no se puede confiar simplemente no se pinta.
+ */
+export function urlAgenda(tarjeta: Tarjeta): string | null {
+  return urlHttpSegura((tarjeta as { ag?: unknown }).ag, ESQUEMAS_DE_ACCION)
+}
+
+export function urlCuentame(tarjeta: Tarjeta): string | null {
+  return urlHttpSegura((tarjeta as { cn?: unknown }).cn, ESQUEMAS_DE_ACCION)
 }
 
 function esRegistro(valor: unknown): valor is Record<string, unknown> {

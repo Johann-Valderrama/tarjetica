@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
-import { enlacesDelPerfil, urlWhatsapp } from '@/features/tarjeta/enlace/acciones'
+import { enlacesDelPerfil, urlAgenda, urlCuentame, urlWhatsapp } from '@/features/tarjeta/enlace/acciones'
 
 describe('urlWhatsapp', () => {
   it('construye wa.me con el primer WhatsApp internacional y sus separadores', () => {
@@ -41,6 +41,42 @@ describe('urlWhatsapp', () => {
       ],
     }
     expect(urlWhatsapp(tarjeta)).toBe('https://wa.me/573105551234')
+  })
+})
+
+describe('urlAgenda y urlCuentame (U2)', () => {
+  const casos = [
+    ['ag', urlAgenda],
+    ['cn', urlCuentame],
+  ] as const
+
+  it('devuelven el destino cuando es https', () => {
+    for (const [campo, helper] of casos) {
+      expect(helper({ n: 'Ana', [campo]: 'https://cal.example.com/ana/30min' })).toBe(
+        'https://cal.example.com/ana/30min',
+      )
+    }
+  })
+
+  it('devuelven null con http, con javascript:, con credenciales y cuando el campo falta', () => {
+    for (const [campo, helper] of casos) {
+      for (const veneno of [
+        'http://cal.example.com/ana',
+        'javascript:alert(1)',
+        'data:text/html,alert(1)',
+        'https://usuario:clave@cal.example.com/ana',
+        '   ',
+      ]) {
+        expect(helper({ n: 'Ana', [campo]: veneno }), `${campo}: ${veneno}`).toBeNull()
+      }
+      expect(helper({ n: 'Ana' })).toBeNull()
+    }
+  })
+
+  it('no lanzan con un payload manipulado que trae otro tipo', () => {
+    // Fuera de la garantia estatica de `Tarjeta`: el enlace lo puede fabricar cualquiera a mano.
+    expect(urlAgenda({ ag: 7 } as unknown as Tarjeta)).toBeNull()
+    expect(urlCuentame({ cn: { u: 'https://x.example' } } as unknown as Tarjeta)).toBeNull()
   })
 })
 

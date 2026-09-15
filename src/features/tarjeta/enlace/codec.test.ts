@@ -41,10 +41,20 @@ const LLENA: Tarjeta = {
   de: 'Tu equipo deja el trabajo repetitivo; vuelve a decidir, crear y vender.',
 }
 
+/** El perfil de U2: los cuatro campos de accion y apariencia, que tambien viajan en el enlace. */
+const CON_ACCIONES: Tarjeta = {
+  ...LLENA,
+  ag: 'https://cal.example.com/ana/30min',
+  cn: 'https://example.com/ana/cuentame',
+  tm: 'claro',
+  cm: '#1D4ED8',
+}
+
 const PERFILES: [string, Tarjeta][] = [
   ['minima', MINIMA],
   ['tipica', TIPICA],
   ['todos los campos llenos', LLENA],
+  ['con acciones y apariencia', CON_ACCIONES],
 ]
 
 function aBase64Url(bytes: Uint8Array): string {
@@ -159,7 +169,7 @@ describe('el enlace completo', () => {
 })
 
 describe('cuanto pesa el link (informe, no assert)', () => {
-  it('imprime la longitud en los tres perfiles', async () => {
+  it('imprime la longitud en cada perfil', async () => {
     for (const [nombre, tarjeta] of PERFILES) {
       const enlace = await construirEnlace(tarjeta, 'https://tarjetica.example')
       console.log(`  ${nombre.padEnd(24)} payload ${String((await codificar(tarjeta)).length).padStart(4)} car · link completo ${enlace.length} car`)
@@ -220,6 +230,32 @@ describe('compatibilidad de codecs', () => {
   it('lee enlaces v0 y v1 ya repartidos', async () => {
     await expect(decodificar(payloadPlanoAntiguo(TIPICA))).resolves.toEqual({ ok: true, tarjeta: TIPICA })
     await expect(decodificar(payloadComprimidoAntiguo(TIPICA))).resolves.toEqual({ ok: true, tarjeta: TIPICA })
+  })
+
+  it('el perfil con acciones sobrevive al respaldo fflate y al enlace plano', async () => {
+    vi.stubGlobal('CompressionStream', undefined)
+    vi.stubGlobal('DecompressionStream', undefined)
+    expect(await decodificar(await codificar(CON_ACCIONES))).toEqual({ ok: true, tarjeta: CON_ACCIONES })
+    await expect(decodificar(payloadPlanoAntiguo(CON_ACCIONES))).resolves.toEqual({
+      ok: true,
+      tarjeta: CON_ACCIONES,
+    })
+  })
+
+  /**
+   * La otra mitad de la compatibilidad, y la que se rompe en SILENCIO: un enlace emitido antes de
+   * U2 tiene que decodificar al MISMO objeto de antes. Si el esquema rellenara el tema con un
+   * default, la tarjeta de un tercero ganaria una clave que su emisor nunca escribio, y `toEqual`
+   * no lo notaria: por eso van los dos asserts.
+   */
+  it('un enlace anterior a U2 no gana las claves nuevas al decodificarse', async () => {
+    for (const payload of [payloadPlanoAntiguo(LLENA), payloadComprimidoAntiguo(LLENA)]) {
+      const leida = await decodificar(payload)
+      expect(leida).toEqual({ ok: true, tarjeta: LLENA })
+      for (const clave of ['ag', 'cn', 'tm', 'cm']) {
+        expect(leida.ok && leida.tarjeta, clave).not.toHaveProperty(clave)
+      }
+    }
   })
 })
 
