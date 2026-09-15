@@ -3,6 +3,7 @@
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { QrDeContacto } from '@/features/tarjeta/qr/qr-cliente'
 import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
+import { apariencia } from '@/features/tarjeta/vista/apariencia'
 
 /**
  * La tarjeta montada FUERA DE PANTALLA, que es de donde sale el `.jpeg` (Ola 5).
@@ -36,6 +37,9 @@ import { VistaTarjeta } from '@/features/tarjeta/vista/tarjeta'
 export const DIMENSION_DE_EXPORTACION = { ancho: 390 } as const
 
 export function LienzoOculto({ tarjeta, fotoDataUrl, logoDataUrl }: { tarjeta: Tarjeta; fotoDataUrl?: string; logoDataUrl?: string }) {
+  // El tema y el color de marca salen de la propia tarjeta: el JPEG tiene que verse igual que la
+  // vista, y `a-imagen.ts` lee el fondo computado de este mismo nodo.
+  const { tema, colorMarca } = apariencia(tarjeta)
   return (
     <div
       aria-hidden
@@ -57,6 +61,8 @@ export function LienzoOculto({ tarjeta, fotoDataUrl, logoDataUrl }: { tarjeta: T
         logoDataUrl={logoDataUrl}
         qr={<QrDeContacto tarjeta={tarjeta} />}
         dimension={DIMENSION_DE_EXPORTACION}
+        tema={tema}
+        colorMarca={colorMarca}
       />
     </div>
   )

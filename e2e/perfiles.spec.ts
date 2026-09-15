@@ -14,17 +14,32 @@ import { PERFILES } from './perfiles.datos'
  * para poder MIRARLOS, que es lo unico que caza un problema de composicion.
  */
 
-for (const { nombre, datos } of PERFILES) {
-  test(`perfil ${nombre}: renderiza, no desborda y deja captura`, async ({ page }) => {
+/**
+ * Desde la ola 1 (U4) cada perfil se mira en los DOS temas. El claro se pide con `tm: 'claro'`; el
+ * oscuro es la ausencia de la clave, que es exactamente lo que trae una tarjeta creada antes.
+ */
+const TEMAS = [
+  { tema: 'oscuro', extra: {}, fondo: 'rgb(10, 10, 11)' },
+  { tema: 'claro', extra: { tm: 'claro' }, fondo: 'rgb(247, 241, 228)' },
+] as const
+
+for (const { tema, extra, fondo } of TEMAS) for (const { nombre, datos } of PERFILES) {
+  test(`perfil ${nombre} (${tema}): renderiza, no desborda y deja captura`, async ({ page }) => {
     await page.goto('/tarjeta')
     await page.evaluate((t) => {
       localStorage.clear()
       localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: t }))
-    }, datos)
+    }, { ...datos, ...extra })
     await page.reload()
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
-    await page.screenshot({ path: `capturas/perfil-${nombre}.png`, fullPage: true })
+    // El tema se comprueba por el color COMPUTADO del contenedor, no por una clase: es lo que la
+    // persona ve. Y en claro, nunca blanco puro.
+    const fondoComputado = await page.evaluate(() => getComputedStyle(document.querySelector('[data-tema]')!).backgroundColor)
+    expect(fondoComputado).toBe(fondo)
+    expect(fondoComputado).not.toBe('rgb(255, 255, 255)')
+
+    await page.screenshot({ path: `capturas/perfil-${nombre}-${tema}.png`, fullPage: true })
 
     const m = await page.evaluate(() => {
       const capturable = document.getElementById('tarjeta-capturable')

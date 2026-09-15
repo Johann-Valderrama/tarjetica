@@ -64,10 +64,12 @@ test('si falla el guardado o el archivo, conserva el logo anterior', async ({ pa
   expect(await page.evaluate(() => localStorage.getItem('tarjetica.logo'))).toBe(anterior)
 })
 
-for (const perfil of PERFILES) test(`foto y logo caben y el QR se lee: ${perfil.nombre}`, async ({ page }) => {
+// Los cinco perfiles con logo, en los DOS temas (ola 1, U4): el QR tiene que leerse igual sobre
+// marfil que sobre casi-negro, porque la teja blanca es la misma y lo que cambia es el fondo.
+for (const tema of ['oscuro', 'claro'] as const) for (const perfil of PERFILES) test(`foto y logo caben y el QR se lee: ${perfil.nombre} (${tema})`, async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 })
   await page.goto('/editor')
-  await page.evaluate((datos) => localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: datos })), perfil.datos)
+  await page.evaluate((datos) => localStorage.setItem('tarjetica.tarjeta', JSON.stringify({ v: 1, d: datos })), tema === 'claro' ? { ...perfil.datos, tm: 'claro' } : perfil.datos)
   await page.reload()
   await page.locator('#foto').setInputFiles('public/ejemplos/profesional-ia.webp')
   await expect(page.getByAltText('Tu foto de perfil')).toBeVisible()
@@ -80,5 +82,5 @@ for (const perfil of PERFILES) test(`foto y logo caben y el QR se lee: ${perfil.
   const contacto = jsQR(new Uint8ClampedArray(qr.data), qr.width, qr.height)?.data
   expect(contacto).toContain(`FN:${perfil.datos.n}`)
   expect(contacto).not.toContain('data:image')
-  await page.screenshot({ path: `test-results/logo-${perfil.nombre}.png` })
+  await page.screenshot({ path: `test-results/logo-${perfil.nombre}-${tema}.png` })
 })
