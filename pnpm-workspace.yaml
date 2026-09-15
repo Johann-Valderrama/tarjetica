@@ -9,3 +9,9 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+
+# No instalar versiones con menos de 3 dias publicadas (defensa ante paquetes comprometidos:
+# npm permite retirar una version en sus primeras 72 h y es el estandar de Renovate y Dependabot).
+# Excepcion: un audit con criticas o altas; ahi se agrega la version MAS ANTIGUA que corrige a
+# minimumReleaseAgeExclude, con el motivo y la fecha. Regla OPS: cooldown-3-dias-dependencias.
+minimumReleaseAge: 4320
