@@ -414,3 +414,43 @@ export function CampoUbicacion({
     </Seccion>
   )
 }
+
+/**
+ * Los dos botones opcionales del enlace compartido (ola 1, U6): "Agendar" y "Cuentame que
+ * necesitas". Cada uno lleva su ayuda corta: QUE hace el boton y QUE TIPO de pagina enlazar. No se
+ * nombran servicios concretos (decision pendiente del dueño, H2): la ayuda describe la clase de
+ * pagina, no una marca.
+ *
+ * Mismo `onBlur` que la web: quien escribe `miagenda.com/yo` recibe el `https://` solo. Un
+ * `http://` explicito lo rechaza el contrato al compartir, y el aviso nombra el campo.
+ */
+export function CamposAcciones({ tarjeta, onCambio }: { tarjeta: TarjetaBorrador; onCambio: Cambio }) {
+  const t = useTranslations('campos')
+  return (
+    <Seccion titulo={t('acciones')}>
+      <p className="text-xs leading-relaxed text-tinta-suave">{t('accionesIntro')}</p>
+      <CampoTexto
+        id="ag"
+        etiqueta={t('agendaEtiqueta')}
+        tipo="url"
+        inputMode="url"
+        valor={tarjeta.ag}
+        onCambio={(v) => onCambio({ ag: v })}
+        onBlur={() => onCambio({ ag: completarEsquema(tarjeta.ag) })}
+        placeholder={t('agendaPlaceholder')}
+        ayuda={<p className="mt-1 text-xs leading-relaxed text-tinta-suave">{t('agendaAyuda')} {t('soloHttps')}</p>}
+      />
+      <CampoTexto
+        id="cn"
+        etiqueta={t('cuentameEtiqueta')}
+        tipo="url"
+        inputMode="url"
+        valor={tarjeta.cn}
+        onCambio={(v) => onCambio({ cn: v })}
+        onBlur={() => onCambio({ cn: completarEsquema(tarjeta.cn) })}
+        placeholder={t('cuentamePlaceholder')}
+        ayuda={<p className="mt-1 text-xs leading-relaxed text-tinta-suave">{t('cuentameAyuda')} {t('soloHttps')}</p>}
+      />
+    </Seccion>
+  )
+}

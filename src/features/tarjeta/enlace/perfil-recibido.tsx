@@ -94,7 +94,10 @@ export function PerfilRecibido({ tarjeta }: { tarjeta: Tarjeta }) {
           {canales.length > 0 && (
             <ul aria-label={t('canales')} className="flex flex-wrap gap-2 pt-2">
               {canales.map((canal) => {
-                const esExterno = canal.url.startsWith('https://')
+                // Externo = cualquier esquema navegable, no solo `https://`: la web y las redes
+                // admiten `http://` en el modelo, y un chip sin `noopener` seria el unico enlace de
+                // la pagina sin ese candado (lo cazo el verificador independiente, 2026-09-15).
+                const esExterno = /^https?:\/\//i.test(canal.url)
                 return (
                   <li key={canal.tipo} className="min-w-0 grow basis-[calc(50%-0.25rem)] sm:basis-[calc(33.333%-0.34rem)]">
                     <a

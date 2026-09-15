@@ -180,3 +180,42 @@ function inyectarExif(jpeg: Buffer): Buffer {
   const app1 = Buffer.concat([Buffer.from([0xff, 0xe1]), largo, carga])
   return Buffer.concat([jpeg.subarray(0, 2), app1, jpeg.subarray(2)])
 }
+
+/**
+ * Ola 1, U6: los dos enlaces opcionales del receptor se escriben en el editor con ayuda pegada.
+ * Se mide lo que fallaria en silencio: que el `https://` se complete solo al salir del campo, que
+ * el dato llegue al enlace compartido y que un `http://` explicito bloquee compartir nombrando el
+ * campo, en vez de dejar un boton apagado sin explicacion.
+ */
+test.describe('U6 · botones opcionales del enlace', () => {
+  test('se completan con https, viajan al enlace y la ayuda dice que pagina enlazar', async ({ page }) => {
+    await irAlEditorLimpio(page)
+    await page.fill('#n', 'Daniel')
+    await expect(page.getByText('Pone un botón «Agendar»')).toBeVisible()
+    await expect(page.getByText('encuesta o formulario corto')).toBeVisible()
+
+    await page.fill('#ag', 'agenda.example/daniel')
+    await page.locator('#ag').blur()
+    await expect(page.locator('#ag')).toHaveValue('https://agenda.example/daniel')
+    await page.fill('#cn', 'https://forms.example/daniel')
+    await page.locator('#cn').blur()
+
+    await page.getByRole('checkbox', { name: /Confirmo/ }).check()
+    await page.getByTestId('abrir-enlace').click()
+    await page.getByTestId('confirmar-enlace').click()
+    const enlace = (await page.getByTestId('enlace-generado').textContent())!.trim()
+    await page.goto(enlace)
+    await expect(page.getByTestId('accion-agendar')).toHaveAttribute('href', 'https://agenda.example/daniel')
+    await expect(page.getByTestId('accion-cuentame')).toHaveAttribute('href', 'https://forms.example/daniel')
+  })
+
+  test('un http:// explicito bloquea compartir y el aviso nombra el campo', async ({ page }) => {
+    await irAlEditorLimpio(page)
+    await page.fill('#n', 'Daniel')
+    await page.fill('#ag', 'http://agenda.example/daniel')
+    await page.locator('#ag').blur()
+    await page.getByRole('checkbox', { name: /Confirmo/ }).check()
+    await expect(page.getByTestId('abrir-enlace')).toHaveAttribute('aria-disabled', 'true')
+    await expect(page.locator('#que-falta-para-compartir')).toContainText('Agenda')
+  })
+})

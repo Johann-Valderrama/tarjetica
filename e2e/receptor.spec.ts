@@ -93,6 +93,18 @@ for (const { nombre, datos, canales } of PERFILES_CANALES) test(`canales exactos
   if (canales.length === 0) await expect(page.getByRole('list', { name: 'Canales de contacto' })).toHaveCount(0)
 })
 
+test('un canal guardado con http:// tambien sale con noopener y en pestaña nueva', async ({ page }) => {
+  // El modelo admite `http://` en la web y las redes; el chip no puede depender del prefijo https.
+  await page.goto(enlace({ n: 'Ana', w: 'http://ana.example/', li: 'http://www.linkedin.com/in/ana' }))
+  for (const nombre of ['Sitio web', 'LinkedIn']) {
+    const chip = page.getByRole('link', { name: nombre })
+    await expect(chip).toHaveAttribute('href', /^http:\/\//)
+    await expect(chip).toHaveAttribute('target', '_blank')
+    await expect(chip).toHaveAttribute('rel', 'noopener noreferrer')
+    await expect(chip).toHaveAttribute('referrerpolicy', 'no-referrer')
+  }
+})
+
 test('las acciones opcionales aparecen solo si el creador las lleno, con destino seguro', async ({ page }) => {
   await page.goto(enlace({ ...perfil, ag: 'https://agenda.example/alexa', cn: 'https://forms.example/alexa' }))
   const agendar = page.getByTestId('accion-agendar')

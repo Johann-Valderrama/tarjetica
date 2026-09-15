@@ -183,11 +183,24 @@ export function sugerirColorDeMarca(pixeles: Uint8ClampedArray, tema: 'claro' | 
  * contexto) se traduce a `null`, porque esto alimenta una SUGERENCIA, no un paso obligatorio del
  * flujo de exportar.
  */
+/** `data:image/png;base64,...` a `Blob`, sin pasar por la red. Devuelve null si no tiene esa forma. */
+function blobDeDataUrl(dataUrl: string): Blob | null {
+  const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,([A-Za-z0-9+\/=]+)$/i)
+  if (!m) return null
+  const binario = atob(m[2])
+  const bytes = new Uint8Array(binario.length)
+  for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i)
+  return new Blob([bytes], { type: m[1] })
+}
+
 export async function colorDominanteDeLogo(dataUrl: string): Promise<Uint8ClampedArray | null> {
   let bitmap: ImageBitmap | undefined
   try {
-    const respuesta = await fetch(dataUrl)
-    const blob = await respuesta.blob()
+    // Sin `fetch`: la CSP arranca en `connect-src 'self'` y un `fetch` de un `data:` URL queda
+    // bloqueado en produccion (medido: la sugerencia nunca llegaba y el e2e la esperaba en vano).
+    // El logo ya es base64 en memoria, asi que se decodifica a mano y no hay peticion de ninguna clase.
+    const blob = blobDeDataUrl(dataUrl)
+    if (!blob) return null
     bitmap = await createImageBitmap(blob)
     // Se reduce a un lienzo pequeño: el color dominante no necesita resolucion completa, y un logo
     // ya viene reducido a 320 px por `prepararLogo`, asi que 64 px es de sobra para contar cubetas.

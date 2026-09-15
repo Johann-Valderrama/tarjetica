@@ -158,13 +158,17 @@ const PARES_DE_TEXTO: Array<[string, string, Superficie]> = [
 ]
 
 /** Bordes que le dicen al usuario DONDE esta un control. Estos si caen bajo WCAG 1.4.11. */
-const BORDES_DE_CONTROL: Array<[string, string]> = [
-  ['borde-fuerte sobre el fondo (los campos del editor)', 'borde-fuerte'],
-  ['aviso-borde sobre el fondo (la caja de advertencia)', 'aviso-borde'],
-  ['peligro-borde sobre el fondo (el boton de borrar)', 'peligro-borde'],
+const BORDES_DE_CONTROL: Array<[string, string, Superficie]> = [
+  ['borde-fuerte sobre el fondo (los campos del editor)', 'borde-fuerte', 'FONDO'],
+  // Los chips y botones del receptor viven DENTRO de la tarjeta, o sea sobre `--superficie`, no
+  // sobre el fondo. Entro en la ola 1 tras la revision independiente: pasaba (3,36 y 3,40) pero
+  // nadie lo medía, y es el par con menos margen de toda la tabla.
+  ['borde-fuerte sobre la superficie (los botones del receptor)', 'borde-fuerte', 'SUPERFICIE'],
+  ['aviso-borde sobre el fondo (la caja de advertencia)', 'aviso-borde', 'FONDO'],
+  ['peligro-borde sobre el fondo (el boton de borrar)', 'peligro-borde', 'FONDO'],
   // El anillo del resalte de "esto es lo que falta", en su estado de REPOSO (alfa 1). Es el que
   // identifica el control, asi que es el que tiene que pasar 1.4.11.
-  ['peligro-fuerte sobre el fondo (el anillo del resalte)', 'peligro-fuerte'],
+  ['peligro-fuerte sobre el fondo (el anillo del resalte)', 'peligro-fuerte', 'FONDO'],
 ]
 
 for (const tema of TEMAS) {
@@ -185,8 +189,8 @@ for (const tema of TEMAS) {
   })
 
   describe(`[${tema}] los bordes que identifican un control pasan 3:1`, () => {
-    it.each(BORDES_DE_CONTROL)('%s', (_nombre, borde) => {
-      expect(contraste(componer(token(tema, borde), P.FONDO), P.FONDO)).toBeGreaterThanOrEqual(NO_TEXTUAL)
+    it.each(BORDES_DE_CONTROL)('%s', (_nombre, borde, superficie) => {
+      expect(contraste(componer(token(tema, borde), P[superficie]), P[superficie])).toBeGreaterThanOrEqual(NO_TEXTUAL)
     })
 
     /**

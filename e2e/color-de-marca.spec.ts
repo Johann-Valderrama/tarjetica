@@ -59,7 +59,9 @@ test('el logo sugiere un color de marca legible, y la persona lo puede cambiar',
   expect(contraste(sugeridoOscuro, '#0a0a0b')).toBeGreaterThanOrEqual(4.5)
 
   // Cambiar a Claro recalcula: el mismo tono puede necesitar otra luminosidad para el fondo marfil.
-  await page.getByRole('radio', { name: 'Claro' }).check()
+  // El radio es sr-only y la etiqueta lo tapa: se pulsa la etiqueta, que es lo que toca la persona.
+  await page.locator('label', { hasText: /^Claro$/ }).click()
+  await expect(page.getByRole('radio', { name: 'Claro' })).toBeChecked()
   await expect
     .poll(async () => campoHex.inputValue(), { timeout: 10_000 })
     .not.toBe(sugeridoOscuro)
