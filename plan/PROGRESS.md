@@ -47,6 +47,11 @@
 
 ## PARA JOHANN (gates abiertos)
 
+- **PR #2 (enlace más corto + botón Compartir), bloquea el merge:** abrir la vista previa del PR en tu
+  celular, generar un enlace y tocar Compartir; la hoja nativa solo se probó simulada.
+  A. Funciona: merge a `main` y despliegue (recomendada si la hoja abre bien).
+  B. Falla o no aparece: me pasas qué viste y se corrige en la misma rama.
+
 - **Pruebas físicas** (siguen pendientes de antes): escanear el QR de pantalla a pantalla, guardar el
   JPEG y el .vcf en iPhone y Android, y abrir un enlace desde Instagram y LinkedIn. Ahora también:
   tocar "Guardar contacto" en el receptor desde un iPhone (hoja nativa) y ver que el tema claro no
@@ -56,8 +61,10 @@
 
 ## Next action
 
-🤖 Nada pendiente de agente en la ola 1. Siguiente trabajo sustantivo: planear la ola 2 (Opus.H, plan
-mode, debate adversarial sobre D1) cuando el dueño cierre los gates de arriba.
+🤖 Tras el OK del dueño en PR #2: merge a `main` (Sonnet.M), `pnpm build` y e2e completos antes de
+desplegar (el e2e mide `.next`; sin build nuevo da falsos rojos). Siguiente trabajo sustantivo: planear
+la ola 2 (Opus.H, plan mode, debate adversarial sobre D1), que ya incluye el enlace corto cifrado
+`/c/<id>#<clave>` y evaluar Neon frente a Supabase.
 
 
 ### Aviso de Privacidad y titularidad de terceros · 2026-09-15
