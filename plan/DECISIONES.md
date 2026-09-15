@@ -567,3 +567,9 @@
 - 2026-09-15 **Sol (Codex) no revisó U2: el runtime OPS no despacha a proyectos fuera de `C:\OPS` y
   falla con fuentes largas en Windows.** Se siguió con Sonnet y Haiku, como preveía el plan. Queda como
   defecto del runtime para OPS, no de Tarjetica. Detalle: `PROGRESS.md` : director.
+
+- 2026-09-15 **H2: las ayudas del editor quedan genéricas, sin nombrar servicios** (variante 1, la que
+  ya está en `messages/*`). La variante con ejemplos queda registrada en `capturas/ola-1-h2/README.md`
+  por si el uso real muestra que la gente se traba en ese campo : Johann.
+- 2026-09-15 **H4: push de `feat/mejora-ola-1` y PR a `main`, sin desplegar todavía** (opción I).
+  H3 (revisión de capturas antes/después) sigue abierto y se cierra sobre el PR : Johann.
