@@ -550,3 +550,20 @@
   escritor Codex desde Claude; Codex escribe solo cuando dirige desde su propia interfaz. Regla:
   dirige quien ejecuta la mayoría de las unidades; el otro proveedor entra donde su familia distinta
   aporte independencia de revisión : Johann.
+
+- 2026-09-15 **Ola 1 ejecutada en modo autónomo nocturno (U1 a U8) en `feat/mejora-ola-1`, sin push.**
+  Quedan tres gates del dueño: H2 (ayudas del editor, dos variantes en `capturas/ola-1-h2/`, recomendada
+  la genérica que ya está en el código), H3 (capturas antes/después en `capturas/ola-1-antes-despues/`)
+  y H4 (push, PR, producción). Detalle y números en `PROGRESS.md` : director Fable, por instrucción
+  del dueño de ejecutar todo lo que no exija gate humano.
+- 2026-09-15 **Un `data:` URL nunca se lee con `fetch` en este proyecto: se decodifica en memoria.** La
+  CSP `connect-src 'self'` bloquea `fetch` de `data:` y el fallo es mudo (la sugerencia de color del
+  logo devolvía null en producción y solo lo cazó el e2e). Detalle: `src/features/tarjeta/foto/color-de-marca.ts`
+  (`blobDeDataUrl`) : director, declarado.
+- 2026-09-15 **El color de marca es un token propio (`--color-marca`), no una reasignación de `--acento`,
+  y se declara en los dos bloques de tema.** `--acento` pinta botones, enlaces y foco de toda la app; un
+  logo azul no puede repintar el editor. Y `var()` se resuelve donde se declara: solo en `:root` el tema
+  claro heredaba el naranja del oscuro (visto en captura). Detalle: `src/app/globals.css` : director.
+- 2026-09-15 **Sol (Codex) no revisó U2: el runtime OPS no despacha a proyectos fuera de `C:\OPS` y
+  falla con fuentes largas en Windows.** Se siguió con Sonnet y Haiku, como preveía el plan. Queda como
+  defecto del runtime para OPS, no de Tarjetica. Detalle: `PROGRESS.md` : director.
