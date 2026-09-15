@@ -5,12 +5,15 @@ import { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
  * El payload viaja en el FRAGMENTO de la URL (`/t#...`), nunca en el query string. El fragmento no
  * se envia al servidor, asi que los datos de la tarjeta no acaban en logs de hosting ni proxies.
  *
- * El byte de version conserva dos formatos: `0` es JSON plano y `1` es JSON con `deflate-raw`.
+ * El byte de version conserva tres formatos: `0` es JSON plano, `1` es JSON con `deflate-raw` y `2`
+ * es `deflate-raw` con el diccionario fijo de abajo, que es el que se emite hoy. Los tres se leen.
  * La foto no pertenece a `Tarjeta`, que ademas es un objeto estricto, por lo que no puede entrar al
  * enlace por accidente ni mediante un payload manipulado.
  */
 
-/** Comprimido con `deflate-raw`. Es el camino normal. */
+/** Comprimido con `deflate-raw` y el diccionario. Es el camino normal. */
+const VERSION_DICCIONARIO = 2
+/** Comprimido con `deflate-raw` sin diccionario. Respaldo si el diccionario falla. */
 const VERSION_COMPRIMIDO = 1
 /** Sin comprimir. Conserva los enlaces creados sin un compresor disponible. */
 const VERSION_PLANO = 0
@@ -25,6 +28,17 @@ const LIMITE_DESCOMPRIMIDO = 64 * 1024
 
 const CODIFICADOR = new TextEncoder()
 const DECODIFICADOR = new TextDecoder('utf-8', { fatal: true })
+
+/**
+ * Diccionario de la version 2: trozos que casi toda tarjeta repite (claves, prefijos de redes,
+ * dominios de agenda y correo). Medido el 2026-09-15: el enlace baja entre 17% y 27%.
+ *
+ * **CONGELADO.** Un enlace v2 ya repartido solo se lee con ESTE texto exacto, byte a byte. Cambiar
+ * una letra rompe todas las tarjetas v2 que andan por ahi. Si hace falta otro, se crea la version 3.
+ */
+const DICCIONARIO = CODIFICADOR.encode(
+  '"tm":"oscuro""cm":"#"ti":"de":"d":"Calle "Carrera "Bogota"Medellin"cn":"https://forms.gle/"ag":"https://calendly.com/"https://cal.com/"l":[{"u":"https://","e":"Portafolio"}]"li":"https://linkedin.com/in/"ig":"https://instagram.com/"tk":"https://tiktok.com/@"fb":"https://facebook.com/"w":"https://www."t":[{"n":"+57 3","e":"whatsapp"},{"n":"+57 601","e":"oficina"},{"n":"+57 3","e":"movil"}]"co":"@gmail.com"@outlook.com"@hotmail.com"em":"SAS"c":"Gerente de "Director de "Ingeniero "a":"{"n":"',
+) as Bytes
 
 /** Streams y `fflate` trabajan con bytes propios; nunca aceptamos SharedArrayBuffer aqui. */
 type Bytes = Uint8Array<ArrayBuffer>
@@ -131,6 +145,22 @@ async function comprimir(bytes: Bytes): Promise<Bytes | null> {
   }
 }
 
+/** `CompressionStream` no acepta diccionario: la version 2 siempre pasa por `fflate`. */
+function comprimirConDiccionario(bytes: Bytes): Bytes | null {
+  try {
+    return copiarBytes(deflateSync(bytes, { level: 9, dictionary: DICCIONARIO }))
+  } catch {
+    return null
+  }
+}
+
+function descomprimirConDiccionario(bytes: Bytes): Bytes {
+  // Mismo tope y mismo byte centinela que el respaldo de `descomprimir`.
+  const salida = inflateSync(bytes, { out: new Uint8Array(LIMITE_DESCOMPRIMIDO + 1), dictionary: DICCIONARIO })
+  if (salida.byteLength > LIMITE_DESCOMPRIMIDO) throw new Error('salida demasiado grande')
+  return copiarBytes(salida)
+}
+
 async function descomprimir(bytes: Bytes): Promise<Bytes> {
   const nativo = crearDescompresorNativo()
   if (nativo) return pasarPorStream(bytes, nativo, LIMITE_DESCOMPRIMIDO)
@@ -148,11 +178,16 @@ export async function codificar(tarjeta: Tarjeta): Promise<string> {
     const texto = JSON.stringify(tarjeta)
     if (typeof texto !== 'string') return ''
     const json = CODIFICADOR.encode(texto) as Bytes
-    const cuerpo = await comprimir(json)
-    const comprimido = cuerpo !== null
-    const payload = new Uint8Array((cuerpo ?? json).byteLength + 1) as Bytes
-    payload[0] = comprimido ? VERSION_COMPRIMIDO : VERSION_PLANO
-    payload.set(cuerpo ?? json, 1)
+    let version = VERSION_DICCIONARIO
+    let cuerpo = comprimirConDiccionario(json)
+    if (cuerpo === null) {
+      cuerpo = await comprimir(json)
+      version = cuerpo !== null ? VERSION_COMPRIMIDO : VERSION_PLANO
+    }
+    const final = cuerpo ?? json
+    const payload = new Uint8Array(final.byteLength + 1) as Bytes
+    payload[0] = version
+    payload.set(final, 1)
     const codificado = aBase64Url(payload)
     return codificado.length <= LIMITE_FRAGMENTO ? codificado : ''
   } catch {
@@ -182,13 +217,19 @@ export async function decodificar(payload: string): Promise<ResultadoDecodificac
     if (bytes.byteLength < 2) return { ok: false, motivo: 'ilegible' }
 
     const version = bytes[0]
-    if (version !== VERSION_COMPRIMIDO && version !== VERSION_PLANO) {
+    if (version !== VERSION_DICCIONARIO && version !== VERSION_COMPRIMIDO && version !== VERSION_PLANO) {
       return { ok: false, motivo: 'version-desconocida' }
     }
 
     let json: string
     try {
-      const crudo = version === VERSION_COMPRIMIDO ? await descomprimir(copiarBytes(bytes.subarray(1))) : bytes.subarray(1)
+      const cuerpo = copiarBytes(bytes.subarray(1))
+      const crudo =
+        version === VERSION_DICCIONARIO
+          ? descomprimirConDiccionario(cuerpo)
+          : version === VERSION_COMPRIMIDO
+            ? await descomprimir(cuerpo)
+            : cuerpo
       if (crudo.byteLength > LIMITE_DESCOMPRIMIDO) return { ok: false, motivo: 'ilegible' }
       json = DECODIFICADOR.decode(crudo)
     } catch {

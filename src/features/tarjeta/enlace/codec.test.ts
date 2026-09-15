@@ -1,5 +1,11 @@
 import { deflateSync } from 'fflate'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+// `deflateSync` real, pero espiable: permite forzar que la version 2 falle y medir los respaldos.
+vi.mock('fflate', async (importOriginal) => {
+  const original = await importOriginal<typeof import('fflate')>()
+  return { ...original, deflateSync: vi.fn(original.deflateSync) }
+})
 import type { Tarjeta } from '@/features/tarjeta/modelo/tarjeta'
 import { codificar, construirEnlace, decodificar, RUTA_ENLACE } from '@/features/tarjeta/enlace/codec'
 
@@ -179,21 +185,30 @@ describe('cuanto pesa el link (informe, no assert)', () => {
 })
 
 describe('compatibilidad de codecs', () => {
-  it('el camino nativo produce y lee deflate-raw', async () => {
+  it('emite la version 2 con diccionario y la lee', async () => {
     const payload = await codificar(LLENA)
-    expect(version(payload)).toBe(1)
+    expect(version(payload)).toBe(2)
     expect(await decodificar(payload)).toEqual({ ok: true, tarjeta: LLENA })
   })
 
-  it('usa fflate empaquetado si faltan las Streams y conserva interoperabilidad', async () => {
+  it('la version 2 no depende de las Streams nativas', async () => {
     vi.stubGlobal('CompressionStream', undefined)
     vi.stubGlobal('DecompressionStream', undefined)
+    const payload = await codificar(TIPICA)
+    expect(version(payload)).toBe(2)
+    expect(await decodificar(payload)).toEqual({ ok: true, tarjeta: TIPICA })
+  })
+
+  it('si el diccionario falla, cae a la version 1 nativa', async () => {
+    vi.mocked(deflateSync).mockImplementationOnce(() => {
+      throw new Error('fallo del diccionario')
+    })
     const payload = await codificar(TIPICA)
     expect(version(payload)).toBe(1)
     expect(await decodificar(payload)).toEqual({ ok: true, tarjeta: TIPICA })
   })
 
-  it('usa fflate si las APIs existen pero no conocen deflate-raw', async () => {
+  it('si el diccionario falla y no hay Streams, la version 1 sale por fflate', async () => {
     class SinDeflateRaw {
       constructor() {
         throw new TypeError('formato no soportado')
@@ -201,12 +216,32 @@ describe('compatibilidad de codecs', () => {
     }
     vi.stubGlobal('CompressionStream', SinDeflateRaw)
     vi.stubGlobal('DecompressionStream', SinDeflateRaw)
+    vi.mocked(deflateSync).mockImplementationOnce(() => {
+      throw new Error('fallo del diccionario')
+    })
     const payload = await codificar(TIPICA)
     expect(version(payload)).toBe(1)
     expect(await decodificar(payload)).toEqual({ ok: true, tarjeta: TIPICA })
   })
 
+  it('el diccionario acorta el enlace al menos un 15% frente a la version 1', async () => {
+    // Umbral medido en U0 (17% a 27% con tarjetas reales). Si alguien toca el diccionario y deja de
+    // servir, esto lo dice con un numero.
+    const v2 = (await codificar(CON_ACCIONES)).length
+    const v1 = payloadComprimidoAntiguo(CON_ACCIONES).length
+    console.log(`  v1 ${v1} car · v2 ${v2} car · ${Math.round((1 - v2 / v1) * 100)}% menos`)
+    expect(v2).toBeLessThanOrEqual(v1 * 0.85)
+  })
+
+  it('un payload v2 con cuerpo basura devuelve ilegible sin lanzar', async () => {
+    const basura = aBase64Url(new Uint8Array([2, 0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa]))
+    await expect(decodificar(basura)).resolves.toEqual({ ok: false, motivo: 'ilegible' })
+  })
+
   it('si una compresion nativa falla, emite el enlace plano sin rechazar', async () => {
+    vi.mocked(deflateSync).mockImplementationOnce(() => {
+      throw new Error('fallo del diccionario')
+    })
     class CompresorQueFalla {
       readonly readable: ReadableStream<Uint8Array>
       readonly writable: WritableStream<Uint8Array>
@@ -267,6 +302,14 @@ describe('limites de lectura', () => {
   it('rechaza una bomba deflate nativa por encima de 64 KiB', async () => {
     const bomba = payloadComprimidoAntiguo({ n: 'A'.repeat(64 * 1024) })
     await expect(decodificar(bomba)).resolves.toEqual({ ok: false, motivo: 'ilegible' })
+  })
+
+  it('rechaza una bomba v2 por encima de 64 KiB', async () => {
+    const cuerpo = deflateSync(new TextEncoder().encode(JSON.stringify({ n: 'A'.repeat(64 * 1024) })))
+    const bytes = new Uint8Array(cuerpo.byteLength + 1)
+    bytes[0] = 2
+    bytes.set(cuerpo, 1)
+    await expect(decodificar(aBase64Url(bytes))).resolves.toEqual({ ok: false, motivo: 'ilegible' })
   })
 
   it('rechaza la misma bomba por el respaldo fflate sin reservar su salida completa', async () => {
