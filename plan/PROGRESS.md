@@ -24,7 +24,9 @@
 - U1: botón Compartir (`navigator.share`) en `generar-enlace.tsx`, solo donde existe la hoja.
 - Verificado: typecheck 0, lint 0, 250 unitarios, 164/164 e2e contra build nuevo. Ojo: el e2e corre
   sobre `.next`; sin `pnpm build` previo mide código viejo (dio 6 falsos rojos esta sesión).
-- Pendiente: push y PR con OK del dueño.
+- El dueño vio los dos enlaces lado a lado y decidió mantener el diccionario (opción A).
+- Push y PR #2 a `main` (https://github.com/Johann-Valderrama/tarjetica/pull/2), SIN desplegar.
+  Pendiente del dueño: probar la hoja de compartir en un teléfono real y autorizar merge/despliegue.
 
 ### Ola 1 · CERRADA, integrada y en producción · 2026-09-15 08:40
 
