@@ -14,6 +14,37 @@
 
 ## Estado
 
+### Ola 2 PLANEADA, sin aprobar · 2026-09-15 22:xx · Opus.H en plan mode
+
+- Salida: `plan/PLAN-ola-2-propuesta.md`, marcado **SIN APROBAR** en la primera línea. El dueño pausó
+  antes de aprobarlo ("mañana lo continuo"). **No se ejecuta ninguna unidad hasta que responda los gates
+  G-A a G-F.** `PRP-TD-002-cuentas-y-foto-borrador.md` sigue vigente como el borrador de la ola 1 y solo
+  queda SUPERADO cuando el plan se apruebe.
+- **Debate adversarial de una ronda** (atacante Sonnet, solo lectura, lente escrito, sin el rationale a
+  favor), sobre dos proposiciones separadas. Veredictos: reabrir D1 **con el alcance completo** es
+  INDEFENDIBLE; **capa opcional** es DEFENDIBLE CON CONDICIONES. O sea, la recomendación previa
+  sobrevivió y lo que no sobrevivió fue meter todo en un solo corte. Cinco objeciones de severidad alta
+  aceptadas, una rechazada por incoherente (su "acortador sin persistencia de contenido" colapsa en
+  `/c/<id>#<clave>` o en algo peor). Registro completo en el plan §1.
+- **Precios verificados el 2026-09-15 en las páginas oficiales**, no de memoria. Lo que cambia el diseño,
+  no solo el presupuesto: el plan gratis de Neon **no trae alertas de consumo** (son de Launch y Scale,
+  así que el monitoreo hay que construirlo); al pasar los 0,5 GB **fallan los deletes**, o sea que
+  "eliminar cuenta" se rompe justo cuando es obligación legal; y el plan Hobby de Vercel es, textual,
+  *"for personal, non-commercial use"*, lo que puede obligar a Pro (20 USD/mes) en el despliegue que se
+  regala. Tabla completa y escenarios de costo en el plan §2.
+- **Hallazgo de diseño que desarma una objeción sin código nuevo:** la CSP no hay que relajarla. Sirviendo
+  las fotos alojadas por nuestro propio origen, `default-src 'self'` e `img-src 'self' data: blob:` quedan
+  intactas y `scripts/verificar-headers.mjs` sigue siendo el candado. Plan §3.b.
+- **Defecto preexistente MENCIONADO y no arreglado** (es de la ola 1, fuera del pedido): `borrarTodo()` en
+  `src/features/tarjeta/almacenamiento/local.ts:216` no barre la clave `'tarjetica:ping:card_created'` que
+  escribe `src/features/metricas/ping-de-tarjeta-creada.tsx:25`, porque no está en `CLAVES_CONOCIDAS`. No
+  arrastra datos personales, pero contradice la promesa de `local.ts:22-23` de que el borrado no deja
+  rastro.
+- **Corrección pendiente de higiene:** `plan/DECISIONES.md:616` nombra a un tercero por su nombre de pila
+  en un repo público. Va como unidad 0 del plan, sin depender de ningún gate. El historial de git ya lo
+  contiene y reescribirlo sería peor que el problema; se corrige hacia adelante.
+- Sin cambios de código en esta sesión. `main` quedó igual que al abrir (`a1f8484`), árbol limpio.
+
 ### PR #2 mergeado y pruebas físicas cerradas · 2026-09-15 13:30
 
 - El dueño probó en su teléfono la hoja de Compartir y el formato v2 (PR #2): funciona. Merge a `main`
@@ -60,15 +91,30 @@
 ## PARA JOHANN (gates abiertos)
 
 - Pruebas físicas de la ola 1: cerradas el 2026-09-15 (pasaron).
-- **Ola 2** (`plan/PRP-TD-002-cuentas-y-foto-borrador.md`): antes de construir, decidir "capa opcional
-  o reemplazo" y hacer la asesoría legal de la sección 3. Se planea en plan mode con Opus.H.
+- **Ola 2, seis gates abiertos.** Enunciados completos, con opciones numeradas, recomendada y
+  consecuencia, en `plan/PLAN-ola-2-propuesta.md`, bloque de decisiones. Resumen para que sobrevivan
+  aunque se pierda ese archivo:
+  - **G-A (bloqueante)** capa opcional o reemplazo. Recomendada: capa opcional.
+  - **G-B (bloqueante)** alcance del primer corte. Recomendada: solo el enlace corto cifrado, sin
+    cuentas y sin miniatura.
+  - **G-C** qué pasa con la frase "No guardamos tus datos en ningún servidor". Recomendada: se mantiene
+    literal para el modo por defecto, y el modo con servidor lleva su propio documento.
+  - **G-D** tarjetas de terceros cuando hay cuenta. Recomendada: no suben a la base.
+  - **G-E** vía del monitoreo de cuota. Recomendada: GitHub Actions en el repo origen cada 6 horas.
+  - **G-F** cuándo se evalúa `zelandia.io/tarjetica`. Recomendada: spike aparte, después del primer corte.
+- **Asesoría legal**, la resuelve el dueño fuera: 10 preguntas en el plan §8, citadas contra lo que
+  `/privacidad` ya promete en producción. Sin respuesta a las cinco primeras no se escribe la primera
+  migración.
 
 ## Next action
 
-🤖 Tras el OK del dueño en PR #2: merge a `main` (Sonnet.M), `pnpm build` y e2e completos antes de
-desplegar (el e2e mide `.next`; sin build nuevo da falsos rojos). Siguiente trabajo sustantivo: planear
-la ola 2 (Opus.H, plan mode, debate adversarial sobre D1), que ya incluye el enlace corto cifrado
-`/c/<id>#<clave>` y evaluar Neon frente a Supabase.
+🙋 El dueño responde los gates G-A a G-F de `plan/PLAN-ola-2-propuesta.md`. G-A y G-B bloquean; los
+otros cuatro se pueden responder mientras corre la asesoría legal.
+
+🤖 Con G-A y G-B cerrados: quitar el banner SIN APROBAR, marcar `PRP-TD-002-cuentas-y-foto-borrador.md`
+como SUPERADO, y despachar la ola 2.0 (unidad U0, `Sonnet.L`, quitar el nombre del tercero de
+`DECISIONES.md:616`) seguida de la ola 2.A. Modelo y esfuerzo por unidad están en el plan; el diseño de
+autenticación y cifrado NO está hecho a propósito y lo hace Opus cuando los gates estén cerrados.
 
 
 ### Aviso de Privacidad y titularidad de terceros · 2026-09-15
