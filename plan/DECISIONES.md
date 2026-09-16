@@ -622,3 +622,31 @@
 - 2026-09-15 **Un directorio `zelandia.io/tarjetica` suma visitas y autoridad al dominio de Zelandia; un
   subdominio no. El tráfico a la página principal depende del enlace visible, no del alojamiento.**
   Cómo se despliega (zona con `basePath`) queda para la ola 2 : Johann, tras análisis.
+
+- 2026-09-16 **v2 se explora en una rama `v2`, no en un repo aparte; `main` queda congelada como v1** (sin
+  base, sin fotos alojadas). La rama queda aislada igual que un clon y además puede traer los arreglos de v1
+  con un merge. Al final se decide fusionar, dejar en standby o descartar : Johann.
+- 2026-09-16 **Aislamiento mecánico de v1:** la conexión a Neon (rama `pruebas`) se declara solo para el
+  entorno Preview de la rama `v2`; producción no la tiene. Plan §Dirección nueva : Johann + Opus.
+- 2026-09-16 **P1 foto cifrada; P2 miniatura con foto encendida por defecto y apagable, como imagen pública
+  aparte (reabre `next/og` solo en `v2` y solo para esa imagen); P3 enlace corto `/c/<id>#<clave>` con el
+  largo de respaldo; P4 cuentas con Google; P6 varias tarjetas por cuenta.** Detalle:
+  `PLAN-ola-2-propuesta.md`, tabla de respuestas : Johann.
+- 2026-09-16 **P7 tarjeta de otra persona: espera cifrada con el correo del titular guardado como huella no
+  legible, se reclama iniciando sesión con ese Google desde el teléfono del titular (QR del stand o botón
+  Compartir, sin integración de WhatsApp) y se borra sola a los 7 días.** Propuesta del dueño, ajustada tras
+  detectar que "quedar como v1" no dejaba nada que reclamar en otro dispositivo : Johann.
+- 2026-09-16 **P8 v1 conserva "No guardamos tus datos en ningún servidor"; v2 lleva frase propia.** P9 la
+  revisión legal la hace un equipo de agentes (Opus.XH, 4 Sonnet.M, 2 Haiku auditores de citas) en paralelo;
+  nadie distinto del dueño usa v2 hasta cerrarla; no reemplaza a un abogado. P10 Wallet al backlog. P11
+  monitoreo de cuota con GitHub Actions : Johann.
+- 2026-09-16 **P12 el dominio no es trabajo de este repo:** lo decide el socio al subir su fork a producción;
+  su propuesta es `zelandia.io/microapps/personalcard`. Se le entrega una nota de traspaso sobre `basePath`
+  : Johann.
+- 2026-09-16 **P5 métricas solo para el administrador, nunca para quien crea la tarjeta:** contadores de
+  aperturas y acciones (Agendar, Cuéntame, WhatsApp, llamar, correo, guardar contacto), agregados por día,
+  acción y canal, sin identificador de tarjeta ni de visitante. Dos expertos Sonnet con lentes distintos
+  coincidieron en que abrir es casi vanidad y las acciones son la señal; un número bajo desanima. P5b la tasa
+  se calcula sobre aperturas con el botón visible. P5c no se leen conclusiones de un botón antes de 1.000
+  aperturas con ese botón visible. En `v2` se reabre el candado de métricas solo para `/c/`; `/t` sigue
+  prohibida : Johann.

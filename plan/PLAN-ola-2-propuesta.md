@@ -1,21 +1,73 @@
-> ⛔ **PROPUESTA SIN APROBAR (2026-09-15).** Este documento es el plan que salió de una sesión en plan
-> mode con Opus.H. El dueño NO lo ha aprobado todavía: pidió continuarlo al día siguiente. **No se
-> ejecuta ninguna unidad de aquí hasta que los gates G-A a G-F del bloque de decisiones estén
-> respondidos.** Copia de trabajo original de la sesión:
-> `C:\Users\OswyDesktop.0\.claude\plans\piped-stirring-horizon.md`.
-> Cuando se apruebe, este archivo reemplaza a `PRP-TD-002-cuentas-y-foto-borrador.md`, que queda
-> SUPERADO; mientras tanto conviven a propósito y el borrador sigue siendo el registro de la ola 1.
+> ✅ **APROBADO por el dueño el 2026-09-16 para ejecutarse en un chat nuevo.** Reemplaza a
+> `PRP-TD-002-cuentas-y-foto-borrador.md`, que queda SUPERADO. La versión anterior de este plan (gates G-A
+> a G-F, 2026-09-15) está en el historial de git, commit `f0479ee`.
 
-# Ola 2 de Tarjetica: cuentas, foto alojada y enlace corto cifrado
+# Tarjetica v2 en la rama `v2`: cuentas, foto cifrada, miniatura y enlace corto
 
-> **PARA RETOMAR (2026-09-15, sesión pausada).** El plan está completo y no necesita más investigación.
-> Lo hecho: debate adversarial de una ronda (atacante Sonnet, lente escrito, solo lectura), precios de Neon
-> y Vercel verificados ese día en las páginas oficiales, mapa del código con rutas `file:line`, lista de
-> preguntas legales y esqueleto de olas con EARS.
-> Lo que falta, y es lo único que bloquea: **responder los gates G-A a G-F del bloque de decisiones.**
-> G-A y G-B son los bloqueantes; los otros cuatro se pueden responder mientras corre la asesoría legal.
-> Pendiente de persistir fuera de este archivo (no se pudo por estar en modo plan): entrada en
-> `plan/PROGRESS.md` de Tarjetica y guardado en Engram. Es lo primero al retomar.
+> **PARA RETOMAR (2026-09-16).** Dirección nueva: v2 exploratoria en la rama `v2`, `main` congelada como v1.
+> Encuesta P1 a P12 respondida completa, con P5b y P5c. Decisiones registradas en `DECISIONES.md`;
+> estado y siguiente acción en `PROGRESS.md`.
+
+## DIRECCIÓN NUEVA (2026-09-16): v2 se explora en la rama `v2`
+
+Decisión del dueño: la ola 2 deja de ser "una capa que se agrega a v1 con cuidado" y pasa a ser **v2
+exploratoria en una rama `v2`**, sin los límites que v1 se puso por no tener servidor. `main` queda como
+v1 congelada con sus reglas (sin base, sin fotos alojadas). Al final se decide si `v2` se fusiona o no.
+
+**Cómo se garantiza que v1 no se toca, de forma mecánica y no por disciplina:** mismo proyecto de Vercel;
+`v2` sale como despliegue de vista previa; la variable de conexión a Neon (rama `pruebas`) se declara
+**solo para el entorno Preview de la rama `v2`**. Producción (`main`) no la tiene, así que v1 no puede
+hablar con la base aunque el código existiera.
+
+**Qué cambia de los gates de abajo:** G-A (opcional o reemplazo) se decide al fusionar, no antes. G-B
+(alcance recortado) queda superado: v2 explora el alcance completo, miniatura incluida. G-C a G-F se
+reemplazan por las respuestas de la encuesta P1 a P12. **Lo único que NO se levanta** es la ley: explorar
+con datos de prueba sí, abrirle v2 a personas reales antes de la asesoría legal no (pregunta P9).
+
+### Inventario de límites de v1: cuáles libera Neon y cuáles no
+
+Cobertura: `PRP-TD-001` §0, §2, §3, §11 y §13 leídos completos; `DECISIONES.md` barrido por
+prohibiciones, aplazamientos y descartes; `PRP-TD-002` §6.
+
+| Límite de v1 | Por qué se puso | ¿Lo libera Neon? | Pregunta |
+|---|---|---|---|
+| La foto no se ve al abrir el enlace | alargaba la URL y la dejaba irrevocable | **Sí** | P1 |
+| Sin miniatura al compartir; `next/og` prohibido | renderizar en servidor veía los datos (D1) | **Sí** | P2 |
+| Enlace irrevocable, no editable y largo | los datos viajaban en la URL | **Sí** | P3 |
+| La tarjeta vive en un solo navegador | sin cuentas | **Sí** | P4 |
+| Sin analítica de escaneos; no se pueden contar tarjetas | exigía servidor propio | **Sí** | P5 |
+| Una persona, una tarjeta; sin tarjetas de empresa | alcance mínimo | **Sí** | P6 |
+| Tarjeta de un tercero (stand de evento) | moría con el `localStorage` | cambia de riesgo | P7 |
+| Frase "No guardamos tus datos en ningún servidor" | era cierta con D1 | deja de ser cierta en v2 | P8 |
+| Apple y Google Wallet | fuera de alcance | **Sí** (firmar el pase exige servidor) | P10 |
+| Botones Agendar y Cuéntame fijos en el enlace | enlace no editable | **Sí, automático** con P3 | ninguna |
+| Vista previa genérica y "Compartir desde el receptor" | aplazadas en H1 | nunca necesitaron servidor | ninguna, al backlog |
+| Foto dentro del QR; dos QR; rMQR y PDF417 | física del QR: densidad y lectores | **No** | ninguna |
+| Firma de marca fuera del vCard | respeto a la agenda de un tercero | **No** | ninguna |
+| CSP `default-src 'self'`, sin analítica de terceros | seguridad | **No, se conserva** (§3.b) | ninguna |
+| Sin modo sin señal (PWA) | alcance | **No**; un servidor lo complica, no lo facilita | ninguna |
+| El enlace queda en el historial de quien lo abre | no tiene arreglo desde la página | **No**, pero revocar (P3) lo mitiga | ninguna |
+| Asesoría legal antes de datos de personas reales | Ley 1581 | **No** | P9 |
+
+### Respuestas de la encuesta (2026-09-16)
+
+| # | Tema | Decisión del dueño | Consecuencia que queda escrita |
+|---|---|---|---|
+| P1 | Foto al abrir el enlace | **Cifrada**; solo la ve quien tiene el enlace completo | el servidor nunca la tiene legible dentro de la tarjeta |
+| P2 | Miniatura al compartir | **La persona elige, con foto por defecto** | la miniatura es una **imagen pública aparte** de la foto cifrada; existe mientras la persona no la apague. Reabre la prohibición de `next/og` solo para generar esa imagen |
+| P3 | Enlace | **Corto `/c/<id>#<clave>` como principal, largo de respaldo** al lado | si la base se suspende, la persona conserva un enlace que abre |
+| P4 | Recuperar la tarjeta | **Cuenta con Google** | el correo queda en la base: es dato personal y entra a la revisión legal |
+| P5 | Métricas | **Contador de ACCIONES (Agendar, Cuéntame, WhatsApp, llamar, correo, guardar contacto) y aperturas, con tasa de clic y canal, visible SOLO para el administrador**, para decidir mejoras de diseño. **P5b:** la tasa se calcula sobre las aperturas donde cada botón estaba visible; **P5c:** no se leen conclusiones de un botón antes de **1.000 aperturas con ese botón visible** (umbral por botón, no total, porque un total de 2.000 puede dejar un botón poco usado con 500 datos); y el socio agrega al dueño como administrador en su despliegue. La persona dueña de la tarjeta no ve ningún número. Consultados dos expertos Sonnet con lentes distintos (marketing y psicología del consumidor; leads y ventas): los dos concluyeron que abrir es casi vanidad y que las acciones son la señal real; el de marketing advirtió que un número bajo desanima y vuelve transaccional el regalo, y por eso no se le muestra a la persona | se guarda **agregado por día, acción y canal, sin identificador de tarjeta ni del visitante**: no hay nada personal que proteger ni que borrar |
+| P6 | Tarjetas por cuenta | **Varias** | existe una lista o mosaico de "mis tarjetas" |
+| P7 | Tarjeta de otra persona | **Propuesta del dueño, con límites**: marcar "es de otra persona" pide el correo de Google del titular; la tarjeta espera cifrada, con el correo guardado como huella no legible, y **se borra sola a los 7 días** si nadie la reclama. El reclamo llega por **QR en el stand y por el botón Compartir que ya existe** | sin desarrollo de WhatsApp; el titular reclama desde su propio teléfono, nadie abre su Google en un equipo ajeno |
+| P8 | Promesa de privacidad | **v1 conserva su frase intacta; v2 lleva una frase propia**, escrita con la revisión legal | `mensajes.test.ts:77` sigue verde en `main` |
+| P9 | Revisión legal | **Antes de abrir v2 a personas reales**; se construye con datos de prueba. Se hace con un **equipo de agentes** (ver Ola 2.L) | no frena la exploración; bloquea que alguien distinto del dueño use v2 |
+| P10 | Apple y Google Wallet | **Al backlog** | fuera de v2 |
+| P11 | Monitoreo de cuota | **GitHub Actions** en el repo origen, cada 6 horas | se apaga a los 60 días sin actividad, que coincide con v2 en standby |
+| P12 | Dominio de Zelandia | **Fuera de nuestro alcance, solo anotado.** Lo decide el socio al subir su fork al Vercel de producción; su propuesta es `zelandia.io/microapps/personalcard`, un directorio para todas las microapps gratis que se regalen | se entrega como nota de traspaso lo hallado en §7 sobre `basePath`; no hay spike nuestro |
+
+**Aprendizaje de proceso de esta encuesta:** el texto escrito en el chat antes de la encuesta no le llegó al
+dueño. La explicación de cada opción va dentro de la opción misma, con ventaja y desventaja.
 
 ## Contexto
 
@@ -307,85 +359,30 @@ promete en producción. **Sin respuesta a las cinco primeras no se escribe la pr
 
 ---
 
-# BLOQUE DE DECISIONES (esto sí necesita tu respuesta)
+# BLOQUE DE DECISIONES: SUPERADO por la encuesta del 2026-09-16
 
-Seis gates. Los dos primeros son bloqueantes: sin ellos no arranca nada. Los otros cuatro se pueden
-responder mientras corre la asesoría legal. Cada gate usa letras (G-A a G-F) y sus opciones usan números,
-para que no se crucen.
+Los gates G-A a G-F de la versión del 2026-09-15 quedaron reemplazados por la dirección nueva (rama `v2`) y
+por las respuestas P1 a P12, en la tabla del inicio. G-A (capa opcional o reemplazo) no desaparece: se
+decide en el gate final, al momento de fusionar o no `v2`. El texto completo de los gates viejos queda en el
+historial de git de `plan/PLAN-ola-2-propuesta.md` (commit `f0479ee`).
 
-## G-A (BLOQUEANTE) · Capa opcional o reemplazo
-
-1. **Capa opcional. RECOMENDADA.** El modo sin servidor queda intacto y por defecto; la cuenta es un camino
-   que la persona elige. *Consecuencia:* la meta original y D1 se conservan para el camino por defecto, los
-   enlaces `/t#` repartidos siguen vivos, y el costo es sostener dos modos en el copy, en las pruebas y en
-   el documento legal. El atacante avaló la dirección y advirtió que "opcional" no aísla el riesgo legal,
-   solo lo diluye: el documento de privacidad es compartido.
-2. **Reemplazo.** La cuenta pasa a ser el camino normal. *Consecuencia:* producto más simple de mantener y
-   de explicar, pero mata la propuesta de valor que hoy lo diferencia, obliga a reescribir la meta original
-   y deja a los enlaces repartidos como camino heredado sin dueño.
-
-## G-B (BLOQUEANTE) · Alcance del primer corte
-
-1. **Solo el enlace corto cifrado, sin cuentas todavía. RECOMENDADA.** Resuelve el riesgo que tu propio PRP
-   declara como el riesgo propio del diseño ("el link no se puede revocar", `PRP-TD-001` §9), con la
-   superficie de datos personales más pequeña posible: solo un blob cifrado y un identificador, sin correo
-   y sin cuenta. *Consecuencia:* la revocación y la edición del enlace llegan ya; recuperar la tarjeta
-   desde otro equipo y la foto alojada esperan al gate legal. Es también el corte que menos depende de la
-   asesoría, porque sin correo la pregunta 1 de la lista legal es mucho más fácil de contestar.
-2. **Enlace corto más cuentas, sin miniatura.** *Consecuencia:* llega la portabilidad, que es la capacidad
-   de más valor para la persona, pero depende por completo de la respuesta legal y mete el correo en claro.
-3. **Todo el alcance de una, miniatura incluida.** *Consecuencia:* es lo que el atacante declaró
-   indefendible. La miniatura obliga a que el servidor tenga la foto y el nombre legibles, que es justo lo
-   que el cifrado estaba evitando, y a cambio solo da una vista previa más bonita.
-
-## G-C · Qué pasa con la frase "No guardamos tus datos en ningún servidor"
-
-1. **Se mantiene literal para el modo por defecto y el modo con servidor tiene su propio documento y su
-   propio aviso. RECOMENDADA.** *Consecuencia:* `mensajes.test.ts:77` sigue verde sin tocar nada, la
-   promesa de hoy no se rompe para quien nunca cree una cuenta, y el costo es escribir y mantener un
-   segundo documento legal.
-2. **Se reformula a una frase que cubra los dos modos** (del estilo "tus datos no salen de tu navegador, a
-   menos que tú actives el enlace corto"). *Consecuencia:* un solo documento y un solo mensaje, pero se
-   pierde la frase corta que hoy funciona como diferenciador, y hay que cambiarla en seis sitios y en el
-   test que la fija.
-3. **Se quita la frase.** *Consecuencia:* la opción honesta si al final gana el reemplazo, y la que más
-   valor de marca destruye.
-
-## G-D · Tarjetas de terceros cuando hay cuenta
-
-1. **Una tarjeta creada bajo el radio "es de otra persona" nunca sube a la base; se queda en el modo sin
-   servidor. RECOMENDADA.** *Consecuencia:* la colisión desaparece de raíz y el gate de titularidad que ya
-   existe se reusa tal cual, sin inventar nada. Cuesta que el caso del stand de evento no reciba las
-   ventajas de la ola 2.
-2. **Sí sube, con un canal de supresión por correo para el titular.** *Consecuencia:* más capacidad, pero
-   crea el pasivo exacto que el atacante describe y obliga a operar un canal de habeas data de verdad.
-
-## G-E · Vía del monitoreo de cuota
-
-1. **GitHub Actions en el repo origen, cada 6 horas. RECOMENDADA.** *Consecuencia:* gratis, trae el canal de
-   aviso incluido (el workflow que falla te manda correo), y no depende de ninguno de los dos despliegues.
-   Se apaga sola tras 60 días sin actividad en el repo y hay que volver a encenderla con un clic.
-2. **Vercel Cron diario en un solo despliegue, activado por variable de entorno.** *Consecuencia:* vive con
-   el código y no se apaga por inactividad, pero en Hobby corre una vez al día con ±59 minutos de
-   imprecisión y **no tiene canal de aviso**: toca sumar un proveedor de correo, que es un servicio más que
-   mantener.
-3. **Las dos.** *Consecuencia:* cubre las fallas de cada una, y es exactamente el tipo de cosa que la regla
-   de simplicidad manda recortar mientras no haya un incidente que lo justifique.
-
-## G-F · Cuándo se evalúa `zelandia.io/tarjetica`
-
-1. **Spike aparte, después del primer corte. RECOMENDADA.** *Consecuencia:* produce números y una
-   recomendación sin frenar la ola, y evita mezclar un cambio de dominio con un cambio de arquitectura de
-   datos, que es la receta para no saber cuál de los dos rompió qué.
-2. **Dentro de la misma ola.** *Consecuencia:* un solo periodo de inestabilidad en vez de dos, a cambio de
-   un blast radius mucho mayor y de decidir el dominio del enlace corto antes de tener medido cuánto pesa.
+**Decisiones abiertas: ninguna.** La siguiente es el gate final, al terminar v2.
 
 ---
 
-# ESQUELETO DE OLAS (se despacha cuando G-A y G-B estén cerrados)
+# ESQUELETO DE OLAS DE v2 (rama `v2`)
 
 Modelo y esfuerzo por unidad. Criterios de aceptación en notación EARS. Una unidad, un commit, verificación
-antes de integrar. Las olas 2C en adelante están **congeladas hasta que vuelva la asesoría legal**.
+antes de integrar. Todo va en la rama `v2`, **salvo U0, que corrige `main`**. Se construye con datos de prueba;
+nadie distinto del dueño usa v2 hasta cerrar la Ola 2.L (P9).
+
+**Orden y dependencias:** 2.0 en cualquier momento. 2.L arranca en paralelo desde el día 1. 2.R → 2.A → 2.B →
+2.C → (2.D, 2.E y 2.M sin orden entre ellas) → U10 (necesita la salida de 2.L) → gate final.
+
+**Pasos que hace el dueño con su propio editor, nunca por el chat** (regla de secretos): crear el proyecto
+Neon y su rama `pruebas`; pegar la cadena de conexión en Vercel; crear el cliente OAuth de Google y pegar su
+secreto en Vercel; guardar la llave de la API de Neon como secreto del repo en GitHub. El agente solo
+verifica **que existen**, por nombre, nunca por valor.
 
 **Dónde vive el código nuevo.** Feature nueva y autocontenida en `src/features/enlace-corto/`, con su
 cripto, su cliente de base, su API y sus tipos adentro. `src/app/c/[id]/page.tsx` y los route handlers bajo
@@ -395,11 +392,19 @@ cripto, su cliente de base, su API y sus tipos adentro. `src/app/c/[id]/page.tsx
 según §3.b no hace falta. **`codec.ts` no se toca**: el diccionario está congelado y el enlace largo no
 cambia.
 
-## Ola 2.0 · Higiene, no depende de ningún gate
+## Ola 2.0 · Higiene en `main` (v1), no depende de nada
 
 | U | Qué | Modelo.Esfuerzo | Criterio de aceptación (EARS) |
 |---|---|---|---|
 | U0 | Quitar el nombre del tercero de `plan/DECISIONES.md:616`, reescribiendo hacia adelante, y dejar nota de que el historial ya lo contiene | `Sonnet.L` | EL repositorio DEBE no contener nombres de terceros en ningún archivo vigente, verificado con una búsqueda que corre en CI |
+
+## Ola 2.R · Montaje de la rama y del entorno
+
+| U | Qué | Modelo.Esfuerzo | Criterio de aceptación (EARS) |
+|---|---|---|---|
+| R1 | 🙋 Dueño: proyecto Neon en la organización de Zelandia con rama `pruebas`; cadena de conexión en Vercel, **entorno Preview limitado a la rama `v2`** | humano | ninguno del agente |
+| R2 | Crear la rama `v2` desde `main` y comprobar el aislamiento | `Sonnet.L` | EL entorno Production DEBE no tener la variable de conexión, verificado listando nombres de variables, nunca valores. MIENTRAS `main` no la tenga, v1 DEBE pasar la suite completa sin cambios |
+| R3 | Comprobar que la vista previa de `v2` no está abierta al público (protección de despliegues de Vercel) | `Sonnet.L` | SI la vista previa responde sin autenticación, ENTONCES el equipo DEBE activar la protección antes de cargar cualquier dato |
 
 ## Ola 2.A · Cimientos, sin un solo dato personal en la base
 
@@ -408,7 +413,7 @@ cambia.
 | U1 | Medir el consumo real: crear el proyecto Neon con las dos ramas, dejar el cómputo en 0,25 CU, y medir cuánto cuesta un despertar de verdad contra la cifra calculada en §2 | `Sonnet.M` | EL equipo DEBE registrar en PROGRESS el consumo medido de un despertar y contrastarlo con la estimación de 0,021 CU-horas |
 | U2 | Esquema y migraciones versionadas que viajan con el código desde el repo origen. Tabla de enlaces cifrados: identificador, blob, vector de inicialización, fecha de creación, fecha de último acceso. Sin correo, sin cuenta | `Opus.H` | EL esquema DEBE poder aplicarse desde cero sobre una rama nueva con un solo comando, y la rama `pruebas` DEBE quedar idéntica a `main` tras aplicarlo |
 | U3 | Cliente de base con tiempo de espera corto y apagado por variable de entorno, más la invariante de arranque | `Opus.H` | SI la variable de conexión no existe o la base no responde en el tiempo de espera, ENTONCES la app DEBE arrancar igual y el editor DEBE abrir desde `localStorage` sin error visible |
-| U4 | Monitoreo de cuota por la vía que elijas en G-E | `Sonnet.M` | CUANDO el consumo mensual cruce el 80 % o el 100 % de las 100 CU-horas, EL monitoreo DEBE notificar al dueño dentro de las 6 horas siguientes. CUANDO `current_state` sea `idle` por más de lo esperado o la base no responda, EL monitoreo DEBE notificar. EL monitoreo DEBE no imprimir cifras de consumo en un log público |
+| U4 | Monitoreo de cuota con GitHub Actions en el repo origen, cada 6 horas (P11), con `workflow_dispatch` para correrlo a mano | `Sonnet.M` | CUANDO el consumo mensual cruce el 80 % o el 100 % de las 100 CU-horas, EL workflow DEBE fallar para que GitHub avise al dueño por correo. CUANDO el almacenamiento cruce el 80 % de 0,5 GB, EL workflow DEBE avisar, porque con la base llena fallan los borrados. SI la base no responde o queda suspendida por cuota, ENTONCES EL workflow DEBE avisar. EL workflow DEBE no imprimir cifras en el log, que es público |
 | U5 | Servir las fotos alojadas por nuestro propio origen para no tocar la CSP (§3.b) | `Opus.H` | LA CSP de `src/shared/seguridad/headers.ts` DEBE conservar `default-src 'self'` e `img-src 'self' data: blob:` sin agregar ningún origen remoto, verificado por `scripts/verificar-headers.mjs`, que ya falla si aparece uno |
 
 ## Ola 2.B · Enlace corto cifrado `/c/<id>#<clave>`
@@ -419,24 +424,84 @@ cambia.
 | U7 | API de crear, leer, revocar y editar | `Opus.H` | CUANDO alguien revoque un enlace, EL servidor DEBE dejar de resolver ese identificador de forma permanente. CUANDO alguien edite su tarjeta, EL enlace repartido DEBE mostrar la versión nueva sin cambiar de dirección |
 | U8 | Receptor `/c/<id>` y degradación digna | `Sonnet.M` | SI la base está suspendida o no responde, ENTONCES `/c/<id>` DEBE mostrar una explicación de qué pasó y qué hacer, nunca un error sin texto. MIENTRAS la base esté caída, `/t#<payload>`, el QR, el JPEG y el `.vcf` DEBEN seguir funcionando, probado con un e2e que corre con la base apagada |
 | U9 | Al crear un enlace corto se entrega también el largo, en el mismo momento | `Sonnet.M` | CUANDO se genere un enlace corto, LA interfaz DEBE mostrar además el enlace largo equivalente y explicar que es el respaldo si el corto deja de resolver |
-| U10 | Copy y documento legal del modo con servidor, según G-C | `Opus.H` | EL producto DEBE no afirmar en ninguna superficie que no guarda datos en un servidor cuando la persona está usando el modo que sí los guarda |
-
-## Ola 2.C · Cuentas, foto y logo alojados · CONGELADA hasta la asesoría legal
-
-Cuentas, login, eliminar cuenta, foto y logo cifrados en almacenamiento remoto. Todo `Opus.H` salvo el copy.
-No se diseña aquí por instrucción tuya. Depende de las preguntas 1, 2, 3, 6 y 8 de §8.
-
-## Ola 2.D · Miniatura al compartir · CONGELADA, y sujeta a G-B
-
-Solo existe si G-B elige la opción 3. Reabre la prohibición de `next/og` y obliga a que el servidor tenga la
-foto y el nombre legibles. Si entra, entra con la persona eligiendo explícitamente entre miniatura con su
-foto (pública para quien tenga la URL) o miniatura genérica.
-
-## Ola 2.E · Spike de `zelandia.io/tarjetica` · según G-F
+## Ola 2.C · Cuentas con Google y varias tarjetas (P4, P6)
 
 | U | Qué | Modelo.Esfuerzo | Criterio de aceptación (EARS) |
 |---|---|---|---|
-| U11 | Probar `basePath` por variable de entorno en una rama, medir el largo del enlace corto en los dos dominios y dejar una recomendación | `Sonnet.M` | EL spike DEBE entregar el largo exacto en caracteres del enlace corto bajo cada dominio candidato y una recomendación con su consecuencia. EL despliegue actual DEBE seguir sirviendo `/t#` sin cambios |
+| U11 | 🙋 Dueño crea el cliente OAuth de Google. 🤖 Inicio de sesión con Google. El diseño detallado lo hace Opus al abrir la unidad | `Opus.H` | CUANDO una persona inicie sesión con Google en otro dispositivo, LA app DEBE traerle todas sus tarjetas. SI la base no responde, ENTONCES el editor DEBE seguir funcionando con `localStorage` (invariante de U3) |
+| U12 | Lista o mosaico de "mis tarjetas": crear, editar y borrar cada una | `Sonnet.M` | DONDE una cuenta tenga varias tarjetas, LA vista DEBE listarlas todas y permitir crear, editar y borrar cada una por separado |
+| U13 | Subir a la cuenta la tarjeta que ya vivía en el navegador | `Opus.M` | CUANDO alguien inicie sesión por primera vez con una tarjeta en `localStorage`, LA app DEBE ofrecer subirla y nunca subirla sola. SI esa tarjeta está marcada "es de otra persona", ENTONCES DEBE seguir el camino de reclamo de U17, no subirse como propia |
+| U14 | Eliminar cuenta | `Opus.H` | CUANDO alguien elimine su cuenta, EL servidor DEBE borrar sus tarjetas, fotos, miniaturas, enlaces y reclamos pendientes, y los enlaces repartidos DEBEN dejar de resolver. Las métricas no se tocan porque no llevan identificador de tarjeta (P5). EL aviso previo DEBE decir que las copias en caché de WhatsApp o LinkedIn no se pueden borrar desde aquí |
+
+## Ola 2.D · Foto cifrada y miniatura al compartir (P1, P2)
+
+| U | Qué | Modelo.Esfuerzo | Criterio de aceptación (EARS) |
+|---|---|---|---|
+| U15 | Foto y logo cifrados, servidos por nuestro propio origen (§3.b) | `Opus.H` | EL servidor DEBE guardar la foto y el logo solo cifrados. CUANDO alguien abra `/c/<id>#<clave>`, SU navegador DEBE descifrarlos y mostrarlos |
+| U16 | Miniatura como **imagen pública aparte**, encendida por defecto y apagable. Reabre `next/og` **solo en la rama `v2` y solo para esta imagen**, con entrada nueva en `DECISIONES.md`; la exportación a JPEG sigue en el cliente | `Opus.H` | DONDE la persona tenga la miniatura encendida, LA vista previa en WhatsApp y LinkedIn DEBE mostrar su nombre y foto. ANTES de compartir, EL editor DEBE avisar que esa imagen es pública. CUANDO la persona la apague o elimine su cuenta, EL servidor DEBE borrar la imagen |
+
+Trampa conocida de U16: los rastreadores de WhatsApp y LinkedIn no inician sesión, así que con la protección de
+R3 encendida la miniatura no se puede probar. Se prueba abriendo la protección un rato y **solo con datos
+inventados**.
+
+## Ola 2.E · Reclamo de la tarjeta de otra persona (P7)
+
+| U | Qué | Modelo.Esfuerzo | Criterio de aceptación (EARS) |
+|---|---|---|---|
+| U17 | Tarjeta creada para otra persona que espera su reclamo. La clave de cifrado viaja en el fragmento del enlace de reclamo, igual que en `/c/` | `Opus.H` | CUANDO se marque "es de otra persona" y se escriba el correo de Google del titular, EL servidor DEBE guardar la tarjeta cifrada y el correo solo como huella no legible. CUANDO el titular inicie sesión con ese correo desde su propio teléfono, LA tarjeta DEBE pasar a su cuenta. SI pasan 7 días sin reclamo, ENTONCES EL servidor DEBE borrarla por completo. EL enlace de reclamo DEBE poder mostrarse como QR y enviarse con el botón Compartir que ya existe, sin integración de WhatsApp |
+
+## Ola 2.M · Métricas para el administrador (P5)
+
+**Choque con un candado vigente, dicho antes de construir:** `src/features/metricas/ping.ts:41` tiene
+`RUTAS_PROHIBIDAS = ['/tarjeta', '/t']`, y `DECISIONES.md` (2026-09-07) fija que la métrica nunca corre en la
+ruta de la tarjeta. Las acciones ocurren justo ahí, en el receptor. En la rama `v2` ese candado se reabre
+**solo para `/c/`** y con las mismas garantías del ping actual (propio origen, sin cuerpo, sin identificador),
+con entrada nueva en `DECISIONES.md`. `/t` sigue prohibida.
+
+| U | Qué | Modelo.Esfuerzo | Criterio de aceptación (EARS) |
+|---|---|---|---|
+| U18 | Contadores agregados de aperturas y acciones, reusando el patrón de `src/features/metricas/ping.ts` y `src/app/api/e/[evento]/route.ts` (lista cerrada de eventos, cuerpo vacío obligatorio). **Con denominador (P5b):** al abrir, se cuenta una apertura por cada botón que la tarjeta tiene visible | `Opus.M` | CUANDO alguien toque un botón de acción en `/c/<id>`, EL servidor DEBE sumar uno al contador de ese día, acción y canal, sin guardar identificador de tarjeta, de visitante, IP ni dispositivo. CUANDO se abra una tarjeta, EL servidor DEBE sumar una "apertura con el botón visible" por cada acción que esa tarjeta muestra. `/t` DEBE seguir sin emitir ningún evento, verificado por el test que ya existe en `ping.test.ts` |
+| U19 | Vista de administración: tasa de clic por acción calculada sobre las aperturas donde ese botón estaba visible, y mezcla de canales. 🙋 El dueño declara los correos de administrador en una variable de entorno | `Sonnet.M` | SI quien entra no está en la lista de administradores, ENTONCES la vista DEBE responder como si no existiera. MIENTRAS un botón tenga menos de **1.000 aperturas con ese botón visible**, LA vista DEBE mostrar su tasa marcada como "sin datos suficientes para decidir" (umbral POR BOTÓN, fijado por el dueño en P5c; margen sobre las ~430 que pide detectar un cambio grande, cálculo al 95 % de confianza y 80 % de potencia). LA persona dueña de una tarjeta DEBE no ver ningún contador en ninguna pantalla |
+
+## Ola 2.L · Revisión legal con equipo de agentes (P9), en paralelo desde el día 1
+
+Composición pedida por el dueño: **orquestador `Opus.XH`**; **4 `Sonnet.M`** que investigan y debaten, cada uno
+con un lente escrito distinto (Ley 1581, Decreto 1377 y criterios de la SIC; normativa internacional que
+aplique donde se regale, como RGPD y LGPD; consumidor y responsabilidad civil; un atacante que busca huecos
+en lo que promete v2); **2 `Haiku`** auditores con lente cerrado y contable, como pide la regla de doble
+verificación: revisar cita por cita que el artículo exista y diga lo que se afirma, y descartar los falsos
+positivos.
+
+- **Entrada:** las 10 preguntas de §8, `src/features/legal/contenido.ts` y las respuestas P1 a P12. Ningún
+  dato personal.
+- **Salida:** respuesta a cada pregunta con su fuente, borrador de la frase propia de v2 (P8) y de su
+  política, y la lista corta de lo que sí necesita firma de un abogado.
+- **Límite, dicho de frente:** este equipo reduce y enfoca el trabajo del abogado; no lo reemplaza.
+- **Costo estimado:** del orden de 1 a 1,6 millones de tokens. Es una estimación mía, se anuncia otra vez al
+  despachar. Mecanismo: Workflow, porque el dueño pidió el equipo de agentes con sus palabras; 7 agentes,
+  dentro de la guía de menos de 10.
+
+| U | Qué | Modelo.Esfuerzo | Criterio de aceptación (EARS) |
+|---|---|---|---|
+| L1 | Correr el equipo legal | `Opus.XH` + 4 `Sonnet.M` + 2 `Haiku` | CADA respuesta DEBE citar su fuente, y CADA cita DEBE estar verificada por un auditor Haiku. SI la revisión no está cerrada, ENTONCES nadie distinto del dueño DEBE usar v2 |
+| U10 | Frase propia de v2 y su política, con el texto que salga de L1 | `Opus.H` | EL producto en `v2` DEBE no afirmar en ninguna superficie que no guarda datos en un servidor. `main` DEBE conservar su frase intacta y `mensajes.test.ts:77` en verde |
+
+## Gate final · ¿Se fusiona v2?
+
+Con 2.A a 2.M terminadas y 2.L cerrada, el dueño decide entre fusionar `v2` en `main`, dejarla en standby o
+descartarla. Ahí mismo se decide lo que era G-A: si v2 es una capa opcional sobre v1 o la reemplaza.
+
+## Nota de traspaso para el despliegue del socio (P12, no es trabajo nuestro)
+
+El socio decide el dominio al subir su fork al Vercel de producción; su propuesta es
+`zelandia.io/microapps/personalcard`, un directorio para todas las microapps gratis. Lo que le sirve saber,
+ya medido en §7: `basePath` es de compilación, así que hace falta un despliegue propio con esa variable;
+`generar-enlace.tsx:60` arma el enlace sin el subdirectorio; `firma.tsx:19` estampa el dominio actual dentro
+del JPEG; y `robots.ts`, `proxy.ts` y el script de cabeceras derivan rutas desde la raíz.
+
+**Segundo punto para el socio (P5b):** las métricas que sirven para decidir mejoras de diseño se acumulan en
+la base de producción de su despliegue, no en la rama `pruebas`, que solo tiene datos inventados. Para que el
+dueño las vea, el socio lo agrega a la variable de administradores de su despliegue.
 
 ---
 

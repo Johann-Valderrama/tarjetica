@@ -1,5 +1,8 @@
 # PRP-TD-002 · Cuentas, foto alojada y enlace revocable · BORRADOR
 
+> ⛔ **SUPERADO el 2026-09-16** por `PLAN-ola-2-propuesta.md` (v2 en la rama `v2`, aprobado por el dueño).
+> Se conserva como registro de lo que se planteó al cerrar la ola 1.
+
 > **Estado: BORRADOR superficial.** Escrito el 2026-09-15 como unidad U8 de la ola 1 para dejar
 > planteada la ola 2, no para ejecutarla. No diseña autenticación ni políticas de acceso: cuando se
 > ejecute, ese diseño lo hace un modelo de contratos y migraciones (Opus), con debate adversarial

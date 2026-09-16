@@ -14,7 +14,20 @@
 
 ## Estado
 
-### Ola 2 PLANEADA, sin aprobar · 2026-09-15 22:xx · Opus.H en plan mode
+### v2 PLANEADA Y APROBADA, se ejecuta en rama `v2` desde un chat nuevo · 2026-09-16 · Opus.H
+
+- Dirección nueva del dueño: v2 exploratoria en la rama `v2`, sin los límites que v1 se puso por no tener
+  servidor; `main` queda como v1. Plan aprobado: `plan/PLAN-ola-2-propuesta.md` (superó a `PRP-TD-002`).
+- Inventario de límites de v1 clasificado en "lo libera Neon" y "no lo libera" (física del QR, seguridad,
+  ley). Encuesta P1 a P12 respondida completa, más P5b y P5c; todo registrado en `DECISIONES.md` 2026-09-16.
+- P5 se cerró tras consultar dos expertos Sonnet con lentes distintos (marketing y psicología del
+  consumidor; leads y ventas), que por separado concluyeron que abrir es casi vanidad y las acciones son la
+  señal real. Resultado: métricas solo para el administrador, umbral de 1.000 aperturas por botón.
+- Hallazgo que el plan ya resuelve: el candado `RUTAS_PROHIBIDAS` de `src/features/metricas/ping.ts:41`
+  choca con medir acciones en el receptor; en `v2` se reabre solo para `/c/`.
+- Sin cambios de código. `main` igual que al abrir.
+
+### Ola 2 PLANEADA, sin aprobar · 2026-09-15 22:xx · Opus.H en plan mode (SUPERADA por la entrada del 2026-09-16)
 
 - Salida: `plan/PLAN-ola-2-propuesta.md`, marcado **SIN APROBAR** en la primera línea. El dueño pausó
   antes de aprobarlo ("mañana lo continuo"). **No se ejecuta ninguna unidad hasta que responda los gates
@@ -91,30 +104,19 @@
 ## PARA JOHANN (gates abiertos)
 
 - Pruebas físicas de la ola 1: cerradas el 2026-09-15 (pasaron).
-- **Ola 2, seis gates abiertos.** Enunciados completos, con opciones numeradas, recomendada y
-  consecuencia, en `plan/PLAN-ola-2-propuesta.md`, bloque de decisiones. Resumen para que sobrevivan
-  aunque se pierda ese archivo:
-  - **G-A (bloqueante)** capa opcional o reemplazo. Recomendada: capa opcional.
-  - **G-B (bloqueante)** alcance del primer corte. Recomendada: solo el enlace corto cifrado, sin
-    cuentas y sin miniatura.
-  - **G-C** qué pasa con la frase "No guardamos tus datos en ningún servidor". Recomendada: se mantiene
-    literal para el modo por defecto, y el modo con servidor lleva su propio documento.
-  - **G-D** tarjetas de terceros cuando hay cuenta. Recomendada: no suben a la base.
-  - **G-E** vía del monitoreo de cuota. Recomendada: GitHub Actions en el repo origen cada 6 horas.
-  - **G-F** cuándo se evalúa `zelandia.io/tarjetica`. Recomendada: spike aparte, después del primer corte.
-- **Asesoría legal**, la resuelve el dueño fuera: 10 preguntas en el plan §8, citadas contra lo que
-  `/privacidad` ya promete en producción. Sin respuesta a las cinco primeras no se escribe la primera
-  migración.
+- **v2, pasos que haces tú con tu propio editor, nunca por el chat** (el agente para y te los pide al
+  llegar): proyecto Neon en la organización de Zelandia con rama `pruebas`; cadena de conexión en Vercel
+  solo para Preview de la rama `v2`; cliente OAuth de Google; llave de la API de Neon como secreto de
+  GitHub; correos de administrador para la vista de métricas.
+- **OK al costo del equipo legal (Ola 2.L)** antes de lanzarlo: estimado 1 a 1,6 millones de tokens.
+- **Gate final de v2:** fusionar en `main`, dejar en standby o descartar.
 
 ## Next action
 
-🙋 El dueño responde los gates G-A a G-F de `plan/PLAN-ola-2-propuesta.md`. G-A y G-B bloquean; los
-otros cuatro se pueden responder mientras corre la asesoría legal.
-
-🤖 Con G-A y G-B cerrados: quitar el banner SIN APROBAR, marcar `PRP-TD-002-cuentas-y-foto-borrador.md`
-como SUPERADO, y despachar la ola 2.0 (unidad U0, `Sonnet.L`, quitar el nombre del tercero de
-`DECISIONES.md:616`) seguida de la ola 2.A. Modelo y esfuerzo por unidad están en el plan; el diseño de
-autenticación y cifrado NO está hecho a propósito y lo hace Opus cuando los gates estén cerrados.
+🤖 Chat nuevo con `Opus.H` como director. Leer `plan/PLAN-ola-2-propuesta.md` completo. Ejecutar U0 en
+`main` (`Sonnet.L`), crear la rama `v2` y seguir el esqueleto: 2.R, 2.A, 2.B, 2.C, luego 2.D, 2.E y 2.M, y
+al final U10. La Ola 2.L arranca en paralelo solo tras el OK del dueño al costo. Una unidad, un commit,
+`verificador-qa` antes de integrar, `pnpm build` antes de los e2e. Sin push ni producción sin OK.
 
 
 ### Aviso de Privacidad y titularidad de terceros · 2026-09-15
