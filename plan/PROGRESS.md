@@ -640,6 +640,12 @@ Modelo esperado: Sonnet.M. Si eres mas debil, avisa y espera.
 - [x] **Firma con dominio completada 2026-09-13:** `tarjetica-app.vercel.app`, fuera del vCard.
 - [x] **DECISION CERRADA 2026-09-08: la paleta del EDITOR**, por la opcion A. Repintado con los
   tokens, con el contraste medido en la suite y guards que impiden la reincidencia.
+- [ ] **v1, defecto de `borrarTodo()` (anotado 2026-09-16, arreglo aparte en `main`, no en `v2`).**
+  "Borrar mis datos de este dispositivo" no barre la clave `'tarjetica:ping:card_created'` que escribe
+  `src/features/metricas/ping-de-tarjeta-creada.tsx:25`, porque no está en `CLAVES_CONOCIDAS` de
+  `src/features/tarjeta/almacenamiento/local.ts`. No guarda datos personales, pero contradice la promesa
+  de `local.ts:22-23` de que el borrado no deja rastro. No hay nada que decidir antes: próximo paso,
+  un test en `local.test.ts` que lo reproduzca y hacerlo pasar. `Sonnet.M`
 - [ ] **Ola 4: gate físico 4e, escanear el QR de la tarjeta llena de una pantalla a otra.** Es el
   único punto de la Ola 4 que queda abierto, y el árbitro de si llevar TODO dentro del QR aguanta.
   Condiciones que sí cuentan: unos 20 cm, brillo normal de evento y luz artificial de interior, no
