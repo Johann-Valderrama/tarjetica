@@ -610,3 +610,15 @@
 - 2026-09-15 **El enlace corto va a la ola 2, cifrado: `/c/<id>#<clave>`.** El servidor guarda solo la
   tarjeta cifrada y la clave nunca le llega. Llega junto con las cuentas por persona; en esa ola se
   evalúa Neon frente a Supabase. Detalle: `PRP-TD-002` §1 : Johann.
+
+- 2026-09-15 **Base de datos de la ola 2: Neon, UN solo proyecto en la organización de Zelandia (correo
+  de Zelandia, Johann como miembro), con ramas y no proyectos:** rama `main` para el despliegue que se
+  regala (fork de Luis en su Vercel) y rama `pruebas` para el despliegue de Johann. Cada Vercel lleva su
+  cadena de conexión en variables de entorno; nada en el repo. Las migraciones salen del repo origen y
+  viajan con el código. Plan gratis verificado en neon.com/pricing: 100 proyectos, 0,5 GB y 100 horas
+  de cómputo al mes por proyecto, suspensión a los 5 minutos; si se agota la cuota la base se pausa
+  hasta el mes siguiente. Requisito: monitoreo que avise cuando el consumo se acerque al límite y
+  cuando la base quede suspendida, y el enlace largo sin servidor se mantiene como respaldo : Johann.
+- 2026-09-15 **Un directorio `zelandia.io/tarjetica` suma visitas y autoridad al dominio de Zelandia; un
+  subdominio no. El tráfico a la página principal depende del enlace visible, no del alojamiento.**
+  Cómo se despliega (zona con `basePath`) queda para la ola 2 : Johann, tras análisis.
